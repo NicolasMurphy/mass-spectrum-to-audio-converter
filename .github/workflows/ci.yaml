@@ -48,6 +48,22 @@ jobs:
           cd tests/e2e
           npm run test
 
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: tests/e2e/playwright-report/
+          retention-days: 30
+
+      - name: Upload Playwright test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-test-results
+          path: tests/e2e/test-results/
+          retention-days: 30
+
       - name: Cleanup
         if: always()
         run: docker compose down -v
