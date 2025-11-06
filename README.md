@@ -74,5 +74,5 @@ This project uses migrated data from MassBank hosted on Render, uses spectrometr
 
 ## Additional Resources
 
-- **API Documentation**: [API_Documentation.md](docs\API_Documentation.md)
+- **API Documentation**: [API_Documentation.md](docs/API_Documentation.md)
 - **Blog Post**: [Learn more about the motivation and creative inspiration](https://www.nicolasmurphy.com/blog/mass-spectrometry-music)
