@@ -29,5 +29,5 @@ services:
       - ./frontend/public:/app/public
       - ./frontend/package.json:/app/package.json
     environment:
-      - VITE_API_URL=http://localhost:5000
+      - VITE_API_URL=http://localhost:5001
       - CHOKIDAR_USEPOLLING=true
