@@ -1,4 +1,4 @@
-from flask import request, send_from_directory
+from flask import request
 from audio import parse_spectrum_text
 from db import get_search_history, get_popular_compounds
 from .validation import (
