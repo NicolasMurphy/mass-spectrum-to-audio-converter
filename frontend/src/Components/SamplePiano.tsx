@@ -1,10 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Piano, KeyboardShortcuts, MidiNumbers } from "react-piano";
 import "react-piano/dist/styles.css";
 import * as Tone from "tone";
 import { type SamplePianoProps } from "../types";
 
-export default function SamplePiano({ audioUrl }: SamplePianoProps) {
+export default function SamplePiano({ audioUrl, isMono }: SamplePianoProps) {
   const [buffer, setBuffer] = useState<Tone.ToneAudioBuffer | null>(null);
   const [isInputFocused, setIsInputFocused] = useState(false);
 
@@ -15,6 +15,8 @@ export default function SamplePiano({ audioUrl }: SamplePianoProps) {
     lastNote,
     keyboardConfig: KeyboardShortcuts.HOME_ROW,
   });
+
+  const playerRef = useRef<Tone.Player | null>(null);
 
   useEffect(() => {
     if (audioUrl) {
@@ -48,15 +50,22 @@ export default function SamplePiano({ audioUrl }: SamplePianoProps) {
   const playNote = (midiNumber: number) => {
     if (!buffer) return;
 
-    const gain = new Tone.Gain(0.2).toDestination();
+    if (isMono && playerRef.current) {
+      playerRef.current.stop();
+    }
 
+    const gain = new Tone.Gain(0.2).toDestination();
     const player = new Tone.Player({
       url: buffer,
       fadeIn: 0.01,
       fadeOut: 0.01,
     }).connect(gain);
 
-    const baseMidi = 60; // Middle C
+    if (isMono) {
+      playerRef.current = player;
+    }
+
+    const baseMidi = 60;
     const semitoneShift = midiNumber - baseMidi;
     player.playbackRate = Math.pow(2, semitoneShift / 12);
     player.start();
@@ -68,7 +77,7 @@ export default function SamplePiano({ audioUrl }: SamplePianoProps) {
         width="440"
         noteRange={{ first: firstNote, last: lastNote }}
         playNote={playNote}
-        stopNote={() => {}}
+        stopNote={() => { }}
         keyboardShortcuts={isInputFocused ? undefined : keyboardShortcuts}
       />
     </div>

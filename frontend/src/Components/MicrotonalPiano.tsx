@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Piano, KeyboardShortcuts, MidiNumbers } from "react-piano";
 import "react-piano/dist/styles.css";
 import * as Tone from "tone";
@@ -7,7 +7,8 @@ import { type MicrotonalPianoProps } from "../types";
 export default function MicrotonalPiano({
   audioUrl,
   pitchRatios,
-  setPitchRatios
+  setPitchRatios,
+  isMono
 }: MicrotonalPianoProps) {
   const [buffer, setBuffer] = useState<Tone.ToneAudioBuffer | null>(null);
   const [isInputFocused, setIsInputFocused] = useState(false);
@@ -21,6 +22,8 @@ export default function MicrotonalPiano({
   });
 
   const keyLabels = ['A', 'W', 'S', 'E', 'D', 'F', 'T', 'G', 'Y', 'H', 'U', 'J', 'K'];
+
+  const playerRef = useRef<Tone.Player | null>(null);
 
   useEffect(() => {
     if (audioUrl) {
@@ -54,13 +57,20 @@ export default function MicrotonalPiano({
   const playNote = (midiNumber: number) => {
     if (!buffer) return;
 
-    const gain = new Tone.Gain(0.2).toDestination();
+    if (isMono && playerRef.current) {
+      playerRef.current.stop();
+    }
 
+    const gain = new Tone.Gain(0.2).toDestination();
     const player = new Tone.Player({
       url: buffer,
       fadeIn: 0.01,
       fadeOut: 0.01,
     }).connect(gain);
+
+    if (isMono) {
+      playerRef.current = player;
+    }
 
     const index = midiNumber - 60;
     player.playbackRate = pitchRatios[index];

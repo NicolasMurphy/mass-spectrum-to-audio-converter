@@ -55,6 +55,8 @@ function App() {
   const [pitchRatios, setPitchRatios] = useState<number[]>(Array(13).fill(1.0));
   const [microtonalOpen, setMicrotonalOpen] = useState(false);
 
+  const [isMono, setIsMono] = useState(false);
+
   const handleFetch = useCallback(async () => {
     // Validation based on input mode
     if (inputMode === "massbank" && !compound.trim()) {
@@ -387,7 +389,23 @@ function App() {
             </div>
             {audioUrl && (
               <>
-                {!microtonalOpen && <SamplePiano audioUrl={audioUrl} />}
+<div className="flex justify-center my-4">
+  <div className="join">
+    <button 
+      className={`join-item btn btn-sm ${!isMono ? 'btn-active' : ''}`}
+      onClick={() => setIsMono(false)}
+    >
+      Poly
+    </button>
+    <button 
+      className={`join-item btn btn-sm ${isMono ? 'btn-active' : ''}`}
+      onClick={() => setIsMono(true)}
+    >
+      Mono
+    </button>
+  </div>
+</div>
+                {!microtonalOpen && <SamplePiano audioUrl={audioUrl} isMono={isMono} />}
                 <div className="collapse collapse-arrow bg-base-200 mt-4 max-w-[440px] mx-auto text-center">
                   <input
                     type="checkbox"
@@ -403,6 +421,7 @@ function App() {
                         audioUrl={audioUrl}
                         pitchRatios={pitchRatios}
                         setPitchRatios={setPitchRatios}
+                        isMono={isMono}
                       />
                     )}
                   </div>

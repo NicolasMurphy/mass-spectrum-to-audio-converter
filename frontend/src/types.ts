@@ -101,12 +101,14 @@ export interface AudioSettingsProps {
 
 export type SamplePianoProps = {
   audioUrl: string;
+  isMono: boolean;
 };
 
 export interface MicrotonalPianoProps {
   audioUrl: string;
   pitchRatios: number[];
   setPitchRatios: React.Dispatch<React.SetStateAction<number[]>>;
+  isMono: boolean;
 }
 
 // =====================================
