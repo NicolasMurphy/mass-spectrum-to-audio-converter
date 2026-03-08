@@ -387,15 +387,15 @@ function App() {
             </div>
             {audioUrl && (
               <>
-                <SamplePiano audioUrl={audioUrl} />
+                {!microtonalOpen && <SamplePiano audioUrl={audioUrl} />}
                 <div className="collapse collapse-arrow bg-base-200 mt-4 max-w-[440px] mx-auto text-center">
                   <input
                     type="checkbox"
                     checked={microtonalOpen}
                     onChange={() => setMicrotonalOpen(!microtonalOpen)}
                   />
-                  <div className="collapse-title font-medium after:!right-[calc(50%-80px)]">
-                    Microtonal Keyboard
+                  <div className="collapse-title font-medium text-center after:!right-[calc(50%-80px)]">
+                    {microtonalOpen ? 'Standard Keyboard' : 'Microtonal Keyboard'}
                   </div>
                   <div className="collapse-content">
                     {microtonalOpen && (
