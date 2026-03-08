@@ -8,9 +8,9 @@ export default function MicrotonalPiano({
   audioUrl,
   pitchRatios,
   setPitchRatios,
-  isMono
+  isMono,
+  buffer,
 }: MicrotonalPianoProps) {
-  const [buffer, setBuffer] = useState<Tone.ToneAudioBuffer | null>(null);
   const [isInputFocused, setIsInputFocused] = useState(false);
 
   const firstNote = MidiNumbers.fromNote("C4");
@@ -21,23 +21,23 @@ export default function MicrotonalPiano({
     keyboardConfig: KeyboardShortcuts.HOME_ROW,
   });
 
-  const keyLabels = ['A', 'W', 'S', 'E', 'D', 'F', 'T', 'G', 'Y', 'H', 'U', 'J', 'K'];
+  const keyLabels = [
+    "A",
+    "W",
+    "S",
+    "E",
+    "D",
+    "F",
+    "T",
+    "G",
+    "Y",
+    "H",
+    "U",
+    "J",
+    "K",
+  ];
 
   const playerRef = useRef<Tone.Player | null>(null);
-
-  useEffect(() => {
-    if (audioUrl) {
-      const buffer = new Tone.ToneAudioBuffer({
-        url: audioUrl,
-        onload: () => {
-          setBuffer(buffer);
-        },
-        onerror: (err) => {
-          console.error("Buffer load error:", err);
-        },
-      });
-    }
-  }, [audioUrl]);
 
   useEffect(() => {
     const compoundInput = document.getElementById("compoundInput");
@@ -83,24 +83,34 @@ export default function MicrotonalPiano({
         width="440"
         noteRange={{ first: firstNote, last: lastNote }}
         playNote={playNote}
-        stopNote={() => { }}
+        stopNote={() => {}}
         keyboardShortcuts={isInputFocused ? undefined : keyboardShortcuts}
       />
       <button
         onClick={() => {
-          const randomRatios = Array(13).fill(0).map(() =>
-            0.25 + Math.random() * 3.75
-          );
+          const randomRatios = Array(13)
+            .fill(0)
+            .map(() => 0.25 + Math.random() * 3.75);
           setPitchRatios(randomRatios);
         }}
         className="btn btn-ghost btn-square text-xl mt-4"
       >
         🎲
       </button>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '16px' }}>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: "8px",
+          marginTop: "16px",
+        }}
+      >
         {pitchRatios.map((ratio, index) => (
-          <div key={index} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ width: '20px', textAlign: 'center' }}>
+          <div
+            key={index}
+            style={{ display: "flex", alignItems: "center", gap: "8px" }}
+          >
+            <span style={{ width: "20px", textAlign: "center" }}>
               {keyLabels[index]}
             </span>
             <input
@@ -116,11 +126,11 @@ export default function MicrotonalPiano({
               }}
               style={{ flex: 1 }}
             />
-            <span style={{ width: '60px', textAlign: 'right' }}>
+            <span style={{ width: "60px", textAlign: "right" }}>
               {(() => {
                 const cents = Math.round(1200 * Math.log2(ratio));
-                if (cents === 0) return '0¢';
-                return `${cents > 0 ? '+' : ''}${cents}¢`;
+                if (cents === 0) return "0¢";
+                return `${cents > 0 ? "+" : ""}${cents}¢`;
               })()}
             </span>
           </div>

@@ -4,8 +4,7 @@ import "react-piano/dist/styles.css";
 import * as Tone from "tone";
 import { type SamplePianoProps } from "../types";
 
-export default function SamplePiano({ audioUrl, isMono }: SamplePianoProps) {
-  const [buffer, setBuffer] = useState<Tone.ToneAudioBuffer | null>(null);
+export default function SamplePiano({ audioUrl, isMono, buffer }: SamplePianoProps) {
   const [isInputFocused, setIsInputFocused] = useState(false);
 
   const firstNote = MidiNumbers.fromNote("C4");
@@ -17,20 +16,6 @@ export default function SamplePiano({ audioUrl, isMono }: SamplePianoProps) {
   });
 
   const playerRef = useRef<Tone.Player | null>(null);
-
-  useEffect(() => {
-    if (audioUrl) {
-      const buffer = new Tone.ToneAudioBuffer({
-        url: audioUrl,
-        onload: () => {
-          setBuffer(buffer);
-        },
-        onerror: (err) => {
-          console.error("Buffer load error:", err);
-        },
-      });
-    }
-  }, [audioUrl]);
 
   useEffect(() => {
     const compoundInput = document.getElementById("compoundInput");

@@ -102,12 +102,21 @@ export interface AudioSettingsProps {
 export type SamplePianoProps = {
   audioUrl: string;
   isMono: boolean;
+  buffer: Tone.ToneAudioBuffer | null;
 };
 
 export interface MicrotonalPianoProps {
   audioUrl: string;
   pitchRatios: number[];
   setPitchRatios: React.Dispatch<React.SetStateAction<number[]>>;
+  isMono: boolean;
+  buffer: Tone.ToneAudioBuffer | null;
+}
+
+export interface SequencerProps {
+  buffer: Tone.ToneAudioBuffer | null;
+  pitchRatios: number[];
+  microtonalOpen: boolean;
   isMono: boolean;
 }
 
