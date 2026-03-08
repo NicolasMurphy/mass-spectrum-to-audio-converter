@@ -91,7 +91,11 @@ export default function MicrotonalPiano({
               style={{ flex: 1 }}
             />
             <span style={{ width: '60px', textAlign: 'right' }}>
-              {Math.round(1200 * Math.log2(ratio))}¢
+              {(() => {
+                const cents = Math.round(1200 * Math.log2(ratio));
+                if (cents === 0) return '0¢';
+                return `${cents > 0 ? '+' : ''}${cents}¢`;
+              })()}
             </span>
           </div>
         ))}
