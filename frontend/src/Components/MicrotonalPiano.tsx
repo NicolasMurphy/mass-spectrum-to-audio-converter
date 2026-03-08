@@ -15,6 +15,9 @@ export default function SamplePiano({ audioUrl }: SamplePianoProps) {
     lastNote,
     keyboardConfig: KeyboardShortcuts.HOME_ROW,
   });
+  const [pitchRatios, setPitchRatios] = useState<number[]>(
+    Array(13).fill(1.0)
+  );
 
   useEffect(() => {
     if (audioUrl) {
@@ -56,9 +59,8 @@ export default function SamplePiano({ audioUrl }: SamplePianoProps) {
       fadeOut: 0.01,
     }).connect(gain);
 
-    const baseMidi = 60; // Middle C
-    const semitoneShift = midiNumber - baseMidi;
-    player.playbackRate = Math.pow(2, semitoneShift / 12);
+    const index = midiNumber - 60;
+    player.playbackRate = pitchRatios[index];
     player.start();
   };
 
@@ -68,9 +70,27 @@ export default function SamplePiano({ audioUrl }: SamplePianoProps) {
         width="440"
         noteRange={{ first: firstNote, last: lastNote }}
         playNote={playNote}
-        stopNote={() => {}}
+        stopNote={() => { }}
         keyboardShortcuts={isInputFocused ? undefined : keyboardShortcuts}
       />
+      <div style={{ display: 'flex', gap: '4px', marginTop: '16px' }}>
+        {pitchRatios.map((ratio, index) => (
+          <input
+            key={index}
+            type="range"
+            min={0.25}
+            max={4}
+            step={0.01}
+            value={ratio}
+            onChange={(e) => {
+              const newRatios = [...pitchRatios];
+              newRatios[index] = parseFloat(e.target.value);
+              setPitchRatios(newRatios);
+            }}
+            style={{ width: '30px' }}
+          />
+        ))}
+      </div>
     </div>
   );
 }
