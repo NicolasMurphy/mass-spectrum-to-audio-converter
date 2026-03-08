@@ -20,6 +20,8 @@ export default function MicrotonalPiano({
     keyboardConfig: KeyboardShortcuts.HOME_ROW,
   });
 
+  const keyLabels = ['A', 'W', 'S', 'E', 'D', 'F', 'T', 'G', 'Y', 'H', 'U', 'J', 'K'];
+
   useEffect(() => {
     if (audioUrl) {
       const buffer = new Tone.ToneAudioBuffer({
@@ -88,6 +90,9 @@ export default function MicrotonalPiano({
       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '16px' }}>
         {pitchRatios.map((ratio, index) => (
           <div key={index} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{ width: '20px', textAlign: 'center' }}>
+              {keyLabels[index]}
+            </span>
             <input
               type="range"
               min={0.25}
