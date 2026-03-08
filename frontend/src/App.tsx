@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import "./App.css";
 import SamplePiano from "./Components/SamplePiano";
+import MicrotonalPiano from "./Components/MicrotonalPiano";
 import { useSearchHistory } from "./hooks/useSearchHistory";
 import RecentlyGenerated from "./Components/RecentlyGeneratedComponents/RecentlyGenerated";
 import CompoundSearch from "./Components/FormComponents/CompoundSearch";
@@ -50,6 +51,9 @@ function App() {
   );
   const [inputMode, setInputMode] = useState<"massbank" | "custom">("massbank");
   const [spectrumText, setSpectrumText] = useState<string>("");
+
+  const [pitchRatios, setPitchRatios] = useState<number[]>(Array(13).fill(1.0));
+  const [microtonalOpen, setMicrotonalOpen] = useState(false);
 
   const handleFetch = useCallback(async () => {
     // Validation based on input mode
@@ -289,17 +293,15 @@ function App() {
 
                 <div className="tabs tabs-lift tabs-sm mb-4">
                   <button
-                    className={`tab ${
-                      inputMode === "massbank" ? "tab-active" : ""
-                    }`}
+                    className={`tab ${inputMode === "massbank" ? "tab-active" : ""
+                      }`}
                     onClick={() => setInputMode("massbank")}
                   >
                     MassBank
                   </button>
                   <button
-                    className={`tab ${
-                      inputMode === "custom" ? "tab-active" : ""
-                    }`}
+                    className={`tab ${inputMode === "custom" ? "tab-active" : ""
+                      }`}
                     onClick={() => setInputMode("custom")}
                   >
                     Custom
@@ -383,7 +385,30 @@ function App() {
                 )}
               </div>
             </div>
-            {audioUrl && <SamplePiano audioUrl={audioUrl} />}
+            {audioUrl && (
+              <>
+                <SamplePiano audioUrl={audioUrl} />
+                <div className="collapse collapse-arrow bg-base-200 mt-4 max-w-[440px] mx-auto text-center">
+                  <input
+                    type="checkbox"
+                    checked={microtonalOpen}
+                    onChange={() => setMicrotonalOpen(!microtonalOpen)}
+                  />
+                  <div className="collapse-title font-medium after:!right-[calc(50%-80px)]">
+                    Microtonal Keyboard
+                  </div>
+                  <div className="collapse-content">
+                    {microtonalOpen && (
+                      <MicrotonalPiano
+                        audioUrl={audioUrl}
+                        pitchRatios={pitchRatios}
+                        setPitchRatios={setPitchRatios}
+                      />
+                    )}
+                  </div>
+                </div>
+              </>
+            )}
           </div>
           {/* column 3 - Search history */}
           <div className="order-3 lg:order-3">

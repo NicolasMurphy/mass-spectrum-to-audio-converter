@@ -103,6 +103,12 @@ export type SamplePianoProps = {
   audioUrl: string;
 };
 
+export interface MicrotonalPianoProps {
+  audioUrl: string;
+  pitchRatios: number[];
+  setPitchRatios: React.Dispatch<React.SetStateAction<number[]>>;
+}
+
 // =====================================
 // Display
 // =====================================
