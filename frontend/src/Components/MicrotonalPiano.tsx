@@ -76,20 +76,24 @@ export default function MicrotonalPiano({
       />
       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '16px' }}>
         {pitchRatios.map((ratio, index) => (
-          <input
-            key={index}
-            type="range"
-            min={0.25}
-            max={4}
-            step={0.01}
-            value={ratio}
-            onChange={(e) => {
-              const newRatios = [...pitchRatios];
-              newRatios[index] = parseFloat(e.target.value);
-              setPitchRatios(newRatios);
-            }}
-            style={{ width: '100%' }}
-          />
+          <div key={index} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <input
+              type="range"
+              min={0.25}
+              max={4}
+              step={0.01}
+              value={ratio}
+              onChange={(e) => {
+                const newRatios = [...pitchRatios];
+                newRatios[index] = parseFloat(e.target.value);
+                setPitchRatios(newRatios);
+              }}
+              style={{ flex: 1 }}
+            />
+            <span style={{ width: '60px', textAlign: 'right' }}>
+              {Math.round(1200 * Math.log2(ratio))}¢
+            </span>
+          </div>
         ))}
       </div>
     </div>
