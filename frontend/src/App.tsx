@@ -52,6 +52,9 @@ function App() {
   const [inputMode, setInputMode] = useState<"massbank" | "custom">("massbank");
   const [spectrumText, setSpectrumText] = useState<string>("");
 
+  const [pitchRatios, setPitchRatios] = useState<number[]>(Array(13).fill(1.0));
+  const [microtonalOpen, setMicrotonalOpen] = useState(false);
+
   const handleFetch = useCallback(async () => {
     // Validation based on input mode
     if (inputMode === "massbank" && !compound.trim()) {
@@ -382,7 +385,23 @@ function App() {
                 )}
               </div>
             </div>
-            {audioUrl && <><SamplePiano audioUrl={audioUrl} /> <MicrotonalPiano audioUrl={audioUrl}/></>}
+            {audioUrl && (
+              <>
+                <SamplePiano audioUrl={audioUrl} />
+                <div>
+                  <button onClick={() => setMicrotonalOpen(!microtonalOpen)}>
+                    {microtonalOpen ? 'Hide' : 'Show'} Microtonal Keyboard
+                  </button>
+                  {microtonalOpen && (
+                    <MicrotonalPiano
+                      audioUrl={audioUrl}
+                      pitchRatios={pitchRatios}
+                      setPitchRatios={setPitchRatios}
+                    />
+                  )}
+                </div>
+              </>
+            )}
           </div>
           {/* column 3 - Search history */}
           <div className="order-3 lg:order-3">

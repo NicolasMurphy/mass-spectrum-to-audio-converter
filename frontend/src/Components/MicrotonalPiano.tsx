@@ -2,9 +2,13 @@ import { useEffect, useState } from "react";
 import { Piano, KeyboardShortcuts, MidiNumbers } from "react-piano";
 import "react-piano/dist/styles.css";
 import * as Tone from "tone";
-import { type SamplePianoProps } from "../types";
+import { type MicrotonalPianoProps } from "../types";
 
-export default function SamplePiano({ audioUrl }: SamplePianoProps) {
+export default function MicrotonalPiano({
+  audioUrl,
+  pitchRatios,
+  setPitchRatios
+}: MicrotonalPianoProps) {
   const [buffer, setBuffer] = useState<Tone.ToneAudioBuffer | null>(null);
   const [isInputFocused, setIsInputFocused] = useState(false);
 
@@ -15,9 +19,6 @@ export default function SamplePiano({ audioUrl }: SamplePianoProps) {
     lastNote,
     keyboardConfig: KeyboardShortcuts.HOME_ROW,
   });
-  const [pitchRatios, setPitchRatios] = useState<number[]>(
-    Array(13).fill(1.0)
-  );
 
   useEffect(() => {
     if (audioUrl) {
@@ -73,7 +74,7 @@ export default function SamplePiano({ audioUrl }: SamplePianoProps) {
         stopNote={() => { }}
         keyboardShortcuts={isInputFocused ? undefined : keyboardShortcuts}
       />
-      <div style={{ display: 'flex', gap: '4px', marginTop: '16px' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '16px' }}>
         {pitchRatios.map((ratio, index) => (
           <input
             key={index}
@@ -87,7 +88,7 @@ export default function SamplePiano({ audioUrl }: SamplePianoProps) {
               newRatios[index] = parseFloat(e.target.value);
               setPitchRatios(newRatios);
             }}
-            style={{ width: '30px' }}
+            style={{ width: '100%' }}
           />
         ))}
       </div>
