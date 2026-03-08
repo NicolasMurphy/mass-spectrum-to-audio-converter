@@ -74,6 +74,17 @@ export default function MicrotonalPiano({
         stopNote={() => { }}
         keyboardShortcuts={isInputFocused ? undefined : keyboardShortcuts}
       />
+      <button
+        onClick={() => {
+          const randomRatios = Array(13).fill(0).map(() =>
+            0.25 + Math.random() * 3.75
+          );
+          setPitchRatios(randomRatios);
+        }}
+        className="btn btn-ghost btn-square text-xl mt-4"
+      >
+        🎲
+      </button>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '16px' }}>
         {pitchRatios.map((ratio, index) => (
           <div key={index} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
