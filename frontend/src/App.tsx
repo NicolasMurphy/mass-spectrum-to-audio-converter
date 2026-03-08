@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import "./App.css";
 import SamplePiano from "./Components/SamplePiano";
+import MicrotonalPiano from "./Components/MicrotonalPiano";
 import { useSearchHistory } from "./hooks/useSearchHistory";
 import RecentlyGenerated from "./Components/RecentlyGeneratedComponents/RecentlyGenerated";
 import CompoundSearch from "./Components/FormComponents/CompoundSearch";
@@ -289,17 +290,15 @@ function App() {
 
                 <div className="tabs tabs-lift tabs-sm mb-4">
                   <button
-                    className={`tab ${
-                      inputMode === "massbank" ? "tab-active" : ""
-                    }`}
+                    className={`tab ${inputMode === "massbank" ? "tab-active" : ""
+                      }`}
                     onClick={() => setInputMode("massbank")}
                   >
                     MassBank
                   </button>
                   <button
-                    className={`tab ${
-                      inputMode === "custom" ? "tab-active" : ""
-                    }`}
+                    className={`tab ${inputMode === "custom" ? "tab-active" : ""
+                      }`}
                     onClick={() => setInputMode("custom")}
                   >
                     Custom
@@ -383,7 +382,7 @@ function App() {
                 )}
               </div>
             </div>
-            {audioUrl && <SamplePiano audioUrl={audioUrl} />}
+            {audioUrl && <><SamplePiano audioUrl={audioUrl} /> <MicrotonalPiano audioUrl={audioUrl}/></>}
           </div>
           {/* column 3 - Search history */}
           <div className="order-3 lg:order-3">
