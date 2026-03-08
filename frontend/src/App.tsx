@@ -388,17 +388,24 @@ function App() {
             {audioUrl && (
               <>
                 <SamplePiano audioUrl={audioUrl} />
-                <div>
-                  <button onClick={() => setMicrotonalOpen(!microtonalOpen)}>
-                    {microtonalOpen ? 'Hide' : 'Show'} Microtonal Keyboard
-                  </button>
-                  {microtonalOpen && (
-                    <MicrotonalPiano
-                      audioUrl={audioUrl}
-                      pitchRatios={pitchRatios}
-                      setPitchRatios={setPitchRatios}
-                    />
-                  )}
+                <div className="collapse collapse-arrow bg-base-200 mt-4 max-w-[440px] mx-auto text-center">
+  <input 
+    type="checkbox" 
+    checked={microtonalOpen} 
+    onChange={() => setMicrotonalOpen(!microtonalOpen)} 
+  />
+  <div className="collapse-title font-medium after:!right-[calc(50%-80px)]">
+    Microtonal Keyboard
+  </div>
+                  <div className="collapse-content">
+                    {microtonalOpen && (
+                      <MicrotonalPiano
+                        audioUrl={audioUrl}
+                        pitchRatios={pitchRatios}
+                        setPitchRatios={setPitchRatios}
+                      />
+                    )}
+                  </div>
                 </div>
               </>
             )}
