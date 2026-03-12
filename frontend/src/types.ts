@@ -109,6 +109,8 @@ export interface MicrotonalPianoProps {
   pitchRatios: number[];
   setPitchRatios: React.Dispatch<React.SetStateAction<number[]>>;
   isMono: boolean;
+  compoundName: string;
+  accession: string;
 }
 
 // =====================================

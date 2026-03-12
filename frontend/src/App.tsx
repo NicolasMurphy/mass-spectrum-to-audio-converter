@@ -47,7 +47,7 @@ function App() {
     compound: item.compound,
   }));
   const [spectrumData, setSpectrumData] = useState<Array<SpectrumData> | null>(
-    null
+    null,
   );
   const [inputMode, setInputMode] = useState<"massbank" | "custom">("massbank");
   const [spectrumText, setSpectrumText] = useState<string>("");
@@ -295,15 +295,17 @@ function App() {
 
                 <div className="tabs tabs-lift tabs-sm mb-4">
                   <button
-                    className={`tab ${inputMode === "massbank" ? "tab-active" : ""
-                      }`}
+                    className={`tab ${
+                      inputMode === "massbank" ? "tab-active" : ""
+                    }`}
                     onClick={() => setInputMode("massbank")}
                   >
                     MassBank
                   </button>
                   <button
-                    className={`tab ${inputMode === "custom" ? "tab-active" : ""
-                      }`}
+                    className={`tab ${
+                      inputMode === "custom" ? "tab-active" : ""
+                    }`}
                     onClick={() => setInputMode("custom")}
                   >
                     Custom
@@ -389,23 +391,25 @@ function App() {
             </div>
             {audioUrl && (
               <>
-<div className="flex justify-center my-4">
-  <div className="join">
-    <button 
-      className={`join-item btn btn-sm ${!isMono ? 'btn-active' : ''}`}
-      onClick={() => setIsMono(false)}
-    >
-      Poly
-    </button>
-    <button 
-      className={`join-item btn btn-sm ${isMono ? 'btn-active' : ''}`}
-      onClick={() => setIsMono(true)}
-    >
-      Mono
-    </button>
-  </div>
-</div>
-                {!microtonalOpen && <SamplePiano audioUrl={audioUrl} isMono={isMono} />}
+                <div className="flex justify-center my-4">
+                  <div className="join">
+                    <button
+                      className={`join-item btn btn-sm ${!isMono ? "btn-active" : ""}`}
+                      onClick={() => setIsMono(false)}
+                    >
+                      Poly
+                    </button>
+                    <button
+                      className={`join-item btn btn-sm ${isMono ? "btn-active" : ""}`}
+                      onClick={() => setIsMono(true)}
+                    >
+                      Mono
+                    </button>
+                  </div>
+                </div>
+                {!microtonalOpen && (
+                  <SamplePiano audioUrl={audioUrl} isMono={isMono} />
+                )}
                 <div className="collapse collapse-arrow bg-base-200 mt-4 max-w-[440px] mx-auto text-center">
                   <input
                     type="checkbox"
@@ -413,7 +417,9 @@ function App() {
                     onChange={() => setMicrotonalOpen(!microtonalOpen)}
                   />
                   <div className="collapse-title font-medium text-center after:!right-[calc(50%-80px)]">
-                    {microtonalOpen ? 'Standard Keyboard' : 'Microtonal Keyboard'}
+                    {microtonalOpen
+                      ? "Standard Keyboard"
+                      : "Microtonal Keyboard"}
                   </div>
                   <div className="collapse-content">
                     {microtonalOpen && (
@@ -422,6 +428,8 @@ function App() {
                         pitchRatios={pitchRatios}
                         setPitchRatios={setPitchRatios}
                         isMono={isMono}
+                        compoundName={compoundName}
+                        accession={accession}
                       />
                     )}
                   </div>

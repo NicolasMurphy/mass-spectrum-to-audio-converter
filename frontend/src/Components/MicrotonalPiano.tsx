@@ -4,11 +4,88 @@ import "react-piano/dist/styles.css";
 import * as Tone from "tone";
 import { type MicrotonalPianoProps } from "../types";
 
+const MIDDLE_C_HZ = 261.63;
+
+function buildFilename(compoundName: string, accession: string, ext: string) {
+  const base =
+    compoundName && accession
+      ? `${compoundName}-${accession}`
+      : compoundName || accession || "microtonal_piano";
+  const safe = base.replace(/[^a-zA-Z0-9_\-]/g, "_");
+  return `${safe}.${ext}`;
+}
+
+function exportScl(
+  pitchRatios: number[],
+  compoundName: string,
+  accession: string,
+) {
+  const minRatio = Math.min(...pitchRatios);
+  const sorted = [...pitchRatios].sort((a, b) => a - b);
+
+  const intervals = sorted.slice(1).map((ratio) => {
+    const cents = 1200 * Math.log2(ratio / minRatio);
+    return cents.toFixed(6);
+  });
+
+  const filename = buildFilename(compoundName, accession, "scl");
+  const lines = [
+    `! ${filename}`,
+    "!",
+    "Microtonal Piano export",
+    intervals.length.toString(),
+    "!",
+    ...intervals,
+  ];
+
+  triggerDownload(lines.join("\n"), filename);
+}
+
+function exportAscl(
+  pitchRatios: number[],
+  compoundName: string,
+  accession: string,
+) {
+  const minRatio = Math.min(...pitchRatios);
+  const refFreq = MIDDLE_C_HZ * minRatio;
+  const sorted = [...pitchRatios].sort((a, b) => a - b);
+
+  const intervals = sorted.slice(1).map((ratio) => {
+    const freq = MIDDLE_C_HZ * ratio;
+    return freq.toFixed(6);
+  });
+
+  const filename = buildFilename(compoundName, accession, "ascl");
+  const lines = [
+    `! ${filename}`,
+    "!",
+    "Microtonal Piano export",
+    `! Reference: ${refFreq.toFixed(4)} Hz (C4 * lowest ratio)`,
+    intervals.length.toString(),
+    "!",
+    ...intervals,
+  ];
+
+  triggerDownload(lines.join("\n"), filename);
+}
+
+function triggerDownload(content: string, filename: string) {
+  const blob = new Blob([content], { type: "text/plain" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 export default function MicrotonalPiano({
   audioUrl,
   pitchRatios,
   setPitchRatios,
-  isMono
+  isMono,
+  compoundName,
+  accession,
 }: MicrotonalPianoProps) {
   const [buffer, setBuffer] = useState<Tone.ToneAudioBuffer | null>(null);
   const [isInputFocused, setIsInputFocused] = useState(false);
@@ -21,7 +98,21 @@ export default function MicrotonalPiano({
     keyboardConfig: KeyboardShortcuts.HOME_ROW,
   });
 
-  const keyLabels = ['A', 'W', 'S', 'E', 'D', 'F', 'T', 'G', 'Y', 'H', 'U', 'J', 'K'];
+  const keyLabels = [
+    "A",
+    "W",
+    "S",
+    "E",
+    "D",
+    "F",
+    "T",
+    "G",
+    "Y",
+    "H",
+    "U",
+    "J",
+    "K",
+  ];
 
   const playerRef = useRef<Tone.Player | null>(null);
 
@@ -83,48 +174,70 @@ export default function MicrotonalPiano({
         width="440"
         noteRange={{ first: firstNote, last: lastNote }}
         playNote={playNote}
-        stopNote={() => { }}
+        stopNote={() => {}}
         keyboardShortcuts={isInputFocused ? undefined : keyboardShortcuts}
       />
-      <button
-        onClick={() => {
-          const randomRatios = Array(13).fill(0).map(() =>
-            0.25 + Math.random() * 3.75
+
+      {/* Controls row */}
+      <div className="flex items-center justify-between mt-4">
+        <button
+          onClick={() => {
+            const randomRatios = Array(13)
+              .fill(0)
+              .map(() => 0.25 + Math.random() * 3.75);
+            setPitchRatios(randomRatios);
+          }}
+          className="btn btn-ghost btn-square text-xl"
+          title="Randomize"
+        >
+          🎲
+        </button>
+        <div className="join">
+          <button
+            onClick={() => exportScl(pitchRatios, compoundName, accession)}
+            className="join-item btn btn-sm btn-outline"
+          >
+            Export .scl
+          </button>
+          <button
+            onClick={() => exportAscl(pitchRatios, compoundName, accession)}
+            className="join-item btn btn-sm btn-outline"
+          >
+            Export .ascl
+          </button>
+        </div>
+      </div>
+
+      {/* Sliders */}
+      <div className="mt-4 flex flex-col gap-2">
+        {pitchRatios.map((ratio, index) => {
+          const cents = Math.round(1200 * Math.log2(ratio));
+          const centsLabel =
+            cents === 0 ? "0¢" : `${cents > 0 ? "+" : ""}${cents}¢`;
+          return (
+            <div key={index} className="flex items-center gap-3">
+              <span className="w-4 text-center text-sm font-mono opacity-60">
+                {keyLabels[index]}
+              </span>
+              <input
+                type="range"
+                min={0.25}
+                max={4}
+                step={0.01}
+                value={ratio}
+                onChange={(e) => {
+                  const newRatios = [...pitchRatios];
+                  newRatios[index] = parseFloat(e.target.value);
+                  setPitchRatios(newRatios);
+                }}
+                className="range range-xs flex-1"
+              />
+              <span className="w-16 text-right text-sm font-mono tabular-nums opacity-80">
+                {centsLabel}
+              </span>
+            </div>
           );
-          setPitchRatios(randomRatios);
-        }}
-        className="btn btn-ghost btn-square text-xl mt-4"
-      >
-        🎲
-      </button>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '16px' }}>
-        {pitchRatios.map((ratio, index) => (
-          <div key={index} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ width: '20px', textAlign: 'center' }}>
-              {keyLabels[index]}
-            </span>
-            <input
-              type="range"
-              min={0.25}
-              max={4}
-              step={0.01}
-              value={ratio}
-              onChange={(e) => {
-                const newRatios = [...pitchRatios];
-                newRatios[index] = parseFloat(e.target.value);
-                setPitchRatios(newRatios);
-              }}
-              style={{ flex: 1 }}
-            />
-            <span style={{ width: '60px', textAlign: 'right' }}>
-              {(() => {
-                const cents = Math.round(1200 * Math.log2(ratio));
-                if (cents === 0) return '0¢';
-                return `${cents > 0 ? '+' : ''}${cents}¢`;
-              })()}
-            </span>
-          </div>
-        ))}
+        })}
       </div>
     </div>
   );
