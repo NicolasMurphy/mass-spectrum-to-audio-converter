@@ -462,6 +462,17 @@ function App() {
         </div>
         <InfoModal />
       </div>
+      <footer className="text-center py-16 text-sm opacity-40">
+        Made by{" "}
+        <a
+          href="https://nicolasmurphy.com"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="link"
+        >
+          Nicolas Murphy
+        </a>
+      </footer>
     </div>
   );
 }
