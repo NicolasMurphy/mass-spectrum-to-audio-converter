@@ -1,7 +1,11 @@
 import { defineConfig, devices } from "@playwright/test";
 
 export default defineConfig({
-  retries: 2,
+  workers: 1,
+  retries: 1,
+  // Default 5s is too tight for API calls (audio generation) on slower browser
+  // engines. 10s gives webkit/mobile headroom without masking real failures.
+  expect: { timeout: 10000 },
   use: {
     baseURL: "http://localhost:5173",
     screenshot: "only-on-failure",

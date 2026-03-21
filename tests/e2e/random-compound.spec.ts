@@ -1,16 +1,27 @@
 import { test, expect, type Page } from "@playwright/test";
+import { waitForGenerate } from "./test-helpers";
 
-// test is a bit flaky ~25% fail, usually on chrome, doesn't seem to be a user facing bug
-test("random compound button generates audio successfully", async ({
-  page,
-}: {
-  page: Page;
-}) => {
-  await page.goto("/");
+test.describe("Random Compound", () => {
+  let randomButton: ReturnType<Page["getByRole"]>;
+  let generateButton: ReturnType<Page["getByRole"]>;
 
-  // click random and generate
-  await page.getByRole("button", { name: "🎲" }).click();
-  await page.getByRole("button", { name: "Generate Audio" }).click();
+  test.beforeEach(async ({ page }: { page: Page }) => {
+    await page.goto("/");
+    randomButton = page.getByRole("button", { name: "🎲" });
+    generateButton = page.getByRole("button", { name: "Generate Audio" });
+    // Wait for compounds to load and React state to update — the random button
+    // is disabled while compounds.length === 0.
+    await expect(randomButton).toBeEnabled();
+  });
+
+  test("random compound button generates audio successfully", async ({
+    page,
+  }: {
+    page: Page;
+  }) => {
+    // click random and generate
+    await randomButton.click();
+    await waitForGenerate(page, () => generateButton.click());
 
   // table titles are visible
   await expect(
@@ -38,4 +49,5 @@ test("random compound button generates audio successfully", async ({
   // piano keys are visible (lowest and highest)
   await expect(page.getByTestId("container")).toContainText("a");
   await expect(page.getByTestId("container")).toContainText("k");
+  });
 });

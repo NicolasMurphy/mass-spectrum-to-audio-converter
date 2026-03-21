@@ -1,16 +1,26 @@
 import { test, expect, type Page } from "@playwright/test";
+import { waitForGenerate } from "./test-helpers";
 
-test("user can search for caffeine and generate audio", async ({
-  page,
-}: {
-  page: Page;
-}) => {
-  await page.goto("/");
+test.describe("Compound Search", () => {
+  let compoundInput: ReturnType<Page["getByRole"]>;
+  let generateButton: ReturnType<Page["getByRole"]>;
 
-  // manual type and click generate
-  await page.getByRole("textbox", { name: "Compound Name" }).click();
-  await page.getByRole("textbox", { name: "Compound Name" }).fill("caffeine");
-  await page.getByRole("button", { name: "Generate Audio" }).click();
+  test.beforeEach(async ({ page }: { page: Page }) => {
+    await page.goto("/");
+    await expect(page.getByRole("button", { name: "🎲" })).toBeEnabled();
+    compoundInput = page.getByRole("textbox", { name: "Compound Name" });
+    generateButton = page.getByRole("button", { name: "Generate Audio" });
+  });
+
+  test("user can search for caffeine and generate audio", async ({
+    page,
+  }: {
+    page: Page;
+  }) => {
+    // manual type and click generate
+    await compoundInput.click();
+    await compoundInput.fill("caffeine");
+    await waitForGenerate(page, () => generateButton.click());
 
   // table titles (and correct peaks) are visible
   await expect(
@@ -58,4 +68,5 @@ test("user can search for caffeine and generate audio", async ({
   // piano keys are visible (lowest and highest)
   await expect(page.getByTestId("container")).toContainText("a");
   await expect(page.getByTestId("container")).toContainText("k");
+  });
 });
