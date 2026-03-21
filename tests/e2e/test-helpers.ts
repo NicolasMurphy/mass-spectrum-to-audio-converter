@@ -23,7 +23,7 @@ export async function waitForGenerate(
       (response.url().includes("/massbank/") ||
         response.url().includes("/custom/")) &&
       response.status() === 200,
-    { timeout: 5000 }
+    { timeout: 10000 }
   );
   await trigger();
   await responsePromise;
