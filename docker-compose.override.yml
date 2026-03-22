@@ -17,6 +17,7 @@ services:
     environment:
       - FLASK_ENV=development
       - FLASK_DEBUG=1
+      - RATELIMIT_ENABLED=false
 
   frontend:
     build:

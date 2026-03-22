@@ -6,6 +6,7 @@ from app import app
 def client():
     """Create test client"""
     app.config["TESTING"] = True
+    app.config["RATELIMIT_ENABLED"] = False
     return app.test_client()
 
 

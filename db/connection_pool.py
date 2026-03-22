@@ -10,11 +10,9 @@ connection_pool = None
 def init_pool(config=None):
     global connection_pool
 
-    # Prevent double initialization
+    # Pool already initialized (e.g. by post_fork hook before module load)
     if connection_pool is not None:
-        raise RuntimeError(
-            "Connection pool already initialized. Call close_all_connections() first if you need to reinitialize."
-        )
+        return
 
     if config is None:
         config = {

@@ -1,8 +1,12 @@
 import os
 import time
 import psycopg2
-from flask import Flask, send_from_directory
+from flask import Flask, jsonify, send_from_directory
 from flask_cors import CORS
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+from werkzeug.middleware.proxy_fix import ProxyFix
+
 from db import init_pool
 from api import (
     history,
@@ -31,9 +35,25 @@ def wait_for_database():
 wait_for_database()
 
 app = Flask(__name__, static_folder="static", static_url_path="")
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
+app.config["RATELIMIT_ENABLED"] = os.getenv("RATELIMIT_ENABLED", "true").lower() == "true"
 
 if os.getenv("FLASK_ENV") == "development":
     CORS(app)
+
+limiter = Limiter(
+    get_remote_address,
+    app=app,
+    storage_uri="memory://",
+)
+
+audio_limit = limiter.limit("15 per minute")
+history_limit = limiter.shared_limit("30 per minute", scope="read-endpoints")
+
+
+@app.errorhandler(429)
+def rate_limit_exceeded(e):
+    return jsonify({"error": "Too many requests"}), 429
 
 
 @app.route("/")
@@ -41,10 +61,10 @@ def serve_index():
     return send_from_directory("static", "index.html")
 
 
-app.route("/history", methods=["GET"])(history)
-app.route("/massbank/<algorithm>", methods=["POST"])(generate_audio_with_data)
-app.route("/custom/<algorithm>", methods=["POST"])(generate_audio_with_custom_data)
-app.route("/popular", methods=["GET"])(popular)
+app.route("/history", methods=["GET"])(history_limit(history))
+app.route("/massbank/<algorithm>", methods=["POST"])(audio_limit(generate_audio_with_data))
+app.route("/custom/<algorithm>", methods=["POST"])(audio_limit(generate_audio_with_custom_data))
+app.route("/popular", methods=["GET"])(history_limit(popular))
 
 
 @app.route("/<path:path>")

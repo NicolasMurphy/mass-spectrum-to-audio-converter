@@ -23,7 +23,8 @@ COPY db/ ./db/
 COPY services/ ./services/
 COPY utils/ ./utils/
 COPY app.py ./
+COPY gunicorn.conf.py ./
 COPY --from=frontend-builder /app/frontend/dist ./static/
 
 EXPOSE 5000
-CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "2", "app:app"]
+CMD ["gunicorn", "--config", "gunicorn.conf.py", "app:app"]
