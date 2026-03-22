@@ -19,7 +19,7 @@ export default function CompoundSearch({
 
   useEffect(() => {
     if (selectedIndex >= 0 && showSuggestions) {
-      const listElement = document.querySelector(".suggestion-list");
+      const listElement = document.querySelector("[data-testid='suggestion-list']");
       const selectedElement = listElement?.children[
         selectedIndex
       ] as HTMLElement;
@@ -123,6 +123,7 @@ export default function CompoundSearch({
       </div>
       {showSuggestions && suggestions.length > 0 && (
         <ul
+          data-testid="suggestion-list"
           className="suggestion-list absolute top-full left-0 right-0 bg-white border border-gray-300 rounded-md shadow-lg max-h-40 overflow-y-auto z-10"
           onMouseDown={(e) => e.preventDefault()}
         >

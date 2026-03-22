@@ -17,13 +17,8 @@ test.describe("History and Popular Compounds", () => {
   }: {
     page: Page;
   }) => {
-    // scope to the card-body containing the Most Generated heading
-    const mostGeneratedCard = page.locator(".card-body").filter({
-      has: page.getByRole("heading", { name: "Most Generated" }),
-    });
-
-    // items are div.badge elements, not buttons — wait for /popular API
-    const firstBadge = mostGeneratedCard.locator(".badge").first();
+    // wait for /popular API, then grab the first compound badge
+    const firstBadge = page.getByTestId("popular-compound").first();
     await expect(firstBadge).toBeVisible();
     const compoundName = await firstBadge.textContent();
 
@@ -80,16 +75,12 @@ test.describe("History and Popular Compounds", () => {
   }: {
     page: Page;
   }) => {
-    const mostGeneratedCard = page.locator(".card-body").filter({
-      has: page.getByRole("heading", { name: "Most Generated" }),
-    });
-
     // Wait for at least one badge to appear — the /popular API call is async
     // and .count() doesn't retry, so we must wait for visibility first.
-    const firstBadge = mostGeneratedCard.locator(".badge").first();
-    await expect(firstBadge).toBeVisible();
+    const popularCompounds = page.getByTestId("popular-compound");
+    await expect(popularCompounds.first()).toBeVisible();
 
-    const count = await mostGeneratedCard.locator(".badge").count();
+    const count = await popularCompounds.count();
     expect(count).toBeGreaterThan(0);
   });
 

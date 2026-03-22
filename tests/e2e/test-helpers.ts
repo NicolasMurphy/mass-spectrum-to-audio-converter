@@ -7,7 +7,7 @@ import { type Page } from "@playwright/test";
  *
  * With workers: 1, tests run serially so the Flask backend is never
  * contended — requests complete in ~1s (cached) or a few seconds
- * (uncached). 15s timeout covers the worst case (cold start + heavy
+ * (uncached). 10s timeout covers the worst case (cold start + heavy
  * audio like duration=30) with headroom to spare.
  *
  * Only use this for tests that expect a SUCCESSFUL generate (HTTP 200).

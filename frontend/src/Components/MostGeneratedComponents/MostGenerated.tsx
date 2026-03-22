@@ -18,6 +18,7 @@ export default function MostGenerated({
             <div
               key={i}
               onClick={() => onCompoundClick(entry.compound)}
+              data-testid="popular-compound"
               className="badge badge-outline badge-sm p-3 cursor-pointer hover:badge-primary transition-colors"
             >
               <span className="truncate max-w-[120px]" title={entry.compound}>

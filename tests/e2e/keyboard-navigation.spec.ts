@@ -90,7 +90,7 @@ test.describe("Keyboard Navigation", () => {
     await compoundInput.fill("caff");
 
     // wait for suggestions to appear
-    const suggestionList = page.locator(".suggestion-list");
+    const suggestionList = page.getByTestId("suggestion-list");
     await expect(suggestionList).toBeVisible();
 
     // ArrowDown to highlight the first suggestion (selectedIndex goes from -1 to 0).
