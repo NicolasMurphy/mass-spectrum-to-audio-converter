@@ -130,6 +130,7 @@ Generates audio data from a compound's mass spectrum data using the specified al
 | 400         | Invalid sample rate format | `{"error": "Invalid sample rate. Must be an integer."}`                                   |
 | 400         | Invalid JSON               | `{"error": "No JSON data provided"}`                                                      |
 | 404         | Compound not found         | `{"error": "No records found"}`                                                           |
+| 429         | Rate limit exceeded        | `{"error": "Too many requests"}`                                                          |
 | 500         | Internal server error      | `{"error": "Internal server error"}`                                                      |
 
 #### Example Requests
@@ -304,6 +305,7 @@ Generates audio data from custom mass spectrum data using the specified algorith
 | 400         | Invalid sample rate          | `{"error": "Sample rate must be between 3500 and 192000."}`                                                           |
 | 400         | Invalid sample rate format   | `{"error": "Invalid sample rate. Must be an integer."}`                                                               |
 | 400         | Invalid JSON                 | `{"error": "No JSON data provided"}`                                                                                  |
+| 429         | Rate limit exceeded          | `{"error": "Too many requests"}`                                                                                      |
 | 500         | Internal server error        | `{"error": "Internal server error"}`                                                                                  |
 
 #### Example Requests
@@ -375,6 +377,13 @@ Retrieves recently generated compounds.
 }
 ```
 
+**Error Responses**
+
+| Status Code | Description                                                    | Example Response                 |
+| ----------- | -------------------------------------------------------------- | -------------------------------- |
+| 429         | Rate limit exceeded (shared across `/history` and `/popular`) | `{"error": "Too many requests"}` |
+| 500         | Internal server error                                          | `{"error": "Internal server error"}` |
+
 #### Example Requests
 
 **Get Last 20 Generations**
@@ -431,6 +440,13 @@ Retrieves the most frequently generated compounds based on recent generations.
   ]
 }
 ```
+
+**Error Responses**
+
+| Status Code | Description                                                    | Example Response                     |
+| ----------- | -------------------------------------------------------------- | ------------------------------------ |
+| 429         | Rate limit exceeded (shared across `/history` and `/popular`) | `{"error": "Too many requests"}`     |
+| 500         | Internal server error                                          | `{"error": "Internal server error"}` |
 
 #### Example Requests
 
