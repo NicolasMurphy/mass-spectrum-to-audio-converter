@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import "./App.css";
+import * as Tone from "tone";
 import SamplePiano from "./Components/SamplePiano";
 import MicrotonalPiano from "./Components/MicrotonalPiano";
 import { useSearchHistory } from "./hooks/useSearchHistory";
@@ -21,6 +22,7 @@ import InfoModal from "./Components/InfoModal";
 import ModuloParameters from "./Components/FormComponents/ModuloParameters";
 import { type Algorithm, type SpectrumData } from "./types";
 import EmptyDataPlaceholder from "./Components/SpectrumComponents/EmptyDataPlaceholder";
+import SpectrumAnalyzer from "./Components/SpectrumAnalyzer";
 
 function App() {
   const [compound, setCompound] = useState<string>("");
@@ -56,6 +58,50 @@ function App() {
   const [microtonalOpen, setMicrotonalOpen] = useState(false);
 
   const [isMono, setIsMono] = useState(false);
+
+  const [analyserNode, setAnalyserNode] = useState<AnalyserNode | null>(null);
+  const audioElRef = useRef<HTMLAudioElement>(null);
+  const mediaSourceCreatedRef = useRef(false);
+
+  // Set up the AnalyserNode and wire the <audio> element into the Web Audio graph
+  useEffect(() => {
+    if (!audioUrl) return;
+
+    const setupAnalyser = async () => {
+      // Ensure the audio context is running (requires user gesture)
+      await Tone.start();
+
+      const rawCtx = Tone.getContext().rawContext as AudioContext;
+
+      // Create analyser if we haven't yet
+      if (!analyserNode) {
+        const analyser = rawCtx.createAnalyser();
+        analyser.fftSize = 4096;
+        analyser.smoothingTimeConstant = 0.8;
+        analyser.minDecibels = -90;
+        analyser.maxDecibels = -25;
+
+        // Tap the analyser off Tone's destination
+        Tone.getDestination().connect(analyser);
+
+        setAnalyserNode(analyser);
+      }
+
+      // Connect the <audio> element to the Web Audio graph (once only)
+      const audioEl = audioElRef.current;
+      if (audioEl && !mediaSourceCreatedRef.current) {
+        try {
+          const source = rawCtx.createMediaElementSource(audioEl);
+          source.connect(rawCtx.destination);
+          mediaSourceCreatedRef.current = true;
+        } catch {
+          // Already connected — ignore
+        }
+      }
+    };
+
+    setupAnalyser();
+  }, [audioUrl, analyserNode]);
 
   const handleFetch = useCallback(async () => {
     // Validation based on input mode
@@ -383,12 +429,16 @@ function App() {
                   )}
                 {audioUrl && (
                   <AudioPlayer
+                    ref={audioElRef}
                     audioUrl={audioUrl}
                     downloadName={downloadName}
                   />
                 )}
               </div>
             </div>
+            {audioUrl && (
+              <SpectrumAnalyzer analyserNode={analyserNode} />
+            )}
             {audioUrl && (
               <>
                 <div className="flex justify-center my-4">

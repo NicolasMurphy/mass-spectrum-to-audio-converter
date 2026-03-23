@@ -92,6 +92,10 @@ export interface AudioPlayerProps {
   downloadName: string;
 }
 
+export interface SpectrumAnalyzerProps {
+  analyserNode: AnalyserNode | null;
+}
+
 export interface AudioSettingsProps {
   duration: string;
   sampleRate: string;
