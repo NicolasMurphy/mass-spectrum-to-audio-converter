@@ -1,5 +1,6 @@
 import psycopg2.pool
 import os
+from contextlib import contextmanager
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -38,6 +39,27 @@ def return_connection(conn):
     if connection_pool is None:
         raise RuntimeError("Connection pool not initialized. Call init_pool() first.")
     connection_pool.putconn(conn)
+
+
+@contextmanager
+def get_db_cursor(commit=False):
+    conn = None
+    cursor = None
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+        yield cursor
+        if commit:
+            conn.commit()
+    except Exception:
+        if conn:
+            conn.rollback()
+        raise
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            return_connection(conn)
 
 
 def close_all_connections():

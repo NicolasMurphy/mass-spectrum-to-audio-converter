@@ -8,6 +8,7 @@ from .connection_pool import (
     init_pool,
     get_connection,
     return_connection,
+    get_db_cursor,
     close_all_connections,
 )
 from .queries import log_search, get_search_history, get_popular_compounds
@@ -17,6 +18,7 @@ __all__ = [
     "init_pool",
     "get_connection",
     "return_connection",
+    "get_db_cursor",
     "close_all_connections",
     "log_search",
     "get_search_history",
