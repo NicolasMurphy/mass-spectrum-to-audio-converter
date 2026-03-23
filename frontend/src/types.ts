@@ -3,6 +3,7 @@
 // =====================================
 
 export type Algorithm = "linear" | "inverse" | "modulo";
+export type InputMode = "massbank" | "custom";
 
 export interface AlgorithmSelectorProps {
   algorithm: Algorithm;
@@ -133,4 +134,5 @@ export interface NameAndAccessionProps {
 
 export interface StatusMessageProps {
   status: string;
+  isLoading?: boolean;
 }

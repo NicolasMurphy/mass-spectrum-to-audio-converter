@@ -1,44 +1,26 @@
-import { useEffect, useState, useCallback, useRef } from "react";
 import "./App.css";
-import * as Tone from "tone";
-import SamplePiano from "./Components/SamplePiano";
-import MicrotonalPiano from "./Components/MicrotonalPiano";
 import { useSearchHistory } from "./hooks/useSearchHistory";
-import RecentlyGenerated from "./Components/RecentlyGeneratedComponents/RecentlyGenerated";
-import CompoundSearch from "./Components/FormComponents/CompoundSearch";
+import { usePopularCompounds } from "./hooks/usePopularCompounds";
+import { useFormParams } from "./hooks/useFormParams";
+import { useAudioGeneration } from "./hooks/useAudioGeneration";
+import { useWebAudio } from "./hooks/useWebAudio";
+import { useGlobalEnterSubmit } from "./hooks/useGlobalEnterSubmit";
+import { isCustomCompound } from "./constants";
+import GeneratorForm from "./Components/GeneratorForm";
+import AudioResultsPanel from "./Components/AudioResultsPanel";
 import AudioPlayer from "./Components/AudioPlayer";
 import NameAndAccession from "./Components/NameAndAccession";
 import StatusMessage from "./Components/StatusMessage";
-import base64ToBlob from "./utils";
 import SpectrumTables from "./Components/SpectrumComponents/SpectrumTables";
-import AlgorithmSelector from "./Components/FormComponents/AlgorithmSelector";
-import LinearParameters from "./Components/FormComponents/LinearParameters";
-import InverseParameters from "./Components/FormComponents/InverseParameters";
-import AudioSettings from "./Components/FormComponents/AudioSettings";
 import SkeletonSpectrumTables from "./Components/SpectrumComponents/SkeletonSpectrumTables";
-import { usePopularCompounds } from "./hooks/usePopularCompounds";
+import EmptyDataPlaceholder from "./Components/SpectrumComponents/EmptyDataPlaceholder";
+import RecentlyGenerated from "./Components/RecentlyGeneratedComponents/RecentlyGenerated";
 import MostGenerated from "./Components/MostGeneratedComponents/MostGenerated";
 import InfoModal from "./Components/InfoModal";
-import ModuloParameters from "./Components/FormComponents/ModuloParameters";
-import { type Algorithm, type SpectrumData } from "./types";
-import EmptyDataPlaceholder from "./Components/SpectrumComponents/EmptyDataPlaceholder";
-import SpectrumAnalyzer from "./Components/SpectrumAnalyzer";
 
 function App() {
-  const [compound, setCompound] = useState<string>("");
-  const [status, setStatus] = useState<string>("");
-  const [audioUrl, setAudioUrl] = useState<string>("");
-  const [compoundName, setCompoundName] = useState<string>("");
-  const [accession, setAccession] = useState<string>("");
-  const [algorithm, setAlgorithm] = useState<Algorithm>("linear");
-  const [offset, setOffset] = useState<string>("300");
-  const [scale, setScale] = useState<string>("100000");
-  const [shift, setShift] = useState<string>("1");
-  const [factor, setFactor] = useState<string>("10");
-  const [modulus, setModulus] = useState<string>("500");
-  const [base, setBase] = useState<string>("100");
-  const [duration, setDuration] = useState<string>("5");
-  const [sampleRate, setSampleRate] = useState<string>("44100");
+  const [formState, dispatch] = useFormParams();
+
   const {
     history: searchHistory,
     error: historyError,
@@ -48,245 +30,19 @@ function App() {
   const popularCompoundsList = popularCompounds.map((item) => ({
     compound: item.compound,
   }));
-  const [spectrumData, setSpectrumData] = useState<Array<SpectrumData> | null>(
-    null,
-  );
-  const [inputMode, setInputMode] = useState<"massbank" | "custom">("massbank");
-  const [spectrumText, setSpectrumText] = useState<string>("");
 
-  const [pitchRatios, setPitchRatios] = useState<number[]>(Array(13).fill(1.0));
-  const [microtonalOpen, setMicrotonalOpen] = useState(false);
+  const audio = useAudioGeneration({ onSuccess: refetchHistory });
+  const { analyserNode, audioElRef } = useWebAudio(audio.audioUrl);
 
-  const [isMono, setIsMono] = useState(false);
+  useGlobalEnterSubmit();
 
-  const [analyserNode, setAnalyserNode] = useState<AnalyserNode | null>(null);
-  const audioElRef = useRef<HTMLAudioElement>(null);
-  const mediaSourceCreatedRef = useRef(false);
-
-  // Set up the AnalyserNode and wire the <audio> element into the Web Audio graph
-  useEffect(() => {
-    if (!audioUrl) return;
-
-    const setupAnalyser = async () => {
-      // Ensure the audio context is running (requires user gesture)
-      await Tone.start();
-
-      const rawCtx = Tone.getContext().rawContext as AudioContext;
-
-      // Create analyser if we haven't yet
-      if (!analyserNode) {
-        const analyser = rawCtx.createAnalyser();
-        analyser.fftSize = 4096;
-        analyser.smoothingTimeConstant = 0.8;
-        analyser.minDecibels = -90;
-        analyser.maxDecibels = -25;
-
-        // Tap the analyser off Tone's destination
-        Tone.getDestination().connect(analyser);
-
-        setAnalyserNode(analyser);
-      }
-
-      // Connect the <audio> element to the Web Audio graph (once only)
-      const audioEl = audioElRef.current;
-      if (audioEl && !mediaSourceCreatedRef.current) {
-        try {
-          const source = rawCtx.createMediaElementSource(audioEl);
-          source.connect(rawCtx.destination);
-          mediaSourceCreatedRef.current = true;
-        } catch {
-          // Already connected — ignore
-        }
-      }
-    };
-
-    setupAnalyser();
-  }, [audioUrl, analyserNode]);
-
-  const handleFetch = useCallback(async () => {
-    // Validation based on input mode
-    if (inputMode === "massbank" && !compound.trim()) {
-      setStatus("Please enter a compound name.");
-      return;
-    }
-
-    if (inputMode === "custom" && !spectrumText.trim()) {
-      setStatus("Please enter spectrum data.");
-      return;
-    }
-
-    const sampleRateNum = Number(sampleRate);
-    if (
-      isNaN(sampleRateNum) ||
-      sampleRateNum < 3500 ||
-      sampleRateNum > 192000
-    ) {
-      setStatus("Sample rate must be between 3500 and 192000.");
-      return;
-    }
-
-    const durationNum = Number(duration);
-    if (isNaN(durationNum) || durationNum < 0.01 || durationNum > 30) {
-      setStatus("Duration must be between 0.01 and 30.");
-      return;
-    }
-
-    setStatus("Fetching audio...");
-    setAudioUrl("");
-    setCompoundName("");
-    setAccession("");
-
-    // Cleanup previous URL before setting new one
-    if (audioUrl) {
-      URL.revokeObjectURL(audioUrl);
-    }
-
-    try {
-      // Choose endpoint based on mode
-      const endpoint =
-        inputMode === "massbank"
-          ? `${import.meta.env.VITE_API_URL}/massbank/${algorithm}`
-          : `${import.meta.env.VITE_API_URL}/custom/${algorithm}`;
-
-      // Build request body based on mode
-      const requestBody: Record<string, string | number> = {
-        duration: durationNum,
-        sample_rate: sampleRateNum,
-      };
-
-      // Add mode-specific data
-      if (inputMode === "massbank") {
-        requestBody.compound = compound;
-      } else {
-        requestBody.spectrum_text = spectrumText;
-      }
-
-      // Add algorithm-specific parameters
-      if (algorithm === "linear") {
-        requestBody.offset = offset;
-      } else if (algorithm === "inverse") {
-        requestBody.scale = scale;
-        requestBody.shift = shift;
-      } else if (algorithm === "modulo") {
-        requestBody.factor = factor;
-        requestBody.modulus = modulus;
-        requestBody.base = base;
-      }
-
-      const response = await fetch(endpoint, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(requestBody),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        setStatus(`Error: ${errorData.error}`);
-        return;
-      }
-
-      const data = await response.json();
-
-      // Convert base64 audio to blob
-      const audioBlob = base64ToBlob(data.audio_base64);
-      const url = URL.createObjectURL(audioBlob);
-
-      setCompoundName(data.compound);
-      setAccession(data.accession);
-      setAudioUrl(url);
-      setSpectrumData(data.spectrum);
-      setStatus("Success!");
-      refetchHistory();
-    } catch (err) {
-      if (err instanceof Error) {
-        setStatus(`Error: ${err.message}`);
-      } else {
-        setStatus("An unknown error occurred.");
-      }
-    }
-  }, [
-    compound,
-    spectrumText,
-    inputMode,
-    algorithm,
-    offset,
-    scale,
-    shift,
-    factor,
-    modulus,
-    base,
-    duration,
-    sampleRate,
-    audioUrl,
-    refetchHistory,
-  ]);
-
-  const handleFetchRef = useRef(handleFetch);
-  handleFetchRef.current = handleFetch;
-
-  useEffect(() => {
-    const handleGlobalKeyDown = (e: globalThis.KeyboardEvent) => {
-      if (e.key === "Enter") {
-        const activeElement = document.activeElement;
-        if (activeElement?.getAttribute("data-random-button") === "true") {
-          return;
-        }
-        if (activeElement?.tagName === "TEXTAREA") {
-          return;
-        }
-        const submitButton = document.querySelector('button[type="submit"]');
-        if (submitButton) {
-          (submitButton as HTMLButtonElement).click();
-        }
-      }
-    };
-
-    document.addEventListener("keydown", handleGlobalKeyDown);
-
-    return () => {
-      document.removeEventListener("keydown", handleGlobalKeyDown);
-    };
-  }, []);
-
-  const generateDownloadName = () => {
-    const now = new Date();
-    const timestamp =
-      now.getFullYear().toString() +
-      (now.getMonth() + 1).toString().padStart(2, "0") +
-      now.getDate().toString().padStart(2, "0") +
-      "-" +
-      now.getHours().toString().padStart(2, "0") +
-      now.getMinutes().toString().padStart(2, "0") +
-      now.getSeconds().toString().padStart(2, "0");
-
-    if (accession === "CUSTOM-001") {
-      return `CUSTOM-${timestamp}.wav`;
-    } else {
-      return `${compoundName}-${accession}-${timestamp}.wav`;
-    }
+  const handleSubmit = () => {
+    audio.generate(formState);
   };
-
-  const downloadName = generateDownloadName();
-
-  useEffect(() => {
-    // Cleanup function to revoke object URLs and prevent memory leaks
-    return () => {
-      if (audioUrl) {
-        URL.revokeObjectURL(audioUrl);
-      }
-    };
-  }, [audioUrl]);
 
   const handleCompoundClick = (compound: string) => {
-    setCompound(compound);
-    setInputMode("massbank");
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    handleFetch();
+    dispatch({ type: "SET_FIELD", field: "compound", value: compound });
+    dispatch({ type: "SET_INPUT_MODE", value: "massbank" });
   };
 
   return (
@@ -297,17 +53,17 @@ function App() {
           <div className="order-2 lg:order-1">
             <div className="card bg-neutral-content w-full max-w-md mx-auto">
               <div className="card-body">
-                {status === "Fetching audio..." ? (
+                {audio.isLoading ? (
                   <SkeletonSpectrumTables />
-                ) : spectrumData ? (
-                  <SpectrumTables spectrumData={spectrumData} />
+                ) : audio.spectrumData ? (
+                  <SpectrumTables spectrumData={audio.spectrumData} />
                 ) : (
                   <EmptyDataPlaceholder />
                 )}
               </div>
             </div>
           </div>
-          {/* column 2 - form, audio player, keyboard - "app core" */}
+          {/* column 2 - form, audio player, keyboard */}
           <div className="order-1 lg:order-2">
             <div className="card bg-neutral-content w-full max-w-md mx-auto">
               <div className="card-body">
@@ -338,156 +94,43 @@ function App() {
                 <h1 className="text-xl font-bold text-center mb-4">
                   Mass Spectrum to Audio Converter
                 </h1>
-
-                <div className="tabs tabs-lift tabs-sm mb-4">
-                  <button
-                    className={`tab ${
-                      inputMode === "massbank" ? "tab-active" : ""
-                    }`}
-                    onClick={() => setInputMode("massbank")}
-                  >
-                    MassBank
-                  </button>
-                  <button
-                    className={`tab ${
-                      inputMode === "custom" ? "tab-active" : ""
-                    }`}
-                    onClick={() => setInputMode("custom")}
-                  >
-                    Custom
-                  </button>
-                </div>
-
-                <form onSubmit={handleSubmit}>
-                  {inputMode === "massbank" ? (
-                    <CompoundSearch
-                      compound={compound}
-                      onCompoundChange={setCompound}
-                    />
-                  ) : (
-                    <div className="form-control mb-4">
-                      <label className="label">
-                        <span className="label-text font-semibold">
-                          Spectrum Data
-                        </span>
-                      </label>
-                      <textarea
-                        className="textarea textarea-bordered h-32 w-full"
-                        placeholder="Enter spectrum data (m/z intensity pairs)&#10;Example:&#10;73.04018778 16.07433749&#10;75.05583784 2.042927662"
-                        value={spectrumText}
-                        onChange={(e) => setSpectrumText(e.target.value)}
-                      />
-                    </div>
-                  )}
-                  <AlgorithmSelector
-                    algorithm={algorithm}
-                    onChange={setAlgorithm}
+                <GeneratorForm
+                  formState={formState}
+                  dispatch={dispatch}
+                  isLoading={audio.isLoading}
+                  onSubmit={handleSubmit}
+                />
+                {audio.status && (
+                  <StatusMessage
+                    status={audio.status}
+                    isLoading={audio.isLoading}
                   />
-                  {algorithm === "linear" && (
-                    <LinearParameters offset={offset} onChange={setOffset} />
-                  )}
-                  {algorithm === "inverse" && (
-                    <InverseParameters
-                      scale={scale}
-                      shift={shift}
-                      onScaleChange={setScale}
-                      onShiftChange={setShift}
-                    />
-                  )}
-                  {algorithm === "modulo" && (
-                    <ModuloParameters
-                      factor={factor}
-                      modulus={modulus}
-                      base={base}
-                      onFactorChange={setFactor}
-                      onModulusChange={setModulus}
-                      onBaseChange={setBase}
-                    />
-                  )}
-                  <AudioSettings
-                    duration={duration}
-                    sampleRate={sampleRate}
-                    onDurationChange={setDuration}
-                    onSampleRateChange={setSampleRate}
-                  />
-                  <button
-                    type="submit"
-                    className="btn btn-primary mb-4 w-full"
-                    disabled={status === "Fetching audio..."}
-                  >
-                    Generate Audio
-                  </button>
-                </form>
-                {status && <StatusMessage status={status} />}
-                {compoundName &&
-                  accession &&
-                  !accession.startsWith("CUSTOM-") && (
+                )}
+                {audio.compoundName &&
+                  audio.accession &&
+                  !isCustomCompound(audio.accession) && (
                     <NameAndAccession
-                      compoundName={compoundName}
-                      accession={accession}
+                      compoundName={audio.compoundName}
+                      accession={audio.accession}
                     />
                   )}
-                {audioUrl && (
+                {audio.audioUrl && (
                   <AudioPlayer
                     ref={audioElRef}
-                    audioUrl={audioUrl}
-                    downloadName={downloadName}
+                    audioUrl={audio.audioUrl}
+                    downloadName={audio.downloadName}
                   />
                 )}
               </div>
             </div>
-            {audioUrl && (
-              <SpectrumAnalyzer analyserNode={analyserNode} />
-            )}
-            {audioUrl && (
-              <>
-                <div className="flex justify-center my-4">
-                  <div className="join">
-                    <button
-                      className={`join-item btn btn-sm ${!isMono ? "btn-active" : ""}`}
-                      onClick={() => setIsMono(false)}
-                    >
-                      Poly
-                    </button>
-                    <button
-                      className={`join-item btn btn-sm ${isMono ? "btn-active" : ""}`}
-                      onClick={() => setIsMono(true)}
-                    >
-                      Mono
-                    </button>
-                  </div>
-                </div>
-                {!microtonalOpen && (
-                  <SamplePiano audioUrl={audioUrl} isMono={isMono} />
-                )}
-                <div className="collapse collapse-arrow bg-base-200 mt-4 max-w-[440px] mx-auto text-center">
-                  <input
-                    type="checkbox"
-                    checked={microtonalOpen}
-                    onChange={() => setMicrotonalOpen(!microtonalOpen)}
-                  />
-                  <div className="collapse-title font-medium text-center after:!right-[calc(50%-80px)]">
-                    {microtonalOpen
-                      ? "Standard Keyboard"
-                      : "Microtonal Keyboard"}
-                  </div>
-                  <div className="collapse-content">
-                    {microtonalOpen && (
-                      <MicrotonalPiano
-                        audioUrl={audioUrl}
-                        pitchRatios={pitchRatios}
-                        setPitchRatios={setPitchRatios}
-                        isMono={isMono}
-                        compoundName={compoundName}
-                        accession={accession}
-                      />
-                    )}
-                  </div>
-                </div>
-              </>
-            )}
+            <AudioResultsPanel
+              audioUrl={audio.audioUrl}
+              analyserNode={analyserNode}
+              compoundName={audio.compoundName}
+              accession={audio.accession}
+            />
           </div>
-          {/* column 3 - Search history */}
+          {/* column 3 - history */}
           <div className="order-3 lg:order-3">
             <div className="card bg-neutral-content w-full max-w-md mx-auto mb-12">
               <div className="card-body">
@@ -508,7 +151,6 @@ function App() {
               </div>
             </div>
           </div>
-          {/* end column 3 */}
         </div>
         <InfoModal />
       </div>
