@@ -5,6 +5,9 @@ dev-commands.md
 *.sql
 .pytest_cache
 
+# Claude Code
+.claude/
+
 # Playwright
 tests/e2e/node_modules/
 tests/e2e/test-results/
