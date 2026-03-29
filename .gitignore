@@ -6,7 +6,7 @@ dev-commands.md
 .pytest_cache
 
 # Playwright
-tests/e2e/node_modules/
-tests/e2e/test-results/
-tests/e2e/playwright-report/
-tests/e2e/playwright/.cache/
+tests/playwright/node_modules/
+tests/playwright/test-results/
+tests/playwright/playwright-report/
+tests/playwright/playwright/.cache/
