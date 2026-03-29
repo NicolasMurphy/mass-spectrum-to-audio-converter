@@ -1,21 +1,10 @@
-import { test, expect, type Page } from "@playwright/test";
+import { test, expect } from "./fixtures";
 import { waitForGenerate } from "./test-helpers";
 
 test.describe("History and Popular Compounds", () => {
-  let compoundInput: ReturnType<Page["getByRole"]>;
-  let generateButton: ReturnType<Page["getByRole"]>;
-
-  test.beforeEach(async ({ page }: { page: Page }) => {
-    await page.goto("/");
-    await expect(page.getByRole("button", { name: "🎲" })).toBeEnabled();
-    compoundInput = page.getByRole("textbox", { name: "Compound Name" });
-    generateButton = page.getByRole("button", { name: "Generate Audio" });
-  });
-
   test("clicking a compound in Most Generated list populates the search field", async ({
     page,
-  }: {
-    page: Page;
+    compoundInput,
   }) => {
     // wait for /popular API, then grab the first compound badge
     const firstBadge = page.getByTestId("popular-compound").first();
@@ -29,8 +18,8 @@ test.describe("History and Popular Compounds", () => {
 
   test("after generating audio, the compound appears in Recently Generated", async ({
     page,
-  }: {
-    page: Page;
+    compoundInput,
+    generateButton,
   }) => {
     await compoundInput.fill("caffeine");
     await waitForGenerate(page, () => generateButton.click());
@@ -43,8 +32,8 @@ test.describe("History and Popular Compounds", () => {
 
   test("clicking a compound in Recently Generated populates the search field and switches to massbank mode", async ({
     page,
-  }: {
-    page: Page;
+    compoundInput,
+    generateButton,
   }) => {
     // generate audio for caffeine to populate recently generated
     await compoundInput.fill("caffeine");
@@ -72,8 +61,6 @@ test.describe("History and Popular Compounds", () => {
 
   test("most generated compounds are displayed on page load", async ({
     page,
-  }: {
-    page: Page;
   }) => {
     // Wait for at least one badge to appear — the /popular API call is async
     // and .count() doesn't retry, so we must wait for visibility first.
@@ -86,8 +73,6 @@ test.describe("History and Popular Compounds", () => {
 
   test("recently generated section is present on page load", async ({
     page,
-  }: {
-    page: Page;
   }) => {
     await expect(
       page.getByRole("heading", { name: "Recently Generated" })

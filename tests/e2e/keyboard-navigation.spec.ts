@@ -1,24 +1,10 @@
-import { test, expect, type Page } from "@playwright/test";
+import { test, expect } from "./fixtures";
 import { waitForGenerate } from "./test-helpers";
 
 test.describe("Keyboard Navigation", () => {
-  let compoundInput: ReturnType<Page["getByRole"]>;
-  let generateButton: ReturnType<Page["getByRole"]>;
-
-  test.beforeEach(async ({ page }: { page: Page }) => {
-    await page.goto("/");
-    // The random button is disabled while compounds.length === 0 — becoming
-    // enabled means compounds.json has loaded and React state is updated,
-    // which is required before the suggestion list can appear.
-    await expect(page.getByRole("button", { name: "🎲" })).toBeEnabled();
-    compoundInput = page.getByRole("textbox", { name: "Compound Name" });
-    generateButton = page.getByRole("button", { name: "Generate Audio" });
-  });
-
   test("pressing Enter on the compound name field submits the form", async ({
     page,
-  }: {
-    page: Page;
+    compoundInput,
   }) => {
     // focus on compound input and type a compound
     await compoundInput.fill("caffeine");
@@ -34,8 +20,6 @@ test.describe("Keyboard Navigation", () => {
 
   test("pressing Enter while focused on textarea does NOT submit the form", async ({
     page,
-  }: {
-    page: Page;
   }) => {
     // switch to custom mode
     const customTab = page.getByRole("button", { name: "Custom" });
@@ -57,8 +41,7 @@ test.describe("Keyboard Navigation", () => {
 
   test("the Enter key shortcut works end-to-end", async ({
     page,
-  }: {
-    page: Page;
+    compoundInput,
   }) => {
     // fill compound, press Enter, get audio
     await compoundInput.fill("caffeine");
@@ -83,8 +66,7 @@ test.describe("Keyboard Navigation", () => {
 
   test("pressing ArrowDown then Enter selects a suggestion and submits", async ({
     page,
-  }: {
-    page: Page;
+    compoundInput,
   }) => {
     // type partial compound name to trigger suggestions
     await compoundInput.fill("caff");

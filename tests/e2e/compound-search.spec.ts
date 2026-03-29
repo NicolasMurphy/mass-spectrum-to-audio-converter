@@ -1,21 +1,11 @@
-import { test, expect, type Page } from "@playwright/test";
+import { test, expect } from "./fixtures";
 import { waitForGenerate } from "./test-helpers";
 
 test.describe("Compound Search", () => {
-  let compoundInput: ReturnType<Page["getByRole"]>;
-  let generateButton: ReturnType<Page["getByRole"]>;
-
-  test.beforeEach(async ({ page }: { page: Page }) => {
-    await page.goto("/");
-    await expect(page.getByRole("button", { name: "🎲" })).toBeEnabled();
-    compoundInput = page.getByRole("textbox", { name: "Compound Name" });
-    generateButton = page.getByRole("button", { name: "Generate Audio" });
-  });
-
   test("user can search for caffeine and generate audio", async ({
     page,
-  }: {
-    page: Page;
+    compoundInput,
+    generateButton,
   }) => {
     // manual type and click generate
     await compoundInput.click();

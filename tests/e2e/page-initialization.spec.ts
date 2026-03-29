@@ -1,18 +1,7 @@
-import { test, expect, type Page } from "@playwright/test";
+import { test, expect } from "./fixtures";
 
 test.describe("Page Initialization", () => {
-  test.beforeEach(async ({ page }: { page: Page }) => {
-    await page.goto("/");
-    // Disabled while compounds.length === 0, so becoming enabled confirms
-    // compounds.json has loaded and React state has been updated.
-    await expect(page.getByRole("button", { name: "🎲" })).toBeEnabled();
-  });
-
-  test("page initializes with correct default state", async ({
-    page,
-  }: {
-    page: Page;
-  }) => {
+  test("page initializes with correct default state", async ({ page }) => {
     // empty tables
     await expect(page.getByText("No spectrum data yet")).toBeVisible();
     await expect(

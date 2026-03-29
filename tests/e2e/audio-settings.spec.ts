@@ -1,29 +1,18 @@
-import { test, expect, type Page } from "@playwright/test";
+import { test, expect } from "./fixtures";
 import { waitForGenerate } from "./test-helpers";
 
 test.describe("Audio Settings Validation", () => {
-  let compoundInput: ReturnType<Page["getByRole"]>;
-  let generateButton: ReturnType<Page["getByRole"]>;
-  let durationInput: ReturnType<Page["getByRole"]>;
-  let sampleRateInput: ReturnType<Page["getByRole"]>;
-
-  test.beforeEach(async ({ page }: { page: Page }) => {
-    await page.goto("/");
-    await expect(page.getByRole("button", { name: "🎲" })).toBeEnabled();
-    compoundInput = page.getByRole("textbox", { name: "Compound Name" });
-    generateButton = page.getByRole("button", { name: "Generate Audio" });
-    durationInput = page.getByRole("spinbutton", { name: "Duration" });
-    sampleRateInput = page.getByRole("spinbutton", { name: "Sample Rate (Hz)" });
-
+  test.beforeEach(async ({ compoundInput }) => {
     // fill in a valid compound first
     await compoundInput.fill("caffeine");
   });
 
   test("submitting with duration below 0.01 shows an error", async ({
     page,
-  }: {
-    page: Page;
+    generateButton,
   }) => {
+    const durationInput = page.getByRole("spinbutton", { name: "Duration" });
+
     // Webkit (and tablet/iPad) reject sub-step decimal values via .fill() on
     // type="number" inputs with default step=1, so the React onChange never
     // fires and the value stays at the default. Use the native setter instead.
@@ -49,9 +38,10 @@ test.describe("Audio Settings Validation", () => {
 
   test("submitting with duration above 30 shows an error", async ({
     page,
-  }: {
-    page: Page;
+    generateButton,
   }) => {
+    const durationInput = page.getByRole("spinbutton", { name: "Duration" });
+
     // set duration above 30
     await durationInput.fill("31");
     await generateButton.click();
@@ -64,9 +54,11 @@ test.describe("Audio Settings Validation", () => {
 
   test("submitting with sample rate below 3500 shows an error", async ({
     page,
-  }: {
-    page: Page;
   }) => {
+    const sampleRateInput = page.getByRole("spinbutton", {
+      name: "Sample Rate (Hz)",
+    });
+
     // The sample rate input has HTML min/max attributes which trigger browser-native
     // form validation before React's handler fires. We bypass this by dispatching
     // the submit event directly so React's own validation runs.
@@ -95,9 +87,11 @@ test.describe("Audio Settings Validation", () => {
 
   test("submitting with sample rate above 192000 shows an error", async ({
     page,
-  }: {
-    page: Page;
   }) => {
+    const sampleRateInput = page.getByRole("spinbutton", {
+      name: "Sample Rate (Hz)",
+    });
+
     await sampleRateInput.evaluate((el: HTMLInputElement) => {
       const nativeSetter = Object.getOwnPropertyDescriptor(
         window.HTMLInputElement.prototype,
@@ -123,9 +117,13 @@ test.describe("Audio Settings Validation", () => {
 
   test("submitting with valid non-default audio settings works", async ({
     page,
-  }: {
-    page: Page;
+    generateButton,
   }) => {
+    const durationInput = page.getByRole("spinbutton", { name: "Duration" });
+    const sampleRateInput = page.getByRole("spinbutton", {
+      name: "Sample Rate (Hz)",
+    });
+
     // set valid non-default values
     await durationInput.fill("2");
     await sampleRateInput.fill("22050");
@@ -143,9 +141,10 @@ test.describe("Audio Settings Validation", () => {
 
   test("edge case: duration exactly 0.01 works", async ({
     page,
-  }: {
-    page: Page;
+    generateButton,
   }) => {
+    const durationInput = page.getByRole("spinbutton", { name: "Duration" });
+
     // Use native setter — webkit/tablet treat 0.01 as an invalid step value
     // for type="number" with default step=1, causing .fill() to be silently ignored.
     await durationInput.evaluate((el: HTMLInputElement) => {
@@ -165,9 +164,10 @@ test.describe("Audio Settings Validation", () => {
 
   test("edge case: duration exactly 30 works", async ({
     page,
-  }: {
-    page: Page;
+    generateButton,
   }) => {
+    const durationInput = page.getByRole("spinbutton", { name: "Duration" });
+
     // set duration to exactly 30 — waitForGenerate handles the network wait
     await durationInput.fill("30");
     await waitForGenerate(page, () => generateButton.click());
@@ -178,9 +178,12 @@ test.describe("Audio Settings Validation", () => {
 
   test("edge case: sample rate exactly 3500 works", async ({
     page,
-  }: {
-    page: Page;
+    generateButton,
   }) => {
+    const sampleRateInput = page.getByRole("spinbutton", {
+      name: "Sample Rate (Hz)",
+    });
+
     // set sample rate to exactly 3500
     await sampleRateInput.fill("3500");
     await waitForGenerate(page, () => generateButton.click());
@@ -191,9 +194,12 @@ test.describe("Audio Settings Validation", () => {
 
   test("edge case: sample rate exactly 192000 works", async ({
     page,
-  }: {
-    page: Page;
+    generateButton,
   }) => {
+    const sampleRateInput = page.getByRole("spinbutton", {
+      name: "Sample Rate (Hz)",
+    });
+
     // set sample rate to exactly 192000
     await sampleRateInput.fill("192000");
     await waitForGenerate(page, () => generateButton.click());

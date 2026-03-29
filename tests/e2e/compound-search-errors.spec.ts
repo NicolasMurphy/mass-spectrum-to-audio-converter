@@ -1,17 +1,11 @@
-import { test, expect, type Page } from "@playwright/test";
+import { test, expect } from "./fixtures";
 
 test.describe("Compound Search Errors", () => {
-  let compoundInput: ReturnType<Page["getByRole"]>;
-  let generateButton: ReturnType<Page["getByRole"]>;
-
-  test.beforeEach(async ({ page }: { page: Page }) => {
-    await page.goto("/");
-    await expect(page.getByRole("button", { name: "🎲" })).toBeEnabled();
-    compoundInput = page.getByRole("textbox", { name: "Compound Name" });
-    generateButton = page.getByRole("button", { name: "Generate Audio" });
-  });
-
-  test("handles invalid compound searches", async ({ page }: { page: Page }) => {
+  test("handles invalid compound searches", async ({
+    page,
+    compoundInput,
+    generateButton,
+  }) => {
     // blank search does not generate
     await generateButton.click();
     await expect(page.getByText("No spectrum data yet")).toBeVisible();

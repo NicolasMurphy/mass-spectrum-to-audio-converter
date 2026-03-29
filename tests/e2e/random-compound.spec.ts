@@ -1,24 +1,13 @@
-import { test, expect, type Page } from "@playwright/test";
+import { test, expect } from "./fixtures";
 import { waitForGenerate } from "./test-helpers";
 
 test.describe("Random Compound", () => {
-  let randomButton: ReturnType<Page["getByRole"]>;
-  let generateButton: ReturnType<Page["getByRole"]>;
-
-  test.beforeEach(async ({ page }: { page: Page }) => {
-    await page.goto("/");
-    randomButton = page.getByRole("button", { name: "🎲" });
-    generateButton = page.getByRole("button", { name: "Generate Audio" });
-    // Wait for compounds to load and React state to update — the random button
-    // is disabled while compounds.length === 0.
-    await expect(randomButton).toBeEnabled();
-  });
-
   test("random compound button generates audio successfully", async ({
     page,
-  }: {
-    page: Page;
+    generateButton,
   }) => {
+    const randomButton = page.getByRole("button", { name: "🎲" });
+
     // click random and generate
     await randomButton.click();
     await waitForGenerate(page, () => generateButton.click());
