@@ -136,7 +136,7 @@ def test_validate_and_parse_parameters_invalid_sample_rate_float():
         validate_and_parse_parameters(data)
         assert False, "Expected ValueError to be raised"
     except ValueError as e:
-        assert "Invalid sample rate. Must be an integer." == str(e)
+        assert "Invalid sample_rate. Must be an integer." == str(e)
 
 
 def test_validate_and_parse_parameters_invalid_offset():

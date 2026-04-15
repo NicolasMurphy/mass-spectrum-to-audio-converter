@@ -17,7 +17,7 @@ def validate_and_parse_parameters(data, require_compound=True):
     raw_sr = data.get("sample_rate")
     if raw_sr is not None:
         if isinstance(raw_sr, float) or (isinstance(raw_sr, str) and "." in raw_sr):
-            raise ValueError("Invalid sample rate. Must be an integer.")
+            raise ValueError("Invalid sample_rate. Must be an integer.")
 
     if require_compound:
         compound = data.get("compound")
