@@ -51,8 +51,8 @@ function exportAscl(
   const sorted = [...pitchRatios].sort((a, b) => a - b);
 
   const intervals = sorted.slice(1).map((ratio) => {
-    const freq = MIDDLE_C_HZ * ratio;
-    return freq.toFixed(6);
+    const cents = 1200 * Math.log2(ratio / minRatio);
+    return cents.toFixed(6);
   });
 
   const filename = buildFilename(compoundName, accession, "ascl");
