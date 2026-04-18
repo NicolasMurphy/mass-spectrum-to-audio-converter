@@ -39,15 +39,14 @@ jobs:
           node-version: "22"
 
       - name: Install Playwright dependencies
+        working-directory: tests/playwright
         run: |
-          cd tests/playwright
           npm ci
           npx playwright install --with-deps
 
       - name: Run Playwright tests
-        run: |
-          cd tests/playwright
-          npm run test
+        working-directory: tests/playwright
+        run: npm run test
 
       - name: Upload Playwright report
         if: always()
