@@ -31,7 +31,7 @@ jobs:
         run: docker compose up -d
 
       - name: Run backend tests
-        run: docker compose exec -T app python -m pytest tests/ -v -s --cov=. --cov-report=term-missing
+        run: docker compose exec -T app python -m pytest tests/ -v --cov=. --cov-report=term-missing
 
       - name: Install Node.js
         uses: actions/setup-node@v6
