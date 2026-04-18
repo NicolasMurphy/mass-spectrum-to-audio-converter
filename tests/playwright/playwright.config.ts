@@ -9,7 +9,8 @@ export default defineConfig({
   use: {
     baseURL: "http://localhost:5173",
     screenshot: "only-on-failure",
-    video: "retain-on-failure",
+    video: "on-first-retry",
+    trace: "on-first-retry",
   },
   outputDir: "test-results/",
   reporter: [["list"], ["html", { outputFolder: "playwright-report" }]],
