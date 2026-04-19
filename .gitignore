@@ -10,3 +10,4 @@ tests/playwright/node_modules/
 tests/playwright/test-results/
 tests/playwright/playwright-report/
 tests/playwright/playwright/.cache/
+tests/playwright/flake-report.json
