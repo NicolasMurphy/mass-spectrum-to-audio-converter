@@ -75,11 +75,6 @@ test.describe("Keyboard Navigation", () => {
     const suggestionList = page.getByTestId("suggestion-list");
     await expect(suggestionList).toBeVisible();
 
-    // ArrowDown to highlight the first suggestion (selectedIndex goes from -1 to 0).
-    // Then wait for bg-blue-100 to appear before pressing Enter — ArrowDown triggers
-    // setSelectedIndex(0) which is an async React state update. If Enter fires before
-    // the re-render commits, selectedIndex is still -1 and handleSuggestionClick is
-    // never called, causing the form to submit with the raw typed text instead.
     await compoundInput.press("ArrowDown");
     await expect(suggestionList.locator("li").first()).toHaveClass(/bg-blue-100/);
 
@@ -88,6 +83,7 @@ test.describe("Keyboard Navigation", () => {
 
     // suggestions should be dismissed and the input populated
     await expect(suggestionList).not.toBeVisible();
+    await expect(compoundInput).toHaveValue("Caffearin");
 
     // press Enter again (global handler) to submit the form
     await waitForGenerate(page, () => page.keyboard.press("Enter"));
