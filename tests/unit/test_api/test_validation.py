@@ -1,4 +1,4 @@
-from api import (
+from api.validation import (
     validate_algorithm,
     validate_and_parse_parameters,
     validate_spectrum_text_range,

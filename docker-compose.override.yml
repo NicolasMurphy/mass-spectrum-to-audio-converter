@@ -14,6 +14,7 @@ services:
       - ./app.py:/app/app.py
       - ./.env:/app/.env
       - ./tests:/app/tests
+      - ./pyproject.toml:/app/pyproject.toml
     environment:
       - FLASK_ENV=development
       - FLASK_DEBUG=1
