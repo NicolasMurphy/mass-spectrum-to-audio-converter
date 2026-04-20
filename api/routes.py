@@ -19,8 +19,8 @@ def history():
         limit = request.args.get("limit", default=20, type=int)
         history_data = get_search_history(limit=limit)
         return {"history": history_data}, 200
-    except Exception as e:
-        return {"error": str(e)}, 500
+    except Exception:
+        return {"error": "Internal server error"}, 500
 
 
 def popular():
@@ -28,8 +28,8 @@ def popular():
         limit = request.args.get("limit", default=20, type=int)
         popular_data = get_popular_compounds(limit=limit)
         return {"popular": popular_data}, 200
-    except Exception as e:
-        return {"error": str(e)}, 500
+    except Exception:
+        return {"error": "Internal server error"}, 500
 
 
 def generate_audio_with_data(algorithm):
