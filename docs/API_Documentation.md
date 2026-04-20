@@ -347,9 +347,9 @@ Retrieves recently generated compounds.
 
 #### Query Parameters
 
-| Parameter | Type    | Required | Default | Description                                            |
-| --------- | ------- | -------- | ------- | ------------------------------------------------------ |
-| `limit`   | integer | No       | 20      | Maximum number of recently generated entries to return |
+| Parameter | Type    | Required | Default | Description                                                          |
+| --------- | ------- | -------- | ------- | -------------------------------------------------------------------- |
+| `limit`   | integer | No       | 20      | Maximum number of recently generated entries to return (max 100)     |
 
 #### Response
 
@@ -406,9 +406,9 @@ Retrieves the most frequently generated compounds based on recent generations.
 
 #### Query Parameters
 
-| Parameter | Type    | Required | Default | Description                                        |
-| --------- | ------- | -------- | ------- | -------------------------------------------------- |
-| `limit`   | integer | No       | 20      | Maximum number of most generated entries to return |
+| Parameter | Type    | Required | Default | Description                                                  |
+| --------- | ------- | -------- | ------- | ------------------------------------------------------------ |
+| `limit`   | integer | No       | 20      | Maximum number of most generated entries to return (max 100) |
 
 #### Response
 

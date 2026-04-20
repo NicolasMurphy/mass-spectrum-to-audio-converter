@@ -17,6 +17,7 @@ notification_service = NotificationService()
 def history():
     try:
         limit = request.args.get("limit", default=20, type=int)
+        limit = max(1, min(limit, 100))
         history_data = get_search_history(limit=limit)
         return {"history": history_data}, 200
     except Exception:
@@ -26,6 +27,7 @@ def history():
 def popular():
     try:
         limit = request.args.get("limit", default=20, type=int)
+        limit = max(1, min(limit, 100))
         popular_data = get_popular_compounds(limit=limit)
         return {"popular": popular_data}, 200
     except Exception:
