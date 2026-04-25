@@ -36,7 +36,7 @@ jobs:
           https://github.com/NicolasMurphy/mass-spectrum-to-audio-converter/releases/download/2025-08-19/mass_spectrum_db.sql
 
       - name: Start services
-        run: docker compose up -d
+        run: docker compose up -d --wait
 
       - name: Install Node.js
         uses: actions/setup-node@v6
@@ -49,20 +49,74 @@ jobs:
           npm ci
           npx playwright install --with-deps
 
-      - name: Parse repeat count from comment
+      - name: Parse comment args
         env:
           COMMENT_BODY: ${{ github.event.comment.body }}
         run: |
-          repeat=$(printf '%s' "$COMMENT_BODY" | grep -oE -- '--repeat=[0-9]+' | head -n1 | cut -d= -f2)
-          if [ -z "$repeat" ] || [ "$repeat" -lt 1 ] || [ "$repeat" -gt 100 ]; then
-            repeat=10
-          fi
-          echo "Using --repeat=$repeat"
-          echo "REPEAT=$repeat" >> "$GITHUB_ENV"
+          python3 <<'EOF'
+          import os, re, shlex
+
+          body = os.environ["COMMENT_BODY"]
+          match = re.search(r'/flake-check\b([^\n\r]*)', body)
+          args_str = match.group(1).strip() if match else ""
+
+          try:
+              tokens = shlex.split(args_str)
+          except ValueError:
+              tokens = []
+
+          spec = ""
+          project = ""
+          grep = ""
+          repeat = 10
+
+          i = 0
+          while i < len(tokens):
+              t = tokens[i]
+              if t == "-g" and i + 1 < len(tokens):
+                  candidate = tokens[i + 1]
+                  if len(candidate) <= 100:
+                      grep = candidate
+                  i += 2
+                  continue
+              if t.startswith("--project="):
+                  value = t.split("=", 1)[1]
+                  if re.fullmatch(r'[a-zA-Z0-9_-]{1,50}', value):
+                      project = value
+                  i += 1
+                  continue
+              if t.startswith("--repeat="):
+                  value = t.split("=", 1)[1]
+                  if value.isdigit():
+                      n = int(value)
+                      if 1 <= n <= 100:
+                          repeat = n
+                  i += 1
+                  continue
+              if re.fullmatch(r'[a-zA-Z0-9_./-]{1,100}\.spec\.ts', t):
+                  spec = t
+                  i += 1
+                  continue
+              i += 1
+
+          print(f"Resolved args: spec={spec or '(none)'} grep={grep or '(none)'} project={project or '(all)'} repeat={repeat}")
+
+          with open(os.environ["GITHUB_ENV"], "a") as f:
+              f.write(f"SPEC={spec}\n")
+              f.write(f"GREP={grep}\n")
+              f.write(f"PROJECT={project}\n")
+              f.write(f"REPEAT={repeat}\n")
+          EOF
 
       - name: Run flake detector
         working-directory: tests/playwright
-        run: npm run detect-flakes -- --repeat=$REPEAT
+        run: |
+          ARGS=()
+          [ -n "$SPEC" ] && ARGS+=("$SPEC")
+          [ -n "$GREP" ] && ARGS+=("-g" "$GREP")
+          [ -n "$PROJECT" ] && ARGS+=("--project=$PROJECT")
+          ARGS+=("--repeat=$REPEAT")
+          npm run detect-flakes -- "${ARGS[@]}"
 
       - name: Upload flake report
         if: always()
