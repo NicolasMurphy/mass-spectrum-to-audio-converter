@@ -1,0 +1,63 @@
+name: Flake Detector
+
+on:
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  detect-flakes:
+    if: github.event.issue.pull_request && contains(github.event.comment.body, '/flake-check')
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: refs/pull/${{ github.event.issue.number }}/head
+
+      - name: Create .env file
+        run: |
+          echo "FLASK_ENV=development" >> .env
+          echo "DB_NAME=${{ secrets.DB_NAME }}" >> .env
+          echo "DB_USER=${{ secrets.DB_USER }}" >> .env
+          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
+          echo "DB_HOST=postgres" >> .env
+          echo "DB_PORT=5432" >> .env
+
+      - name: Download database file
+        run: |
+          curl -L -o db/mass_spectrum_db.sql \
+          https://github.com/NicolasMurphy/mass-spectrum-to-audio-converter/releases/download/2025-08-19/mass_spectrum_db.sql
+
+      - name: Start services
+        run: docker compose up -d
+
+      - name: Install Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+
+      - name: Install Playwright dependencies
+        working-directory: tests/playwright
+        run: |
+          npm ci
+          npx playwright install --with-deps
+
+      - name: Run flake detector
+        working-directory: tests/playwright
+        run: npm run detect-flakes
+
+      - name: Upload flake report
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: flake-report
+          path: tests/playwright/flake-report.json
+          retention-days: 30
+
+      - name: Cleanup
+        if: always()
+        run: docker compose down -v
