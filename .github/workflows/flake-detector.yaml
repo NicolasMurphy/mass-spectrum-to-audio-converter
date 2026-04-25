@@ -36,7 +36,7 @@ jobs:
           https://github.com/NicolasMurphy/mass-spectrum-to-audio-converter/releases/download/2025-08-19/mass_spectrum_db.sql
 
       - name: Start services
-        run: docker compose up -d
+        run: docker compose up -d --wait
 
       - name: Install Node.js
         uses: actions/setup-node@v6
