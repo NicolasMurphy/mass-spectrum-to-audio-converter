@@ -46,9 +46,20 @@ jobs:
           npm ci
           npx playwright install --with-deps
 
+      - name: Parse repeat count from comment
+        env:
+          COMMENT_BODY: ${{ github.event.comment.body }}
+        run: |
+          repeat=$(printf '%s' "$COMMENT_BODY" | grep -oE -- '--repeat=[0-9]+' | head -n1 | cut -d= -f2)
+          if [ -z "$repeat" ] || [ "$repeat" -lt 1 ] || [ "$repeat" -gt 100 ]; then
+            repeat=10
+          fi
+          echo "Using --repeat=$repeat"
+          echo "REPEAT=$repeat" >> "$GITHUB_ENV"
+
       - name: Run flake detector
         working-directory: tests/playwright
-        run: npm run detect-flakes
+        run: npm run detect-flakes -- --repeat=$REPEAT
 
       - name: Upload flake report
         if: always()
