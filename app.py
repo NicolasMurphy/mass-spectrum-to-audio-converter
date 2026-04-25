@@ -61,6 +61,11 @@ def serve_index():
     return send_from_directory("static", "index.html")
 
 
+@app.route("/health")
+def health():
+    return {"status": "ok"}, 200
+
+
 app.route("/history", methods=["GET"])(history_limit(history))
 app.route("/massbank/<algorithm>", methods=["POST"])(audio_limit(generate_audio_with_data))
 app.route("/custom/<algorithm>", methods=["POST"])(audio_limit(generate_audio_with_custom_data))
