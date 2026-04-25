@@ -33,3 +33,6 @@ services:
     environment:
       - VITE_API_URL=http://localhost:5001
       - CHOKIDAR_USEPOLLING=true
+    depends_on:
+      app:
+        condition: service_healthy
