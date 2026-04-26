@@ -55,7 +55,6 @@ const result = spawnSync(
     `--repeat-each=${repeat}`,
     "--retries=0",
     "--trace=retain-on-failure",
-    "--video=retain-on-failure",
     "--reporter=list,json",
   ],
   {
