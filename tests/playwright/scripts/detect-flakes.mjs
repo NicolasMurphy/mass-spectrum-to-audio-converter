@@ -54,6 +54,7 @@ const result = spawnSync(
     ...passthroughArgs,
     `--repeat-each=${repeat}`,
     "--retries=0",
+    "--trace=retain-on-failure",
     "--reporter=list,json",
   ],
   {
