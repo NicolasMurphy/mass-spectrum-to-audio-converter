@@ -4,6 +4,7 @@ __pycache__/
 dev-commands.md
 *.sql
 .pytest_cache
+.DS_Store
 
 # Playwright
 tests/playwright/node_modules/
