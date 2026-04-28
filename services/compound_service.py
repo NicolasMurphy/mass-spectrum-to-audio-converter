@@ -1,4 +1,3 @@
-import threading
 from db import get_massbank_peaks, log_search
 
 
@@ -20,7 +19,4 @@ class CompoundDataService:
         }
 
     def log_compound_search(self, compound_name, accession):
-        """Log that a compound was searched (runs asynchronously)"""
-        threading.Thread(
-            target=log_search, args=(compound_name, accession), daemon=True
-        ).start()
+        log_search(compound_name, accession)
