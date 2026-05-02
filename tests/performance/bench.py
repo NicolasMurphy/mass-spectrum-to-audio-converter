@@ -58,6 +58,12 @@ def td_signature(td):
 
 
 def parity_check(baseline_td, current_td):
+    """
+    Guards the transform layer only: per-peak metadata (mz, frequency,
+    intensity, amplitude_*). The audio output is checked separately via
+    wav_hash equality in main(); changes that affect only the sine math
+    will pass this check but fail the wav_hash check.
+    """
     if len(baseline_td) != len(current_td):
         return f"length: {len(baseline_td)} vs {len(current_td)}"
     for i, (b, c) in enumerate(zip(baseline_td, current_td)):
