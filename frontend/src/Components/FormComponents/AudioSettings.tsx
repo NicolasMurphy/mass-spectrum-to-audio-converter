@@ -48,8 +48,7 @@ export default function AudioSettings({
       </div>
       <div className="form-control mb-4">
         <label
-          className="label cursor-pointer justify-start gap-3 tooltip tooltip-right"
-          data-tip="Float32 WAV output for downstream DSP. ~3x slower."
+          className="label cursor-pointer justify-start gap-3"
           htmlFor="hqInput"
         >
           <input
@@ -59,7 +58,12 @@ export default function AudioSettings({
             checked={hq}
             onChange={(e) => onHqChange(e.target.checked)}
           />
-          <span className="label-text font-semibold">HQ output</span>
+          <span
+            className="label-text font-semibold tooltip"
+            data-tip="Float32 WAV (DAW-friendly, ~3x slower)"
+          >
+            HQ output
+          </span>
         </label>
       </div>
     </>
