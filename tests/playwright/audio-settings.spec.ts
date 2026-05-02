@@ -207,4 +207,48 @@ test.describe("Audio Settings Validation", () => {
     // should succeed
     await expect(page.getByText("Success!")).toBeVisible();
   });
+
+  test("HQ toggle off: response echoes hq=false", async ({
+    page,
+    generateButton,
+  }) => {
+    const responsePromise = page.waitForResponse(
+      (r) =>
+        (r.url().includes("/massbank/") || r.url().includes("/custom/")) &&
+        r.status() === 200,
+      { timeout: 10000 }
+    );
+    await generateButton.click();
+    const response = await responsePromise;
+    const data = await response.json();
+    expect(data.audio_settings.hq).toBe(false);
+  });
+
+  test("HQ toggle on: request sends hq=true and response echoes it", async ({
+    page,
+    generateButton,
+  }) => {
+    const hqCheckbox = page.getByRole("checkbox", { name: "HQ output" });
+    await hqCheckbox.check();
+    await expect(hqCheckbox).toBeChecked();
+
+    const requestPromise = page.waitForRequest(
+      (r) => r.url().includes("/massbank/") && r.method() === "POST",
+      { timeout: 10000 }
+    );
+    const responsePromise = page.waitForResponse(
+      (r) =>
+        (r.url().includes("/massbank/") || r.url().includes("/custom/")) &&
+        r.status() === 200,
+      { timeout: 10000 }
+    );
+    await generateButton.click();
+
+    const request = await requestPromise;
+    expect(request.postDataJSON().hq).toBe(true);
+
+    const response = await responsePromise;
+    const data = await response.json();
+    expect(data.audio_settings.hq).toBe(true);
+  });
 });
