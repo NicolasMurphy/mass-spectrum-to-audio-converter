@@ -117,12 +117,14 @@ export default function GeneratorForm({
         <AudioSettings
           duration={formState.duration}
           sampleRate={formState.sampleRate}
+          hq={formState.hq}
           onDurationChange={(value) =>
             dispatch({ type: "SET_FIELD", field: "duration", value })
           }
           onSampleRateChange={(value) =>
             dispatch({ type: "SET_FIELD", field: "sampleRate", value })
           }
+          onHqChange={(value) => dispatch({ type: "SET_HQ", value })}
         />
         <button
           type="submit"

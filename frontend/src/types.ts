@@ -100,8 +100,10 @@ export interface SpectrumAnalyzerProps {
 export interface AudioSettingsProps {
   duration: string;
   sampleRate: string;
+  hq: boolean;
   onDurationChange: (value: string) => void;
   onSampleRateChange: (value: string) => void;
+  onHqChange: (value: boolean) => void;
 }
 
 export type SamplePianoProps = {

@@ -1,6 +1,18 @@
 import { useReducer } from "react";
 import { type Algorithm, type InputMode } from "../types";
 
+type StringField =
+  | "compound"
+  | "spectrumText"
+  | "offset"
+  | "scale"
+  | "shift"
+  | "factor"
+  | "modulus"
+  | "base"
+  | "duration"
+  | "sampleRate";
+
 export interface FormState {
   algorithm: Algorithm;
   inputMode: InputMode;
@@ -14,12 +26,14 @@ export interface FormState {
   base: string;
   duration: string;
   sampleRate: string;
+  hq: boolean;
 }
 
 export type FormAction =
-  | { type: "SET_FIELD"; field: keyof FormState; value: string }
+  | { type: "SET_FIELD"; field: StringField; value: string }
   | { type: "SET_ALGORITHM"; value: Algorithm }
   | { type: "SET_INPUT_MODE"; value: InputMode }
+  | { type: "SET_HQ"; value: boolean }
   | { type: "RESET" };
 
 export const INITIAL_FORM_STATE: FormState = {
@@ -35,6 +49,7 @@ export const INITIAL_FORM_STATE: FormState = {
   base: "100",
   duration: "5",
   sampleRate: "44100",
+  hq: false,
 };
 
 export function formReducer(state: FormState, action: FormAction): FormState {
@@ -45,6 +60,8 @@ export function formReducer(state: FormState, action: FormAction): FormState {
       return { ...state, algorithm: action.value };
     case "SET_INPUT_MODE":
       return { ...state, inputMode: action.value };
+    case "SET_HQ":
+      return { ...state, hq: action.value };
     case "RESET":
       return INITIAL_FORM_STATE;
     default:
