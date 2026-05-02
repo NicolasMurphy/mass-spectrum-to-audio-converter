@@ -3,15 +3,19 @@ Array Reuse Strategy:
 - time_array: Pre-allocated array of time points in seconds [0.0, 0.0000227, 0.0000454, ...]
 - wave_buffer: Pre-allocated array that gets overwritten for each peak [0, 15000, -8000, ...]
 
-Audio Amplitude Scaling:
-- np.iinfo(np.int16).max = 32,767 (max positive value for 16-bit audio)
-- We use positive max because sine naturally creates both +/- values
-- Converts normalized intensity (0-1) to audio amplitude scale (-32,768 to +32,767)
+Output Pipeline:
+- Per peak: scale by working_scale (np.iinfo(np.int16).max) and accumulate into
+  combined_wave. The working_scale value is vestigial — final normalization divides
+  it out — but kept to preserve float accumulation rounding (changing it would
+  invalidate bench wav_hash baselines).
+- Final: normalize combined_wave to [-1, 1], then cast to int16 PCM (default) or
+  float32 IEEE (hq=True). The hq branch also uses float64 math throughout for
+  downstream DSP precision.
 
 Sine Wave Generation:
 - 2*pi*freq*time calculates phase values (in radians)
 - np.sin() converts radians to wave heights (-1 to +1)
-- Multiply by amplitude to get final audio values
+- Multiply by working_scale and accumulate into combined_wave
 - np.sin(..., out=buffer) writes directly into buffer (no temporary arrays)
 
 Key NumPy Functions:
@@ -34,9 +38,9 @@ import re
 
 def generate_sine_wave(freq, intensity, time_array, wave_buffer):
     """Generate sine wave into provided buffer (reusable array)"""
-    amplitude = np.iinfo(np.int16).max * intensity
+    working_scale = np.iinfo(np.int16).max * intensity
     np.sin(2 * np.pi * freq * time_array, out=wave_buffer)
-    wave_buffer *= amplitude
+    wave_buffer *= working_scale
     return wave_buffer
 
 
