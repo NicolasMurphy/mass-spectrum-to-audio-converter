@@ -53,7 +53,8 @@ def generate_combined_wav_bytes_and_data(
     base: float = 100,
 ):
     # Time array: represents sample points from 0 to duration
-    time_array = np.linspace(0, duration, int(sample_rate * duration), False)
+    # float32 keeps sine math in single precision (~2x faster, well within int16 output precision)
+    time_array = np.linspace(0, duration, int(sample_rate * duration), False, dtype=np.float32)
 
     # Final output: will contain the sum of all sine waves
     combined_wave = np.zeros_like(time_array)
