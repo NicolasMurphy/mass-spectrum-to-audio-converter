@@ -76,6 +76,7 @@ def generate_audio_with_data(algorithm):
             "audio_settings": {
                 "duration": params["duration"],
                 "sample_rate": params["sample_rate"],
+                "hq": params["hq"],
             },
         }
 
@@ -133,6 +134,7 @@ def generate_audio_with_custom_data(algorithm):
             "audio_settings": {
                 "duration": params["duration"],
                 "sample_rate": params["sample_rate"],
+                "hq": params["hq"],
             },
         }
 

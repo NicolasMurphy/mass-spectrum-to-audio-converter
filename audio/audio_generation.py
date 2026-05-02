@@ -51,10 +51,14 @@ def generate_combined_wav_bytes_and_data(
     factor: float = 10,
     modulus: float = 500,
     base: float = 100,
+    hq: bool = False,
 ):
+    # hq=True: float64 math + float32 WAV output (DAW-friendly precision, ~3x slower).
+    # hq=False: float32 math + int16 WAV output (default; fast iteration).
+    math_dtype = np.float64 if hq else np.float32
+
     # Time array: represents sample points from 0 to duration
-    # float32 keeps sine math in single precision (well within int16 output precision)
-    time_array = np.linspace(0, duration, int(sample_rate * duration), False, dtype=np.float32)
+    time_array = np.linspace(0, duration, int(sample_rate * duration), False, dtype=math_dtype)
 
     # Final output: will contain the sum of all sine waves
     combined_wave = np.zeros_like(time_array)
@@ -108,7 +112,11 @@ def generate_combined_wav_bytes_and_data(
     # Final normalization
     if np.max(np.abs(combined_wave)) > 0:
         combined_wave = combined_wave / np.max(np.abs(combined_wave))
-    combined_wave = np.int16(combined_wave * np.iinfo(np.int16).max)
+
+    if hq:
+        combined_wave = combined_wave.astype(np.float32)
+    else:
+        combined_wave = np.int16(combined_wave * np.iinfo(np.int16).max)
 
     wav_buffer = io.BytesIO()
     write(wav_buffer, sample_rate, combined_wave)

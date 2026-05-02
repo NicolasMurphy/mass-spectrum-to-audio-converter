@@ -28,6 +28,7 @@ class AudioGenerationService:
             base=parameters["base"],
             duration=parameters["duration"],
             sample_rate=parameters["sample_rate"],
+            hq=parameters["hq"],
         )
 
         return {

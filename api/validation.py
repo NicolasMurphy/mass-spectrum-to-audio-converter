@@ -77,6 +77,10 @@ def validate_and_parse_parameters(data, require_compound=True):
         raise ValueError("Invalid base. Must be a float.")
     validate_number_range(base, "base")
 
+    hq = data.get("hq", False)
+    if not isinstance(hq, bool):
+        raise ValueError("Invalid hq. Must be a boolean.")
+
     if not (0.01 <= duration <= 30):
         raise ValueError("Duration must be between 0.01 and 30 seconds.")
 
@@ -92,6 +96,7 @@ def validate_and_parse_parameters(data, require_compound=True):
         "factor": factor,
         "modulus": modulus,
         "base": base,
+        "hq": hq,
     }
 
     if require_compound or compound is not None:
