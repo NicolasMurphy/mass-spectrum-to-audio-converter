@@ -79,9 +79,10 @@ export function useAudioGeneration({
           ? `${import.meta.env.VITE_API_URL}/massbank/${formState.algorithm}`
           : `${import.meta.env.VITE_API_URL}/custom/${formState.algorithm}`;
 
-      const requestBody: Record<string, string | number> = {
+      const requestBody: Record<string, string | number | boolean> = {
         duration: durationNum,
         sample_rate: sampleRateNum,
+        hq: formState.hq,
       };
 
       if (formState.inputMode === "massbank") {

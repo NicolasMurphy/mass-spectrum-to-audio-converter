@@ -38,8 +38,35 @@ def test_generate_audio_with_linear_algorithm(client):
     assert "audio_settings" in data
     assert data["audio_settings"]["duration"] == 3
     assert data["audio_settings"]["sample_rate"] == 48000
+    assert data["audio_settings"]["hq"] is False
     assert "spectrum" in data
     assert len(data["spectrum"]) > 0
+
+
+def test_generate_audio_hq_mode(client):
+    """hq=true is echoed in audio_settings."""
+    response = client.post(
+        "/massbank/linear",
+        json={"compound": "caffeine", "duration": 1, "hq": True},
+        content_type="application/json",
+    )
+
+    assert response.status_code == 200
+    data = response.get_json()
+    assert data["audio_settings"]["hq"] is True
+
+
+def test_generate_audio_invalid_hq(client):
+    """Non-boolean hq is rejected."""
+    response = client.post(
+        "/massbank/linear",
+        json={"compound": "caffeine", "hq": "true"},
+        content_type="application/json",
+    )
+
+    assert response.status_code == 400
+    data = response.get_json()
+    assert "Invalid hq" in data["error"]
 
 
 def test_generate_audio_with_inverse_algorithm(client):

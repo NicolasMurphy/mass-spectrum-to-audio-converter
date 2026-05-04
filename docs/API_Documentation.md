@@ -41,6 +41,7 @@ Generates audio data from a compound's mass spectrum data using the specified al
 | `base`        | float   | No       | 100     | -1,000,000 to 1,000,000       | `Hz = ((m/z * factor) % modulus) + base` _(modulo algorithm only)_ |
 | `sample_rate` | integer | No       | 44100   | 3500 to 192000                | Audio sample rate in Hz                                            |
 | `duration`    | float   | No       | 5       | 0.01 to 30.0                  | Duration of generated audio in seconds                             |
+| `hq`          | boolean | No       | false   | strict boolean                | If `true`, output float32 WAV (DAW-friendly precision, ~3x slower) |
 
 **Note:** "Required" means the parameter must be provided in the request. Optional parameters will use their default values if not specified.
 
@@ -59,7 +60,8 @@ Generates audio data from a compound's mass spectrum data using the specified al
   "audio_base64": "UklGRiSmDgBXQVZFZm10IBAAAAABAAEA...",
   "audio_settings": {
     "duration": 5.0,
-    "sample_rate": 44100
+    "sample_rate": 44100,
+    "hq": false
   },
   "compound": "Caffeine",
   "parameters": {
@@ -115,6 +117,7 @@ Generates audio data from a compound's mass spectrum data using the specified al
 | `audio_settings`              | object  | Audio generation settings                    |
 | `audio_settings.duration`     | float   | Duration of generated audio in seconds       |
 | `audio_settings.sample_rate`  | integer | Audio sample rate in Hz                      |
+| `audio_settings.hq`           | boolean | Whether HQ (float32 WAV) output was used     |
 
 **Error Responses**
 
@@ -128,6 +131,7 @@ Generates audio data from a compound's mass spectrum data using the specified al
 | 400         | Invalid duration           | `{"error": "Duration must be between 0.01 and 30 seconds."}`                              |
 | 400         | Invalid sample rate        | `{"error": "Sample rate must be between 3500 and 192000."}`                               |
 | 400         | Invalid sample rate format | `{"error": "Invalid sample_rate. Must be an integer."}`                                   |
+| 400         | Invalid hq                 | `{"error": "Invalid hq. Must be a boolean."}`                                             |
 | 400         | Invalid JSON               | `{"error": "No JSON data provided"}`                                                      |
 | 404         | Compound not found         | `{"error": "No records found"}`                                                           |
 | 429         | Rate limit exceeded        | `{"error": "Too many requests"}`                                                          |
@@ -223,6 +227,7 @@ Generates audio data from custom mass spectrum data using the specified algorith
 | `base`          | float   | No       | 100     | -1,000,000 to 1,000,000 | `Hz = ((m/z * factor) % modulus) + base` _(modulo algorithm only)_ |
 | `sample_rate`   | integer | No       | 44100   | 3500 to 192000          | Audio sample rate in Hz                                            |
 | `duration`      | float   | No       | 5       | 0.01 to 30.0            | Duration of generated audio in seconds                             |
+| `hq`            | boolean | No       | false   | strict boolean          | If `true`, output float32 WAV (DAW-friendly precision, ~3x slower) |
 
 **Note:** "Required" means the parameter must be provided in the request. Optional parameters will use their default values if not specified.
 
@@ -241,7 +246,8 @@ Generates audio data from custom mass spectrum data using the specified algorith
   "audio_base64": "UklGRsy6BgBXQVZFZm10IBAAAAABAAEA...",
   "audio_settings": {
     "duration": 5.0,
-    "sample_rate": 44100
+    "sample_rate": 44100,
+    "hq": false
   },
   "compound": "Custom Compound",
   "parameters": {
@@ -290,6 +296,7 @@ Generates audio data from custom mass spectrum data using the specified algorith
 | `audio_settings`              | object  | Audio generation settings                       |
 | `audio_settings.duration`     | float   | Duration of generated audio in seconds          |
 | `audio_settings.sample_rate`  | integer | Audio sample rate in Hz                         |
+| `audio_settings.hq`           | boolean | Whether HQ (float32 WAV) output was used        |
 
 **Error Responses**
 
@@ -304,6 +311,7 @@ Generates audio data from custom mass spectrum data using the specified algorith
 | 400         | Invalid duration             | `{"error": "Duration must be between 0.01 and 30 seconds."}`                                                          |
 | 400         | Invalid sample rate          | `{"error": "Sample rate must be between 3500 and 192000."}`                                                           |
 | 400         | Invalid sample rate format   | `{"error": "Invalid sample_rate. Must be an integer."}`                                                               |
+| 400         | Invalid hq                   | `{"error": "Invalid hq. Must be a boolean."}`                                                                         |
 | 400         | Invalid JSON                 | `{"error": "No JSON data provided"}`                                                                                  |
 | 429         | Rate limit exceeded          | `{"error": "Too many requests"}`                                                                                      |
 | 500         | Internal server error        | `{"error": "Internal server error"}`                                                                                  |

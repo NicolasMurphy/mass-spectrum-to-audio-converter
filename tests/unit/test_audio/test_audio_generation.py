@@ -3,6 +3,7 @@ from audio import (
     generate_combined_wav_bytes_and_data,
 )
 import numpy as np
+from scipy.io.wavfile import read as wav_read
 
 
 # generate sine wave tests
@@ -59,3 +60,23 @@ def test_generate_combined_wav_bytes_and_data_basic():
         assert "intensity" in item
         assert "amplitude_linear" in item
         assert "amplitude_db" in item
+
+
+def test_generate_combined_wav_bytes_default_is_int16():
+    """Default (hq=False) writes int16 PCM."""
+    spectrum_data = [(100, 0.5), (200, 0.3)]
+    wav_buffer, _ = generate_combined_wav_bytes_and_data(
+        spectrum_data, duration=0.1, sample_rate=8000, algorithm="linear"
+    )
+    _, data = wav_read(wav_buffer)
+    assert data.dtype == np.int16
+
+
+def test_generate_combined_wav_bytes_hq_is_float32():
+    """hq=True writes float32 IEEE PCM."""
+    spectrum_data = [(100, 0.5), (200, 0.3)]
+    wav_buffer, _ = generate_combined_wav_bytes_and_data(
+        spectrum_data, duration=0.1, sample_rate=8000, algorithm="linear", hq=True
+    )
+    _, data = wav_read(wav_buffer)
+    assert data.dtype == np.float32

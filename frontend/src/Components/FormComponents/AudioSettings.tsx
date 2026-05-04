@@ -3,8 +3,10 @@ import { type AudioSettingsProps } from "../../types";
 export default function AudioSettings({
   duration,
   sampleRate,
+  hq,
   onDurationChange,
   onSampleRateChange,
+  onHqChange,
 }: AudioSettingsProps) {
   return (
     <>
@@ -43,6 +45,26 @@ export default function AudioSettings({
           min={3500}
           max={192000}
         />
+      </div>
+      <div className="form-control mb-4">
+        <label
+          className="label cursor-pointer justify-start gap-3"
+          htmlFor="hqInput"
+        >
+          <input
+            id="hqInput"
+            type="checkbox"
+            className="checkbox"
+            checked={hq}
+            onChange={(e) => onHqChange(e.target.checked)}
+          />
+          <span
+            className="label-text font-semibold tooltip"
+            data-tip="float32 math + int16 WAV → float64 math + float32 WAV"
+          >
+            HQ
+          </span>
+        </label>
       </div>
     </>
   );

@@ -22,6 +22,7 @@ test.describe("History and Popular Compounds", () => {
     generateButton,
   }) => {
     await compoundInput.fill("caffeine");
+    await expect(compoundInput).toHaveValue("caffeine");
     await waitForGenerate(page, () => generateButton.click());
     await expect(page.getByText("Success!")).toBeVisible();
 
@@ -37,6 +38,7 @@ test.describe("History and Popular Compounds", () => {
   }) => {
     // generate audio for caffeine to populate recently generated
     await compoundInput.fill("caffeine");
+    await expect(compoundInput).toHaveValue("caffeine");
     await waitForGenerate(page, () => generateButton.click());
     await expect(page.getByText("Success!")).toBeVisible();
 

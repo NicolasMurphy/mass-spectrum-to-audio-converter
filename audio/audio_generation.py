@@ -3,15 +3,19 @@ Array Reuse Strategy:
 - time_array: Pre-allocated array of time points in seconds [0.0, 0.0000227, 0.0000454, ...]
 - wave_buffer: Pre-allocated array that gets overwritten for each peak [0, 15000, -8000, ...]
 
-Audio Amplitude Scaling:
-- np.iinfo(np.int16).max = 32,767 (max positive value for 16-bit audio)
-- We use positive max because sine naturally creates both +/- values
-- Converts normalized intensity (0-1) to audio amplitude scale (-32,768 to +32,767)
+Output Pipeline:
+- Per peak: scale by working_scale (np.iinfo(np.int16).max) and accumulate into
+  combined_wave. The working_scale value is vestigial — final normalization divides
+  it out — but kept to preserve float accumulation rounding (changing it would
+  invalidate bench wav_hash baselines).
+- Final: normalize combined_wave to [-1, 1], then cast to int16 PCM (default) or
+  float32 IEEE (hq=True). The hq branch also uses float64 math throughout for
+  downstream DSP precision.
 
 Sine Wave Generation:
 - 2*pi*freq*time calculates phase values (in radians)
 - np.sin() converts radians to wave heights (-1 to +1)
-- Multiply by amplitude to get final audio values
+- Multiply by working_scale and accumulate into combined_wave
 - np.sin(..., out=buffer) writes directly into buffer (no temporary arrays)
 
 Key NumPy Functions:
@@ -34,9 +38,9 @@ import re
 
 def generate_sine_wave(freq, intensity, time_array, wave_buffer):
     """Generate sine wave into provided buffer (reusable array)"""
-    amplitude = np.iinfo(np.int16).max * intensity
+    working_scale = np.iinfo(np.int16).max * intensity
     np.sin(2 * np.pi * freq * time_array, out=wave_buffer)
-    wave_buffer *= amplitude
+    wave_buffer *= working_scale
     return wave_buffer
 
 
@@ -51,10 +55,14 @@ def generate_combined_wav_bytes_and_data(
     factor: float = 10,
     modulus: float = 500,
     base: float = 100,
+    hq: bool = False,
 ):
+    # hq=True: float64 math + float32 WAV output (DAW-friendly precision, ~3x slower).
+    # hq=False: float32 math + int16 WAV output (default; fast iteration).
+    math_dtype = np.float64 if hq else np.float32
+
     # Time array: represents sample points from 0 to duration
-    # float32 keeps sine math in single precision (well within int16 output precision)
-    time_array = np.linspace(0, duration, int(sample_rate * duration), False, dtype=np.float32)
+    time_array = np.linspace(0, duration, int(sample_rate * duration), False, dtype=math_dtype)
 
     # Final output: will contain the sum of all sine waves
     combined_wave = np.zeros_like(time_array)
@@ -108,7 +116,11 @@ def generate_combined_wav_bytes_and_data(
     # Final normalization
     if np.max(np.abs(combined_wave)) > 0:
         combined_wave = combined_wave / np.max(np.abs(combined_wave))
-    combined_wave = np.int16(combined_wave * np.iinfo(np.int16).max)
+
+    if hq:
+        combined_wave = combined_wave.astype(np.float32)
+    else:
+        combined_wave = np.int16(combined_wave * np.iinfo(np.int16).max)
 
     wav_buffer = io.BytesIO()
     write(wav_buffer, sample_rate, combined_wave)

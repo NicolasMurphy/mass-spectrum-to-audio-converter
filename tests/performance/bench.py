@@ -26,11 +26,16 @@ from db import get_massbank_peaks, init_pool
 
 SPECTRA = ["caffeine", "Ajmalin", "Cyclopyrroxanthin"]
 ALGORITHMS = ["linear", "inverse", "modulo"]
+HQ_MODES = [False, True]
 WARMUP_RUNS = 2
 TIMED_RUNS = 15
 BASELINE_PATH = Path(__file__).parent / "baseline.json"
 FLOAT_RTOL = 1e-9
 FLOAT_ATOL = 1e-12
+
+
+def hq_key(hq):
+    return "hq" if hq else "std"
 
 
 def hash_wav(wav_buffer):
@@ -79,23 +84,25 @@ def parity_check(baseline_td, current_td):
     return None
 
 
-def time_one(spectrum, algorithm):
+def time_one(spectrum, algorithm, hq):
     start = time.perf_counter()
-    wav_buffer, td = generate_combined_wav_bytes_and_data(spectrum, algorithm=algorithm)
+    wav_buffer, td = generate_combined_wav_bytes_and_data(
+        spectrum, algorithm=algorithm, hq=hq
+    )
     elapsed = time.perf_counter() - start
     return elapsed, hash_wav(wav_buffer), td
 
 
-def run_cell(spectrum, algorithm):
+def run_cell(spectrum, algorithm, hq):
     last_hash = None
     last_td = None
     for _ in range(WARMUP_RUNS):
-        _, last_hash, last_td = time_one(spectrum, algorithm)
+        _, last_hash, last_td = time_one(spectrum, algorithm, hq)
 
     times = []
     for _ in range(TIMED_RUNS):
         gc.collect()
-        elapsed, h, td = time_one(spectrum, algorithm)
+        elapsed, h, td = time_one(spectrum, algorithm, hq)
         times.append(elapsed)
         if h != last_hash:
             return {"error": "non-deterministic WAV between runs (same input)"}
@@ -109,6 +116,17 @@ def run_cell(spectrum, algorithm):
         "wav_hash": last_hash,
         "transformed_data": td_signature(last_td),
     }
+
+
+def lookup_baseline_cell(baseline, spectrum_name, algorithm, hq):
+    """Read a cell from baseline. Supports legacy flat shape (no hq nesting)
+    by treating it as the hq=False variant."""
+    node = baseline.get(spectrum_name, {}).get(algorithm)
+    if node is None:
+        return None
+    if "wav_hash" in node:
+        return node if not hq else None
+    return node.get(hq_key(hq))
 
 
 def fmt_diff(current_ms, baseline_ms):
@@ -134,7 +152,7 @@ def main():
         spectra_data[name] = peaks
         print(f"  {name:25s} {len(peaks):>5d} peaks")
 
-    cells = len(SPECTRA) * len(ALGORITHMS)
+    cells = len(SPECTRA) * len(ALGORITHMS) * len(HQ_MODES)
     print(f"\nRunning {WARMUP_RUNS} warmup + {TIMED_RUNS} timed per cell, {cells} cells\n")
 
     results = {}
@@ -142,18 +160,21 @@ def main():
         spectrum = spectra_data[spectrum_name]
         results[spectrum_name] = {}
         for algo in ALGORITHMS:
-            cell = run_cell(spectrum, algo)
-            results[spectrum_name][algo] = cell
-            if "error" in cell:
-                print(f"  {spectrum_name:25s} {algo:8s}  ERROR: {cell['error']}")
-            else:
-                print(
-                    f"  {spectrum_name:25s} {algo:8s}  "
-                    f"med={cell['median_ms']:8.2f}ms  "
-                    f"min={cell['min_ms']:8.2f}ms  "
-                    f"max={cell['max_ms']:8.2f}ms  "
-                    f"stdev={cell['stdev_ms']:6.2f}ms"
-                )
+            results[spectrum_name][algo] = {}
+            for hq in HQ_MODES:
+                cell = run_cell(spectrum, algo, hq)
+                results[spectrum_name][algo][hq_key(hq)] = cell
+                tag = f"{algo:8s} {hq_key(hq):3s}"
+                if "error" in cell:
+                    print(f"  {spectrum_name:25s} {tag}  ERROR: {cell['error']}")
+                else:
+                    print(
+                        f"  {spectrum_name:25s} {tag}  "
+                        f"med={cell['median_ms']:8.2f}ms  "
+                        f"min={cell['min_ms']:8.2f}ms  "
+                        f"max={cell['max_ms']:8.2f}ms  "
+                        f"stdev={cell['stdev_ms']:6.2f}ms"
+                    )
 
     parity_failed = False
     if BASELINE_PATH.exists() and not args.baseline:
@@ -161,22 +182,29 @@ def main():
         print(f"\nDiff vs baseline ({BASELINE_PATH.name}):\n")
         for spectrum_name in SPECTRA:
             for algo in ALGORITHMS:
-                b = baseline.get(spectrum_name, {}).get(algo)
-                c = results[spectrum_name][algo]
-                if b is None or "error" in c or "error" in b:
-                    continue
-                td_err = parity_check(b["transformed_data"], c["transformed_data"])
-                wav_match = b["wav_hash"] == c["wav_hash"]
-                if td_err or not wav_match:
-                    parity_failed = True
-                    parity = f"FAIL ({td_err or 'wav-hash mismatch'})"
-                else:
-                    parity = "OK"
-                print(
-                    f"  {spectrum_name:25s} {algo:8s}  "
-                    f"{b['median_ms']:8.2f}ms -> {c['median_ms']:8.2f}ms  "
-                    f"{fmt_diff(c['median_ms'], b['median_ms'])}  parity:{parity}"
-                )
+                for hq in HQ_MODES:
+                    b = lookup_baseline_cell(baseline, spectrum_name, algo, hq)
+                    c = results[spectrum_name][algo][hq_key(hq)]
+                    if b is None:
+                        print(
+                            f"  {spectrum_name:25s} {algo:8s} {hq_key(hq):3s}  "
+                            f"(new cell, no baseline)  med={c['median_ms']:8.2f}ms"
+                        )
+                        continue
+                    if "error" in c or "error" in b:
+                        continue
+                    td_err = parity_check(b["transformed_data"], c["transformed_data"])
+                    wav_match = b["wav_hash"] == c["wav_hash"]
+                    if td_err or not wav_match:
+                        parity_failed = True
+                        parity = f"FAIL ({td_err or 'wav-hash mismatch'})"
+                    else:
+                        parity = "OK"
+                    print(
+                        f"  {spectrum_name:25s} {algo:8s} {hq_key(hq):3s}  "
+                        f"{b['median_ms']:8.2f}ms -> {c['median_ms']:8.2f}ms  "
+                        f"{fmt_diff(c['median_ms'], b['median_ms'])}  parity:{parity}"
+                    )
 
     if args.baseline:
         BASELINE_PATH.write_text(json.dumps(results, indent=2))

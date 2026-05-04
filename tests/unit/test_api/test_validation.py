@@ -63,6 +63,7 @@ def test_validate_and_parse_parameters_returns_defaults():
     assert result["factor"] == 10
     assert result["modulus"] == 500
     assert result["base"] == 100
+    assert result["hq"] is False
 
 
 def test_validate_and_parse_parameters_with_explicit_values():
@@ -200,6 +201,36 @@ def test_validate_and_parse_parameters_invalid_base():
         assert False, "Expected ValueError to be raised"
     except ValueError as e:
         assert "Invalid base. Must be a float." == str(e)
+
+
+def test_validate_and_parse_parameters_hq_true():
+    data = {"compound": "caffeine", "hq": True}
+    result = validate_and_parse_parameters(data)
+    assert result["hq"] is True
+
+
+def test_validate_and_parse_parameters_hq_false():
+    data = {"compound": "caffeine", "hq": False}
+    result = validate_and_parse_parameters(data)
+    assert result["hq"] is False
+
+
+def test_validate_and_parse_parameters_invalid_hq_string():
+    data = {"compound": "caffeine", "hq": "true"}
+    try:
+        validate_and_parse_parameters(data)
+        assert False, "Expected ValueError to be raised"
+    except ValueError as e:
+        assert "Invalid hq. Must be a boolean." == str(e)
+
+
+def test_validate_and_parse_parameters_invalid_hq_int():
+    data = {"compound": "caffeine", "hq": 1}
+    try:
+        validate_and_parse_parameters(data)
+        assert False, "Expected ValueError to be raised"
+    except ValueError as e:
+        assert "Invalid hq. Must be a boolean." == str(e)
 
 
 def test_validate_and_parse_parameters_invalid_sample_rate_not_a_number():
