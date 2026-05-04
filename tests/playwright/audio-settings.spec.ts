@@ -231,7 +231,7 @@ test.describe("Audio Settings Validation", () => {
     page,
     generateButton,
   }) => {
-    const hqCheckbox = page.getByRole("checkbox", { name: "HQ output" });
+    const hqCheckbox = page.getByRole("checkbox", { name: "HQ" });
     await hqCheckbox.check();
     await expect(hqCheckbox).toBeChecked();
 

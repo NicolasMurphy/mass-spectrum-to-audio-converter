@@ -60,9 +60,9 @@ export default function AudioSettings({
           />
           <span
             className="label-text font-semibold tooltip"
-            data-tip="Float32 WAV (DAW-friendly, ~3x slower)"
+            data-tip="float32 math + int16 WAV → float64 math + float32 WAV"
           >
-            HQ output
+            HQ
           </span>
         </label>
       </div>
