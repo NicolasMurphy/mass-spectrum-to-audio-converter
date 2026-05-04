@@ -3,8 +3,11 @@ import { waitForGenerate } from "./test-helpers";
 
 test.describe("Audio Settings Validation", () => {
   test.beforeEach(async ({ compoundInput }) => {
-    // fill in a valid compound first
+    // fill in a valid compound first; assert the value lands in React state
+    // before tests proceed (Playwright fill -> React onChange has a small race
+    // window in webkit that can otherwise leak into downstream submit assertions).
     await compoundInput.fill("caffeine");
+    await expect(compoundInput).toHaveValue("caffeine");
   });
 
   test("submitting with duration below 0.01 shows an error", async ({

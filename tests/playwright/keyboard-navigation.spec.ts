@@ -8,6 +8,7 @@ test.describe("Keyboard Navigation", () => {
   }) => {
     // focus on compound input and type a compound
     await compoundInput.fill("caffeine");
+    await expect(compoundInput).toHaveValue("caffeine");
     await compoundInput.focus();
 
     // press Enter
@@ -45,6 +46,7 @@ test.describe("Keyboard Navigation", () => {
   }) => {
     // fill compound, press Enter, get audio
     await compoundInput.fill("caffeine");
+    await expect(compoundInput).toHaveValue("caffeine");
 
     // press Enter to submit
     await waitForGenerate(page, () => page.keyboard.press("Enter"));
@@ -70,6 +72,7 @@ test.describe("Keyboard Navigation", () => {
   }) => {
     // type partial compound name to trigger suggestions
     await compoundInput.fill("caff");
+    await expect(compoundInput).toHaveValue("caff");
 
     // wait for suggestions to appear
     const suggestionList = page.getByTestId("suggestion-list");

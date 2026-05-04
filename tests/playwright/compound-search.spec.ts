@@ -10,6 +10,7 @@ test.describe("Compound Search", () => {
     // manual type and click generate
     await compoundInput.click();
     await compoundInput.fill("caffeine");
+    await expect(compoundInput).toHaveValue("caffeine");
     await waitForGenerate(page, () => generateButton.click());
 
     // table titles (and correct peaks) are visible

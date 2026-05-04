@@ -13,6 +13,7 @@ test.describe("Compound Search Errors", () => {
     // empty space search displays expected error message
     await compoundInput.click();
     await compoundInput.fill(" ");
+    await expect(compoundInput).toHaveValue(" ");
     await generateButton.click();
     await expect(
       page.getByText("Please enter a compound name.")
@@ -21,6 +22,7 @@ test.describe("Compound Search Errors", () => {
     // invalid search displays expected error message
     await compoundInput.click();
     await compoundInput.fill("invalid");
+    await expect(compoundInput).toHaveValue("invalid");
     await generateButton.click();
     await expect(page.getByText("Error: No records found")).toBeVisible();
   });
