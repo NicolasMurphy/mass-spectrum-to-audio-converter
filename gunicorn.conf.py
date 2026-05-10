@@ -4,6 +4,7 @@ bind = "0.0.0.0:5000"
 workers = int(os.environ.get("GUNICORN_WORKERS", 1))
 worker_class = "sync"
 preload_app = True
+accesslog = "-"
 
 
 def post_fork(server, worker):
