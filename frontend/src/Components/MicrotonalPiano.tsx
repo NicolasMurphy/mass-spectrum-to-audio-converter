@@ -211,9 +211,12 @@ export default function MicrotonalPiano({
       {/* Sliders */}
       <div className="mt-4 flex flex-col gap-2">
         {pitchRatios.map((ratio, index) => {
-          const cents = Math.round(1200 * Math.log2(ratio));
+          const centsExact = 1200 * Math.log2(ratio);
+          const centsRounded = Math.round(centsExact);
           const centsLabel =
-            cents === 0 ? "0¢" : `${cents > 0 ? "+" : ""}${cents}¢`;
+            centsRounded === 0
+              ? "0¢"
+              : `${centsRounded > 0 ? "+" : ""}${centsRounded}¢`;
           return (
             <div key={index} className="flex items-center gap-3">
               <span className="w-4 text-center text-sm font-mono opacity-60">
@@ -221,13 +224,14 @@ export default function MicrotonalPiano({
               </span>
               <input
                 type="range"
-                min={0.25}
-                max={4}
-                step={0.01}
-                value={ratio}
+                min={-2400}
+                max={2400}
+                step={1}
+                value={centsExact}
                 onChange={(e) => {
+                  const newCents = parseFloat(e.target.value);
                   const newRatios = [...pitchRatios];
-                  newRatios[index] = parseFloat(e.target.value);
+                  newRatios[index] = Math.pow(2, newCents / 1200);
                   setPitchRatios(newRatios);
                 }}
                 className="range range-xs flex-1"
