@@ -233,3 +233,16 @@ def test_custom_endpoint_invalid_spectrum(client):
     assert response.status_code == 400
     data = response.get_json()
     assert "Invalid spectrum data format" in data["error"]
+
+
+def test_custom_endpoint_body_exceeds_max_content_length(client):
+    huge = "1 " * 150_000  # ~300 KB body, over the 200 KB cap
+    response = client.post(
+        "/custom/linear",
+        json={"spectrum_text": huge},
+        content_type="application/json",
+    )
+
+    assert response.status_code == 413
+    data = response.get_json()
+    assert data["error"] == "Request body too large"
