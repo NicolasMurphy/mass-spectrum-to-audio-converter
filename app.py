@@ -38,6 +38,7 @@ wait_for_database()
 app = Flask(__name__, static_folder="static", static_url_path="")
 app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
 app.config["RATELIMIT_ENABLED"] = os.getenv("RATELIMIT_ENABLED", "true").lower() == "true"
+app.config["MAX_CONTENT_LENGTH"] = 200_000
 
 CORS(app, resources={r"^/(massbank|custom|history|popular)(/.*)?$": {"origins": "*"}})
 
@@ -54,6 +55,11 @@ history_limit = limiter.shared_limit("30 per minute", scope="read-endpoints")
 @app.errorhandler(429)
 def rate_limit_exceeded(e):
     return jsonify({"error": "Too many requests"}), 429
+
+
+@app.errorhandler(413)
+def request_too_large(e):
+    return jsonify({"error": "Request body too large"}), 413
 
 
 @app.route("/")
