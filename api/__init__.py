@@ -5,9 +5,9 @@ Provides route handlers and request validation.
 """
 
 from .routes import (
-    history,
-    generate_audio_with_data,
     generate_audio_with_custom_data,
+    generate_audio_with_data,
+    history,
     popular,
 )
 from .validation import (

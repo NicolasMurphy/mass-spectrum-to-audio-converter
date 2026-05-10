@@ -1,9 +1,10 @@
-from audio import (
-    generate_sine_wave,
-    generate_combined_wav_bytes_and_data,
-)
 import numpy as np
 from scipy.io.wavfile import read as wav_read
+
+from audio import (
+    generate_combined_wav_bytes_and_data,
+    generate_sine_wave,
+)
 
 
 # generate sine wave tests

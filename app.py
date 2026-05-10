@@ -1,5 +1,6 @@
 import os
 import time
+
 import psycopg2
 from flask import Flask, jsonify, send_from_directory
 from flask_cors import CORS
@@ -7,13 +8,13 @@ from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from werkzeug.middleware.proxy_fix import ProxyFix
 
-from db import init_pool
 from api import (
-    history,
-    generate_audio_with_data,
     generate_audio_with_custom_data,
+    generate_audio_with_data,
+    history,
     popular,
 )
+from db import init_pool
 
 
 def wait_for_database():

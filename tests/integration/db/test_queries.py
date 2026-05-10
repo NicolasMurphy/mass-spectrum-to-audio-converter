@@ -1,4 +1,4 @@
-from db import log_search, get_search_history
+from db import get_search_history, log_search
 
 
 def test_log_search_and_retrieve_history():
