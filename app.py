@@ -38,7 +38,7 @@ app = Flask(__name__, static_folder="static", static_url_path="")
 app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
 app.config["RATELIMIT_ENABLED"] = os.getenv("RATELIMIT_ENABLED", "true").lower() == "true"
 
-CORS(app, resources={r"/(massbank|custom|history|popular)/*": {"origins": "*"}})
+CORS(app, resources={r"^/(massbank|custom|history|popular)(/.*)?$": {"origins": "*"}})
 
 limiter = Limiter(
     get_remote_address,
