@@ -87,4 +87,4 @@ def serve_static_or_spa(path):
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=os.getenv("FLASK_DEBUG", "False") == "1")
+    app.run(host="0.0.0.0", port=5000, debug=os.getenv("FLASK_DEBUG", "False") == "1")  # noqa: S104
