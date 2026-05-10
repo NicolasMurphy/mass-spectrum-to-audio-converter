@@ -149,4 +149,4 @@ def parse_spectrum_text(text_input):
 
         return spectrum_data
     except (ValueError, IndexError) as e:
-        raise ValueError(f"Invalid spectrum data format: {e}")
+        raise ValueError(f"Invalid spectrum data format: {e}") from None

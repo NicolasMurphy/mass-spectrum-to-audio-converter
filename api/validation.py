@@ -34,47 +34,47 @@ def validate_and_parse_parameters(data, require_compound=True):
     try:
         offset = float(data.get("offset", 300))
     except (ValueError, TypeError):
-        raise ValueError("Invalid offset. Must be a float.")
+        raise ValueError("Invalid offset. Must be a float.") from None
     validate_number_range(offset, "offset")
 
     try:
         scale = float(data.get("scale", 100000))
     except (ValueError, TypeError):
-        raise ValueError("Invalid scale. Must be a float.")
+        raise ValueError("Invalid scale. Must be a float.") from None
     validate_number_range(scale, "scale")
 
     try:
         shift = float(data.get("shift", 1))
     except (ValueError, TypeError):
-        raise ValueError("Invalid shift. Must be a float.")
+        raise ValueError("Invalid shift. Must be a float.") from None
     validate_number_range(shift, "shift")
 
     try:
         duration = float(data.get("duration", 5))
     except (ValueError, TypeError):
-        raise ValueError("Invalid duration. Must be a float.")
+        raise ValueError("Invalid duration. Must be a float.") from None
 
     try:
         sample_rate = int(data.get("sample_rate", 44100))
     except (ValueError, TypeError):
-        raise ValueError("Invalid sample_rate. Must be an integer.")
+        raise ValueError("Invalid sample_rate. Must be an integer.") from None
 
     try:
         factor = float(data.get("factor", 10))
     except (ValueError, TypeError):
-        raise ValueError("Invalid factor. Must be a float.")
+        raise ValueError("Invalid factor. Must be a float.") from None
     validate_number_range(factor, "factor")
 
     try:
         modulus = float(data.get("modulus", 500))
     except (ValueError, TypeError):
-        raise ValueError("Invalid modulus. Must be a float.")
+        raise ValueError("Invalid modulus. Must be a float.") from None
     validate_number_range(modulus, "modulus")
 
     try:
         base = float(data.get("base", 100))
     except (ValueError, TypeError):
-        raise ValueError("Invalid base. Must be a float.")
+        raise ValueError("Invalid base. Must be a float.") from None
     validate_number_range(base, "base")
 
     hq = data.get("hq", False)
