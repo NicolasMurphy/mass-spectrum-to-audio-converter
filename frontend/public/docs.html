@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mass Spectrum to Audio Converter — API Docs</title>
+    <link rel="icon" href="/favicon-16x16.png" />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/@stoplight/elements@9.0.19/styles.min.css"
+      integrity="sha384-iVQBHadsD+eV0M5+ubRCEVXrXEBj+BqcuwjUwPoVJc0Pb1fmrhYSAhL+BFProHdV"
+      crossorigin="anonymous"
+    />
+    <script
+      src="https://unpkg.com/@stoplight/elements@9.0.19/web-components.min.js"
+      integrity="sha384-L0FYPm8XLe2HHJT/qfQUJGqRqqq1rHxC8O1YooLjs+6CJ3O2TjlQEhbal3KJ8DBX"
+      crossorigin="anonymous"
+    ></script>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+      }
+      elements-api {
+        display: block;
+        height: 100vh;
+      }
+    </style>
+  </head>
+  <body>
+    <elements-api
+      apiDescriptionUrl="/openapi.yaml"
+      router="hash"
+      layout="sidebar"
+      hideSchemas="true"
+    ></elements-api>
+  </body>
+</html>
