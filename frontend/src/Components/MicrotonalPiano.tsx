@@ -184,7 +184,7 @@ export default function MicrotonalPiano({
           onClick={() => {
             const randomRatios = Array(13)
               .fill(0)
-              .map(() => 0.25 + Math.random() * 3.75);
+              .map(() => Math.pow(2, (Math.random() * 4800 - 2400) / 1200));
             setPitchRatios(randomRatios);
           }}
           className="btn btn-ghost btn-square text-xl"
