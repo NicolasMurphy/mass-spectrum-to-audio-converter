@@ -1,13 +1,14 @@
 from flask import request
+
 from audio import parse_spectrum_text
-from db import get_search_history, get_popular_compounds
+from db import get_popular_compounds, get_search_history
+from services import AudioGenerationService, CompoundDataService, NotificationService
+
 from .validation import (
     validate_algorithm,
     validate_and_parse_parameters,
     validate_spectrum_text_range,
 )
-from services import AudioGenerationService, CompoundDataService, NotificationService
-
 
 audio_service = AudioGenerationService()
 compound_service = CompoundDataService()

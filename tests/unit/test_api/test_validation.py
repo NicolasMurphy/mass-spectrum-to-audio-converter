@@ -4,7 +4,6 @@ from api.validation import (
     validate_spectrum_text_range,
 )
 
-
 # Validate algorithm tests
 
 

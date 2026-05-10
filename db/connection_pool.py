@@ -1,6 +1,7 @@
-import psycopg2.pool
 import os
 from contextlib import contextmanager
+
+import psycopg2.pool
 from dotenv import load_dotenv
 
 load_dotenv()

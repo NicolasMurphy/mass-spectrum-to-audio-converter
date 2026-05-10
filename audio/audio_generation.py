@@ -25,15 +25,17 @@ Key NumPy Functions:
 - np.zeros_like(array): Returns array of zeros with same shape/type as input array
 """
 
+import io
+import re
+
 import numpy as np
 from scipy.io.wavfile import write
-import io
+
 from .frequency_algorithms import (
-    mz_to_frequency_linear,
     mz_to_frequency_inverse,
+    mz_to_frequency_linear,
     mz_to_frequency_modulo,
 )
-import re
 
 
 def generate_sine_wave(freq, intensity, time_array, wave_buffer):
