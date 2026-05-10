@@ -11,7 +11,7 @@ function buildFilename(compoundName: string, accession: string, ext: string) {
     compoundName && accession
       ? `${compoundName}-${accession}`
       : compoundName || accession || "microtonal_piano";
-  const safe = base.replace(/[^a-zA-Z0-9_\-]/g, "_");
+  const safe = base.replace(/[^a-zA-Z0-9_-]/g, "_");
   return `${safe}.${ext}`;
 }
 
