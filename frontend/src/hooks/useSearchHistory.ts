@@ -1,10 +1,11 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { type UseSearchHistoryReturn, type HistoryEntry } from "../types";
 
 export function useSearchHistory(limit: number = 100): UseSearchHistoryReturn {
   const [history, setHistory] = useState<HistoryEntry[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
+  const hasLoadedRef = useRef(false);
 
   const fetchHistory = useCallback(async () => {
     try {
@@ -34,14 +35,15 @@ export function useSearchHistory(limit: number = 100): UseSearchHistoryReturn {
       setHistory(uniqueHistory);
       setError(null);
     } catch (err) {
-      if (loading) {
+      if (!hasLoadedRef.current) {
         console.error("Failed to get recently generated compounds:", err);
         setError("Failed to get recently generated compounds");
       }
     } finally {
+      hasLoadedRef.current = true;
       setLoading(false);
     }
-  }, [limit, loading]);
+  }, [limit]);
 
   const refetchHistory = () => {
     fetchHistory();
