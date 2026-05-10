@@ -71,7 +71,7 @@ def parity_check(baseline_td, current_td):
     """
     if len(baseline_td) != len(current_td):
         return f"length: {len(baseline_td)} vs {len(current_td)}"
-    for i, (b, c) in enumerate(zip(baseline_td, current_td)):
+    for i, (b, c) in enumerate(zip(baseline_td, current_td, strict=False)):
         for key in ("mz", "frequency", "intensity", "amplitude_linear"):
             if not math.isclose(b[key], c[key], rel_tol=FLOAT_RTOL, abs_tol=FLOAT_ATOL):
                 return f"row {i} {key}: {b[key]!r} vs {c[key]!r}"
