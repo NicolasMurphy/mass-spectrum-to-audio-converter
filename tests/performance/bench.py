@@ -21,8 +21,8 @@ _PROJECT_ROOT = Path(__file__).resolve().parents[2]
 if str(_PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(_PROJECT_ROOT))
 
-from audio import generate_combined_wav_bytes_and_data
-from db import get_massbank_peaks, init_pool
+from audio import generate_combined_wav_bytes_and_data  # noqa: E402
+from db import get_massbank_peaks, init_pool  # noqa: E402
 
 SPECTRA = ["caffeine", "Ajmalin", "Cyclopyrroxanthin"]
 ALGORITHMS = ["linear", "inverse", "modulo"]
