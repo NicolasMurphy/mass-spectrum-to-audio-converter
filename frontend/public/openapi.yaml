@@ -98,6 +98,8 @@ paths:
                 $ref: "#/components/schemas/Error"
               example:
                 error: No records found
+        "413":
+          $ref: "#/components/responses/RequestTooLarge"
         "429":
           $ref: "#/components/responses/RateLimit"
         "500":
@@ -157,6 +159,8 @@ paths:
                     mz: 73.04018778
         "400":
           $ref: "#/components/responses/BadRequest"
+        "413":
+          $ref: "#/components/responses/RequestTooLarge"
         "429":
           $ref: "#/components/responses/RateLimit"
         "500":
@@ -524,3 +528,11 @@ components:
             $ref: "#/components/schemas/Error"
           example:
             error: Internal server error
+    RequestTooLarge:
+      description: Request body too large (max 200 KB)
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+          example:
+            error: Request body too large
