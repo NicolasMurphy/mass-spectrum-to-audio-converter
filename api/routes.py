@@ -88,7 +88,7 @@ def generate_audio_with_data(algorithm):
             return {"error": error_msg}, 404
         else:
             return {"error": error_msg}, 400
-    except Exception as e:
+    except Exception:
         return {"error": "Internal server error"}, 500
 
 
@@ -142,5 +142,5 @@ def generate_audio_with_custom_data(algorithm):
 
     except ValueError as e:
         return {"error": str(e)}, 400
-    except Exception as e:
+    except Exception:
         return {"error": "Internal server error"}, 500
