@@ -1,0 +1,526 @@
+openapi: 3.0.3
+info:
+  title: Mass Spectrum to Audio Converter API
+  version: "1.0.0"
+  description: |
+    Converts mass spectrometry data into audio files using configurable algorithms and parameters.
+    The API retrieves compound spectra from the `mass_spectrum_db` database (migrated from
+    [MassBank Release 2025.05.1](https://github.com/MassBank/MassBank-data/releases/tag/2025.05.1))
+    or accepts custom spectrum data, and returns audio data along with detailed spectrum
+    transformation information.
+
+servers:
+  - url: https://mass-spectrum-to-audio-converter.onrender.com
+    description: Production
+
+tags:
+  - name: Audio Generation
+    description: Generate audio from mass spectrum data
+  - name: Stats
+    description: Recently and frequently generated compounds
+
+paths:
+  /massbank/{algorithm}:
+    post:
+      tags: [Audio Generation]
+      summary: Generate audio from a stored compound
+      description: |
+        Generates audio data from a compound's mass spectrum, looked up by name in the
+        spectrum database, using the specified algorithm. Returns the audio file as base64
+        along with detailed spectrum transformation data.
+      parameters:
+        - $ref: "#/components/parameters/Algorithm"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MassbankRequest"
+            examples:
+              basic:
+                summary: Basic request (linear)
+                value:
+                  compound: caffeine
+              linearCustom:
+                summary: Linear with custom parameters
+                value:
+                  compound: aspirin
+                  offset: 250
+                  duration: 10
+                  sample_rate: 48000
+              inverseCustom:
+                summary: Inverse with custom parameters
+                value:
+                  compound: folate
+                  scale: 50000
+                  shift: 2
+                  duration: 3
+              moduloCustom:
+                summary: Modulo with custom parameters
+                value:
+                  compound: glucose
+                  factor: 15
+                  modulus: 600
+                  base: 150
+                  duration: 7
+                  sample_rate: 44100
+      responses:
+        "200":
+          description: Audio generated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AudioResponse"
+              example:
+                accession: MSBNK-ACES_SU-AS000088
+                algorithm: linear
+                audio_base64: UklGRiSmDgBXQVZFZm10IBAAAAABAAEA...
+                audio_settings:
+                  duration: 5.0
+                  sample_rate: 44100
+                  hq: false
+                compound: Caffeine
+                parameters:
+                  offset: 300.0
+                spectrum:
+                  - amplitude_db: -39.67184178472352
+                    amplitude_linear: 0.010385033713897209
+                    frequency: 356.0498390197754
+                    intensity: 5501836
+                    mz: 56.04983901977539
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          description: Compound not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                error: No records found
+        "429":
+          $ref: "#/components/responses/RateLimit"
+        "500":
+          $ref: "#/components/responses/ServerError"
+
+  /custom/{algorithm}:
+    post:
+      tags: [Audio Generation]
+      summary: Generate audio from custom spectrum data
+      description: |
+        Generates audio data from user-supplied mass spectrum data (whitespace-separated
+        m/z and intensity pairs) using the specified algorithm. Returns the audio file as
+        base64 along with detailed spectrum transformation data.
+      parameters:
+        - $ref: "#/components/parameters/Algorithm"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CustomRequest"
+            examples:
+              basic:
+                summary: Basic request (linear)
+                value:
+                  spectrum_text: "73.04018778 16.07433749\n75.05583784 2.042927662"
+              withParams:
+                summary: Linear with custom parameters
+                value:
+                  spectrum_text: "73.04018778 16.07433749\n75.05583784 2.042927662\n84.08132432 1.258207367"
+                  offset: 250
+                  duration: 10
+                  sample_rate: 48000
+      responses:
+        "200":
+          description: Audio generated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AudioResponse"
+              example:
+                accession: CUSTOM-001
+                algorithm: linear
+                audio_base64: UklGRsy6BgBXQVZFZm10IBAAAAABAAEA...
+                audio_settings:
+                  duration: 5.0
+                  sample_rate: 44100
+                  hq: false
+                compound: Custom Compound
+                parameters:
+                  offset: 300.0
+                spectrum:
+                  - amplitude_db: 0.0
+                    amplitude_linear: 1.0
+                    frequency: 373.04018778
+                    intensity: 16.07433749
+                    mz: 73.04018778
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "429":
+          $ref: "#/components/responses/RateLimit"
+        "500":
+          $ref: "#/components/responses/ServerError"
+
+  /history:
+    get:
+      tags: [Stats]
+      summary: Recently generated compounds
+      description: Retrieves recently generated compounds, newest first.
+      parameters:
+        - $ref: "#/components/parameters/Limit"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  history:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        accession:
+                          type: string
+                        compound:
+                          type: string
+                        created_at:
+                          type: string
+                          format: date-time
+              example:
+                history:
+                  - accession: MSBNK-Antwerp_Univ-METOX_P100302_F638
+                    compound: Folate
+                    created_at: "2025-07-09T03:45:51.639366+00:00"
+                  - accession: MSBNK-ACES_SU-AS000088
+                    compound: Caffeine
+                    created_at: "2025-07-09T03:45:44.172214+00:00"
+        "429":
+          $ref: "#/components/responses/SharedRateLimit"
+        "500":
+          $ref: "#/components/responses/ServerError"
+
+  /popular:
+    get:
+      tags: [Stats]
+      summary: Most generated compounds
+      description: Retrieves the most frequently generated compounds based on recent generations.
+      parameters:
+        - $ref: "#/components/parameters/Limit"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  popular:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        compound:
+                          type: string
+                        search_count:
+                          type: integer
+              example:
+                popular:
+                  - compound: Caffeine
+                    search_count: 147
+                  - compound: Mellein
+                    search_count: 33
+        "429":
+          $ref: "#/components/responses/SharedRateLimit"
+        "500":
+          $ref: "#/components/responses/ServerError"
+
+components:
+  parameters:
+    Algorithm:
+      name: algorithm
+      in: path
+      required: true
+      description: Algorithm for audio generation.
+      schema:
+        type: string
+        enum: [linear, inverse, modulo]
+    Limit:
+      name: limit
+      in: query
+      required: false
+      description: |
+        Maximum number of entries to return. Values are silently clamped to the
+        range 1–100 (e.g. `limit=500` returns 100 rows, `limit=0` returns 1).
+      schema:
+        type: integer
+        default: 20
+
+  schemas:
+    AudioParams:
+      type: object
+      description: |
+        Audio generation parameters. The `offset`, `scale`/`shift`, and `factor`/`modulus`/`base`
+        groups are algorithm-specific — only the group matching the chosen algorithm is used.
+      properties:
+        offset:
+          type: number
+          default: 300
+          minimum: -1000000
+          maximum: 1000000
+          description: "`Hz = m/z + offset` *(linear algorithm only)*"
+        scale:
+          type: number
+          default: 100000
+          minimum: -1000000
+          maximum: 1000000
+          description: "`Hz = scale / (m/z + shift)` *(inverse algorithm only)*"
+        shift:
+          type: number
+          default: 1
+          minimum: -1000000
+          maximum: 1000000
+          description: "`Hz = scale / (m/z + shift)` *(inverse algorithm only)*"
+        factor:
+          type: number
+          default: 10
+          minimum: -1000000
+          maximum: 1000000
+          description: "`Hz = ((m/z * factor) % modulus) + base` *(modulo algorithm only)*"
+        modulus:
+          type: number
+          default: 500
+          minimum: -1000000
+          maximum: 1000000
+          description: "`Hz = ((m/z * factor) % modulus) + base` *(modulo algorithm only)*"
+        base:
+          type: number
+          default: 100
+          minimum: -1000000
+          maximum: 1000000
+          description: "`Hz = ((m/z * factor) % modulus) + base` *(modulo algorithm only)*"
+        sample_rate:
+          type: integer
+          default: 44100
+          minimum: 3500
+          maximum: 192000
+          description: Audio sample rate in Hz.
+        duration:
+          type: number
+          default: 5
+          minimum: 0.01
+          maximum: 30
+          description: Duration of generated audio in seconds.
+        hq:
+          type: boolean
+          default: false
+          description: If `true`, output float32 WAV (DAW-friendly precision, ~3x slower).
+
+    MassbankRequest:
+      allOf:
+        - type: object
+          required: [compound]
+          properties:
+            compound:
+              type: string
+              minLength: 1
+              maxLength: 349
+              description: Name of the compound to search for.
+              example: caffeine
+        - $ref: "#/components/schemas/AudioParams"
+
+    CustomRequest:
+      allOf:
+        - type: object
+          required: [spectrum_text]
+          properties:
+            spectrum_text:
+              type: string
+              minLength: 3
+              maxLength: 100000
+              description: Mass spectrum data as whitespace-separated m/z intensity pairs.
+              example: "73.04018778 16.07433749\n75.05583784 2.042927662"
+        - $ref: "#/components/schemas/AudioParams"
+
+    SpectrumPoint:
+      type: object
+      properties:
+        mz:
+          type: number
+          description: Original m/z value.
+        frequency:
+          type: number
+          description: Converted frequency in Hz.
+        intensity:
+          type: number
+          description: Original intensity value.
+        amplitude_linear:
+          type: number
+          description: Normalized amplitude (0–1 range).
+        amplitude_db:
+          type: number
+          description: Amplitude in decibels.
+
+    LinearParams:
+      title: Linear
+      type: object
+      required: [offset]
+      additionalProperties: false
+      properties:
+        offset:
+          type: number
+          description: "`Hz = m/z + offset`"
+
+    InverseParams:
+      title: Inverse
+      type: object
+      required: [scale, shift]
+      additionalProperties: false
+      properties:
+        scale:
+          type: number
+          description: Numerator of `Hz = scale / (m/z + shift)`.
+        shift:
+          type: number
+          description: Denominator offset of `Hz = scale / (m/z + shift)`.
+
+    ModuloParams:
+      title: Modulo
+      type: object
+      required: [factor, modulus, base]
+      additionalProperties: false
+      properties:
+        factor:
+          type: number
+          description: m/z multiplier in `Hz = ((m/z * factor) % modulus) + base`.
+        modulus:
+          type: number
+          description: Modulus in `Hz = ((m/z * factor) % modulus) + base`.
+        base:
+          type: number
+          description: Base offset in `Hz = ((m/z * factor) % modulus) + base`.
+
+    AudioResponse:
+      type: object
+      properties:
+        compound:
+          type: string
+          description: Compound name (from MassBank for `/massbank`; fixed as `Custom Compound` for `/custom`).
+        accession:
+          type: string
+          description: Accession identifier (MassBank ID for `/massbank`; fixed as `CUSTOM-001` for `/custom`).
+        audio_base64:
+          type: string
+          description: Base64-encoded WAV audio file.
+        spectrum:
+          type: array
+          description: Array of spectrum transformation data points.
+          items:
+            $ref: "#/components/schemas/SpectrumPoint"
+        algorithm:
+          type: string
+          enum: [linear, inverse, modulo]
+          description: Algorithm used for conversion.
+        parameters:
+          description: |
+            Algorithm-specific parameters used. The shape depends on the algorithm
+            chosen on the request path.
+          oneOf:
+            - $ref: "#/components/schemas/LinearParams"
+            - $ref: "#/components/schemas/InverseParams"
+            - $ref: "#/components/schemas/ModuloParams"
+        audio_settings:
+          type: object
+          description: Audio generation settings.
+          properties:
+            duration:
+              type: number
+              description: Duration of generated audio in seconds.
+            sample_rate:
+              type: integer
+              description: Audio sample rate in Hz.
+            hq:
+              type: boolean
+              description: Whether HQ (float32 WAV) output was used.
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+
+  responses:
+    BadRequest:
+      description: Validation error
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+          examples:
+            invalidAlgorithm:
+              value:
+                error: "Unsupported algorithm: 'fourier'. Must be 'linear', 'inverse', or 'modulo'"
+            missingCompound:
+              value:
+                error: No compound provided
+            compoundTooLong:
+              value:
+                error: "Compound name is too long. Maximum length is 349 characters."
+            missingSpectrumText:
+              value:
+                error: spectrum_text is required
+            spectrumTextLength:
+              value:
+                error: "Spectrum data must be between 3 and 100,000 characters."
+            spectrumTextFormat:
+              value:
+                error: "Invalid spectrum data format: Spectrum data must have an even number of values (pairs of mz/intensity)"
+            invalidType:
+              value:
+                error: Invalid offset. Must be a float.
+            outOfRange:
+              value:
+                error: "offset must be between -1,000,000 and 1,000,000."
+            invalidDuration:
+              value:
+                error: Duration must be between 0.01 and 30 seconds.
+            invalidSampleRate:
+              value:
+                error: Sample rate must be between 3500 and 192000.
+            invalidSampleRateFormat:
+              value:
+                error: Invalid sample_rate. Must be an integer.
+            invalidHq:
+              value:
+                error: Invalid hq. Must be a boolean.
+            noJson:
+              value:
+                error: No JSON data provided
+    RateLimit:
+      description: Rate limit exceeded
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+          example:
+            error: Too many requests
+    SharedRateLimit:
+      description: |
+        Rate limit exceeded. This 429 limit is **shared across `/history` and
+        `/popular`** — calls to either endpoint count against the same bucket.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+          example:
+            error: Too many requests
+    ServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+          example:
+            error: Internal server error
