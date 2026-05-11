@@ -9,6 +9,8 @@ info:
     or accepts custom spectrum data, and returns audio data along with detailed spectrum
     transformation information.
 
+    [↗ Open the app](/)
+
 servers:
   - url: https://mass-spectrum-to-audio-converter.onrender.com
     description: Production

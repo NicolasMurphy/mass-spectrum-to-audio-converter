@@ -164,6 +164,15 @@ function App() {
         >
           Nicolas Murphy
         </a>
+        {" · "}
+        <a
+          href="/docs.html"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="link"
+        >
+          API Docs
+        </a>
       </footer>
     </div>
   );
