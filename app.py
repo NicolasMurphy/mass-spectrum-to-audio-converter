@@ -1,3 +1,4 @@
+import logging
 import os
 import time
 
@@ -6,6 +7,7 @@ from flask import Flask, jsonify, send_from_directory
 from flask_cors import CORS
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
+from werkzeug.exceptions import HTTPException
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 from api import (
@@ -40,6 +42,11 @@ app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
 app.config["RATELIMIT_ENABLED"] = os.getenv("RATELIMIT_ENABLED", "true").lower() == "true"
 app.config["MAX_CONTENT_LENGTH"] = 200_000
 
+if __name__ != "__main__":
+    gunicorn_logger = logging.getLogger("gunicorn.error")
+    app.logger.handlers = gunicorn_logger.handlers
+    app.logger.setLevel(gunicorn_logger.level)
+
 CORS(app, resources={r"^/(massbank|custom|history|popular)(/.*)?$": {"origins": "*"}})
 
 limiter = Limiter(
@@ -50,6 +57,14 @@ limiter = Limiter(
 
 audio_limit = limiter.limit("15 per minute")
 history_limit = limiter.shared_limit("30 per minute", scope="read-endpoints")
+
+
+@app.errorhandler(Exception)
+def handle_unexpected(e):
+    if isinstance(e, HTTPException):
+        return e
+    app.logger.exception("unhandled exception")
+    return jsonify({"error": "Internal server error"}), 500
 
 
 @app.errorhandler(429)
