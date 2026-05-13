@@ -1,3 +1,4 @@
+import logging
 import os
 import time
 
@@ -39,6 +40,11 @@ app = Flask(__name__, static_folder="static", static_url_path="")
 app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
 app.config["RATELIMIT_ENABLED"] = os.getenv("RATELIMIT_ENABLED", "true").lower() == "true"
 app.config["MAX_CONTENT_LENGTH"] = 200_000
+
+if __name__ != "__main__":
+    gunicorn_logger = logging.getLogger("gunicorn.error")
+    app.logger.handlers = gunicorn_logger.handlers
+    app.logger.setLevel(gunicorn_logger.level)
 
 CORS(app, resources={r"^/(massbank|custom|history|popular)(/.*)?$": {"origins": "*"}})
 
