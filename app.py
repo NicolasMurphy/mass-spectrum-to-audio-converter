@@ -7,6 +7,7 @@ from flask import Flask, jsonify, send_from_directory
 from flask_cors import CORS
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
+from werkzeug.exceptions import HTTPException
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 from api import (
@@ -56,6 +57,14 @@ limiter = Limiter(
 
 audio_limit = limiter.limit("15 per minute")
 history_limit = limiter.shared_limit("30 per minute", scope="read-endpoints")
+
+
+@app.errorhandler(Exception)
+def handle_unexpected(e):
+    if isinstance(e, HTTPException):
+        return e
+    app.logger.exception("unhandled exception")
+    return jsonify({"error": "Internal server error"}), 500
 
 
 @app.errorhandler(429)
