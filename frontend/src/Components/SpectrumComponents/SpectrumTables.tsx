@@ -74,12 +74,12 @@ export default function SpectrumTables({ spectrumData }: SpectrumTablesProps) {
     const currentDirection = isAudioTable ? audioSortDirection : sortDirection;
 
     if (currentField !== field) {
-      return <span className="text-xs opacity-40"></span>;
+      return <span className="text-xs opacity-40 inline-block w-3 text-center"></span>;
     }
     return currentDirection === "asc" ? (
-      <span className="text-xs opacity-80">↑</span>
+      <span className="text-xs opacity-80 inline-block w-3 text-center">↑</span>
     ) : (
-      <span className="text-xs opacity-80">↓</span>
+      <span className="text-xs opacity-80 inline-block w-3 text-center">↓</span>
     );
   };
 
