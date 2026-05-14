@@ -12,6 +12,7 @@ FROM python:3.13
 WORKDIR /app
 
 COPY requirements.txt requirements-dev.txt ./
+RUN apt-get update && apt-get install -y libpq-dev && rm -rf /var/lib/apt/lists/*
 RUN pip install --no-cache-dir -r requirements.txt
 
 ARG INSTALL_DEV=false
