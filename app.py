@@ -44,8 +44,8 @@ app.config["MAX_CONTENT_LENGTH"] = 200_000
 
 if __name__ != "__main__":
     gunicorn_logger = logging.getLogger("gunicorn.error")
-    app.logger.handlers = gunicorn_logger.handlers
-    app.logger.setLevel(gunicorn_logger.level)
+    logging.getLogger().handlers = gunicorn_logger.handlers
+    logging.getLogger().setLevel(gunicorn_logger.level)
 
 CORS(app, resources={r"^/(massbank|custom|history|popular)(/.*)?$": {"origins": "*"}})
 

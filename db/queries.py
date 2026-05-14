@@ -1,4 +1,8 @@
+import logging
+
 from db import get_db_cursor
+
+logger = logging.getLogger(__name__)
 
 
 def log_search(compound, accession):
@@ -11,8 +15,8 @@ def log_search(compound, accession):
                 """,
                 (accession, compound),
             )
-    except Exception as e:
-        print(f"Failed to log search: {e}")
+    except Exception:
+        logger.exception("Failed to log search")
 
 
 def get_search_history(limit):
@@ -34,8 +38,8 @@ def get_search_history(limit):
                 {"accession": row[0], "compound": row[1], "created_at": row[2].isoformat()}
                 for row in rows
             ]
-    except Exception as e:
-        print(f"Failed to get recently generated compounds: {e}")
+    except Exception:
+        logger.exception("Failed to get recently generated compounds")
         return []
 
 
@@ -57,6 +61,6 @@ def get_popular_compounds(limit):
             rows = cursor.fetchall()
 
             return [{"compound": row[0], "search_count": row[1]} for row in rows]
-    except Exception as e:
-        print(f"Failed to get most generated compounds: {e}")
+    except Exception:
+        logger.exception("Failed to get most generated compounds")
         return []
