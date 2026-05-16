@@ -1,11 +1,23 @@
 import logging
+from typing import TypedDict
 
 from db import get_db_cursor
 
 logger = logging.getLogger(__name__)
 
 
-def log_search(compound, accession):
+class SearchHistoryEntry(TypedDict):
+    accession: str
+    compound: str
+    created_at: str
+
+
+class PopularCompound(TypedDict):
+    compound: str
+    search_count: int
+
+
+def log_search(compound: str, accession: str) -> None:
     try:
         with get_db_cursor(commit=True) as cursor:
             cursor.execute(
@@ -19,7 +31,7 @@ def log_search(compound, accession):
         logger.exception("Failed to log search")
 
 
-def get_search_history(limit):
+def get_search_history(limit: int) -> list[SearchHistoryEntry]:
     try:
         with get_db_cursor() as cursor:
             cursor.execute(
@@ -43,7 +55,7 @@ def get_search_history(limit):
         return []
 
 
-def get_popular_compounds(limit):
+def get_popular_compounds(limit: int) -> list[PopularCompound]:
     try:
         with get_db_cursor() as cursor:
             cursor.execute(

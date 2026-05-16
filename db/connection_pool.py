@@ -1,15 +1,18 @@
 import os
+from collections.abc import Generator
 from contextlib import contextmanager
+from typing import Any, cast
 
 import psycopg2.pool
 from dotenv import load_dotenv
+from psycopg2.extensions import connection, cursor
 
 load_dotenv()
 
-connection_pool = None
+connection_pool: psycopg2.pool.SimpleConnectionPool | None = None
 
 
-def init_pool(config=None):
+def init_pool(config: dict[str, Any] | None = None) -> None:
     global connection_pool
 
     # Pool already initialized (e.g. by post_fork hook before module load)
@@ -30,26 +33,26 @@ def init_pool(config=None):
     connection_pool = psycopg2.pool.SimpleConnectionPool(**config)
 
 
-def get_connection():
+def get_connection() -> connection:
     if connection_pool is None:
         raise RuntimeError("Connection pool not initialized. Call init_pool() first.")
-    return connection_pool.getconn()
+    return cast(connection, connection_pool.getconn())  # pyright: ignore[reportUnknownMemberType]
 
 
-def return_connection(conn):
+def return_connection(conn: connection) -> None:
     if connection_pool is None:
         raise RuntimeError("Connection pool not initialized. Call init_pool() first.")
-    connection_pool.putconn(conn)
+    connection_pool.putconn(conn)  # pyright: ignore[reportUnknownMemberType]
 
 
 @contextmanager
-def get_db_cursor(commit=False):
-    conn = None
-    cursor = None
+def get_db_cursor(commit: bool = False) -> Generator[cursor]:
+    conn: connection | None = None
+    cur: cursor | None = None
     try:
         conn = get_connection()
-        cursor = conn.cursor()
-        yield cursor
+        cur = conn.cursor()
+        yield cur
         if commit:
             conn.commit()
     except Exception:
@@ -57,13 +60,13 @@ def get_db_cursor(commit=False):
             conn.rollback()
         raise
     finally:
-        if cursor:
-            cursor.close()
+        if cur:
+            cur.close()
         if conn:
             return_connection(conn)
 
 
-def close_all_connections():
+def close_all_connections() -> None:
     global connection_pool
     if connection_pool is not None:
         connection_pool.closeall()

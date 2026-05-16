@@ -6,9 +6,9 @@ from flask import request
 from audio import generate_combined_wav_bytes_and_data, parse_spectrum_text
 from db import (
     get_massbank_peaks,
-    get_popular_compounds,  # pyright: ignore[reportUnknownVariableType]
-    get_search_history,  # pyright: ignore[reportUnknownVariableType]
-    log_search,  # pyright: ignore[reportUnknownVariableType]
+    get_popular_compounds,
+    get_search_history,
+    log_search,
 )
 from utils.webhook import (
     notify_audio_generated_async,  # pyright: ignore[reportUnknownVariableType]
@@ -41,14 +41,14 @@ def _algorithm_parameters(
 def history() -> tuple[dict[str, Any], int]:
     limit = request.args.get("limit", default=20, type=int)
     limit = max(1, min(limit, 100))
-    history_data = get_search_history(limit=limit)  # pyright: ignore[reportUnknownVariableType]
+    history_data = get_search_history(limit=limit)
     return {"history": history_data}, 200
 
 
 def popular() -> tuple[dict[str, Any], int]:
     limit = request.args.get("limit", default=20, type=int)
     limit = max(1, min(limit, 100))
-    popular_data = get_popular_compounds(limit=limit)  # pyright: ignore[reportUnknownVariableType]
+    popular_data = get_popular_compounds(limit=limit)
     return {"popular": popular_data}, 200
 
 
