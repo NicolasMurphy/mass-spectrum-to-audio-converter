@@ -3,7 +3,8 @@ import os
 import time
 
 import psycopg2
-from flask import Flask, jsonify, send_from_directory
+from flask import Flask, Response, jsonify, send_from_directory
+from flask.typing import ResponseReturnValue
 from flask_cors import CORS
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
@@ -19,7 +20,7 @@ from api import (
 from db import init_pool
 
 
-def wait_for_database():
+def wait_for_database() -> None:
     max_attempts = 30
     for attempt in range(max_attempts):
         try:
@@ -60,7 +61,7 @@ history_limit = limiter.shared_limit("30 per minute", scope="read-endpoints")
 
 
 @app.errorhandler(Exception)
-def handle_unexpected(e):
+def handle_unexpected(e: Exception) -> ResponseReturnValue:
     if isinstance(e, HTTPException):
         return e
     app.logger.exception("unhandled exception")
@@ -68,22 +69,22 @@ def handle_unexpected(e):
 
 
 @app.errorhandler(429)
-def rate_limit_exceeded(e):
+def rate_limit_exceeded(e: HTTPException) -> tuple[Response, int]:
     return jsonify({"error": "Too many requests"}), 429
 
 
 @app.errorhandler(413)
-def request_too_large(e):
+def request_too_large(e: HTTPException) -> tuple[Response, int]:
     return jsonify({"error": "Request body too large"}), 413
 
 
 @app.route("/")
-def serve_index():
+def serve_index() -> Response:
     return send_from_directory("static", "index.html")
 
 
 @app.route("/health")
-def health():
+def health() -> tuple[dict[str, str], int]:
     return {"status": "ok"}, 200
 
 
@@ -94,7 +95,7 @@ app.route("/popular", methods=["GET"])(history_limit(popular))
 
 
 @app.route("/<path:path>")
-def serve_static_or_spa(path):
+def serve_static_or_spa(path: str) -> Response:
     try:
         return send_from_directory("static", path)
     except FileNotFoundError:

@@ -5,8 +5,12 @@ import requests
 
 
 def send_webhook_notification(
-    compound_name, accession, algorithm, duration, sample_rate
-):
+    compound_name: str,
+    accession: str,
+    algorithm: str,
+    duration: float,
+    sample_rate: int,
+) -> None:
     """Send webhook notification when a compound is generated"""
     webhook_url = os.getenv("WEBHOOK_URL")
 
@@ -28,11 +32,15 @@ def send_webhook_notification(
 
 
 def notify_audio_generated_async(
-    compound_name, accession, algorithm, duration, sample_rate
-):
+    compound_name: str,
+    accession: str,
+    algorithm: str,
+    duration: float,
+    sample_rate: int,
+) -> None:
     """Fire send_webhook_notification on a daemon thread so the request returns immediately"""
 
-    def _send():
+    def _send() -> None:
         send_webhook_notification(
             compound_name, accession, algorithm, duration, sample_rate
         )

@@ -11,6 +11,7 @@ services:
       - ./db:/app/db
       - ./utils:/app/utils
       - ./app.py:/app/app.py
+      - ./gunicorn.conf.py:/app/gunicorn.conf.py
       - ./.env:/app/.env
       - ./tests:/app/tests
       - ./pyproject.toml:/app/pyproject.toml
