@@ -31,7 +31,9 @@ from typing import TypedDict
 
 import numpy as np
 from numpy.typing import NDArray
-from scipy.io.wavfile import write  # pyright: ignore[reportMissingTypeStubs, reportUnknownVariableType]
+from scipy.io.wavfile import (  # pyright: ignore[reportMissingTypeStubs]
+    write,  # pyright: ignore[reportUnknownVariableType]
+)
 
 from .frequency_algorithms import (
     mz_to_frequency_inverse,
