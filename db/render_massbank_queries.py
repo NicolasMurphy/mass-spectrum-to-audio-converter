@@ -1,11 +1,19 @@
+from typing import TypedDict
+
+from audio import Spectrum
 from db import get_db_cursor
 
 
-def get_massbank_peaks(compound_name):
+class CompoundData(TypedDict):
+    spectrum: Spectrum
+    accession: str
+    compound_name: str
+
+
+def get_massbank_peaks(compound_name: str) -> CompoundData:
     """
     Get mass spectrum peaks from local PostgreSQL database
     Two-step search like MassBank API: find compounds first, then get peaks
-    Returns: (spectrum, accession, compound_actual)
     """
     with get_db_cursor() as cursor:
         # Step 1: Search the fast compound_accessions table (case-insensitive)
@@ -41,4 +49,8 @@ def get_massbank_peaks(compound_name):
         # Convert to the format expected by converter.py
         spectrum = [(float(mz), float(intensity)) for mz, intensity in peak_data]
 
-        return spectrum, accession, compound_actual
+        return {
+            "spectrum": spectrum,
+            "accession": accession,
+            "compound_name": compound_actual,
+        }

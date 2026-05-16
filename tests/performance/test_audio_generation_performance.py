@@ -6,7 +6,7 @@ from db import get_massbank_peaks
 
 # audio generation 9 peaks
 def test_caffeine_performance():
-    spectrum, _, _ = get_massbank_peaks("caffeine")
+    spectrum = get_massbank_peaks("caffeine")["spectrum"]
 
     start_time = time.perf_counter()
     _, transformation_data = generate_combined_wav_bytes_and_data(
@@ -22,7 +22,7 @@ def test_caffeine_performance():
 
 # 88 peaks
 def test_ajmalin_performance():
-    spectrum, _, _ = get_massbank_peaks("Ajmalin")
+    spectrum = get_massbank_peaks("Ajmalin")["spectrum"]
 
     start_time = time.perf_counter()
     _, transformation_data = generate_combined_wav_bytes_and_data(
@@ -38,7 +38,7 @@ def test_ajmalin_performance():
 
 # 1933 peaks
 def test_cyclopyrroxanthin_performance():
-    spectrum, _, _ = get_massbank_peaks("Cyclopyrroxanthin")
+    spectrum = get_massbank_peaks("Cyclopyrroxanthin")["spectrum"]
 
     start_time = time.perf_counter()
     _, transformation_data = generate_combined_wav_bytes_and_data(
@@ -55,7 +55,7 @@ def test_cyclopyrroxanthin_performance():
 # HQ-mode (float64 math + float32 WAV) — bench medians: caffeine ~27ms,
 # Ajmalin ~220ms, Cyclopyrroxanthin ~4700ms. Thresholds set well above.
 def test_caffeine_hq_performance():
-    spectrum, _, _ = get_massbank_peaks("caffeine")
+    spectrum = get_massbank_peaks("caffeine")["spectrum"]
 
     start_time = time.perf_counter()
     _, transformation_data = generate_combined_wav_bytes_and_data(
@@ -70,7 +70,7 @@ def test_caffeine_hq_performance():
 
 
 def test_ajmalin_hq_performance():
-    spectrum, _, _ = get_massbank_peaks("Ajmalin")
+    spectrum = get_massbank_peaks("Ajmalin")["spectrum"]
 
     start_time = time.perf_counter()
     _, transformation_data = generate_combined_wav_bytes_and_data(
@@ -85,7 +85,7 @@ def test_ajmalin_hq_performance():
 
 
 def test_cyclopyrroxanthin_hq_performance():
-    spectrum, _, _ = get_massbank_peaks("Cyclopyrroxanthin")
+    spectrum = get_massbank_peaks("Cyclopyrroxanthin")["spectrum"]
 
     start_time = time.perf_counter()
     _, transformation_data = generate_combined_wav_bytes_and_data(
