@@ -1,16 +1,52 @@
-def validate_algorithm(algorithm):
+from typing import Any, Literal, TypedDict, cast, overload
+
+
+class AudioParametersBase(TypedDict):
+    offset: float
+    scale: float
+    shift: float
+    duration: float
+    sample_rate: int
+    factor: float
+    modulus: float
+    base: float
+    hq: bool
+
+
+class AudioParameters(AudioParametersBase):
+    compound: str
+
+
+def validate_algorithm(algorithm: str) -> None:
     if algorithm not in ["linear", "inverse", "modulo"]:
         raise ValueError(
             f"Unsupported algorithm: '{algorithm}'. Must be 'linear', 'inverse', or 'modulo'"
         )
 
 
-def validate_number_range(value, param_name):
+def validate_number_range(value: float, param_name: str) -> None:
     if not (-1_000_000 <= value <= 1_000_000):
         raise ValueError(f"{param_name} must be between -1,000,000 and 1,000,000.")
 
 
-def validate_and_parse_parameters(data, require_compound=True):
+@overload
+def validate_and_parse_parameters(
+    data: dict[str, Any] | None,
+    require_compound: Literal[True] = True,
+) -> AudioParameters: ...
+
+
+@overload
+def validate_and_parse_parameters(
+    data: dict[str, Any] | None,
+    require_compound: Literal[False],
+) -> AudioParametersBase: ...
+
+
+def validate_and_parse_parameters(
+    data: dict[str, Any] | None,
+    require_compound: bool = True,
+) -> AudioParameters | AudioParametersBase:
     if not data:
         raise ValueError("No JSON data provided")
 
@@ -19,6 +55,7 @@ def validate_and_parse_parameters(data, require_compound=True):
         if isinstance(raw_sr, float) or (isinstance(raw_sr, str) and "." in raw_sr):
             raise ValueError("Invalid sample_rate. Must be an integer.")
 
+    compound = None
     if require_compound:
         compound = data.get("compound")
         if not compound or not compound.strip():
@@ -28,8 +65,6 @@ def validate_and_parse_parameters(data, require_compound=True):
             raise ValueError(
                 "Compound name is too long. Maximum length is 349 characters."
             )
-    else:
-        compound = data.get("compound", None)
 
     try:
         offset = float(data.get("offset", 300))
@@ -87,7 +122,7 @@ def validate_and_parse_parameters(data, require_compound=True):
     if not 3500 <= sample_rate <= 192000:
         raise ValueError("Sample rate must be between 3500 and 192000.")
 
-    result = {
+    base_params: AudioParametersBase = {
         "offset": offset,
         "scale": scale,
         "shift": shift,
@@ -99,12 +134,12 @@ def validate_and_parse_parameters(data, require_compound=True):
         "hq": hq,
     }
 
-    if require_compound or compound is not None:
-        result["compound"] = compound
+    if not require_compound:
+        return base_params
 
-    return result
+    return cast(AudioParameters, {**base_params, "compound": compound})
 
 
-def validate_spectrum_text_range(text):
+def validate_spectrum_text_range(text: str) -> None:
     if not (3 <= len(text) <= 100000):
         raise ValueError("Spectrum data must be between 3 and 100,000 characters.")

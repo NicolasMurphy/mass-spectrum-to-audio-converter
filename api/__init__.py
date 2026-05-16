@@ -11,12 +11,16 @@ from .routes import (
     popular,
 )
 from .validation import (
+    AudioParameters,
+    AudioParametersBase,
     validate_algorithm,
     validate_and_parse_parameters,
     validate_spectrum_text_range,
 )
 
 __all__ = [
+    "AudioParameters",
+    "AudioParametersBase",
     "history",
     "generate_audio_with_data",
     "generate_audio_with_custom_data",
