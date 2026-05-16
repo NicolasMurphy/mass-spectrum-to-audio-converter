@@ -1,24 +1,30 @@
 import base64
+from typing import Any
 
 from flask import request
 
 from audio import generate_combined_wav_bytes_and_data, parse_spectrum_text
 from db import (
     get_massbank_peaks,
-    get_popular_compounds,
-    get_search_history,
-    log_search,
+    get_popular_compounds,  # pyright: ignore[reportUnknownVariableType]
+    get_search_history,  # pyright: ignore[reportUnknownVariableType]
+    log_search,  # pyright: ignore[reportUnknownVariableType]
 )
-from utils.webhook import notify_audio_generated_async
+from utils.webhook import (
+    notify_audio_generated_async,  # pyright: ignore[reportUnknownVariableType]
+)
 
 from .validation import (
+    AudioParametersBase,
     validate_algorithm,
     validate_and_parse_parameters,
     validate_spectrum_text_range,
 )
 
 
-def _algorithm_parameters(algorithm, params):
+def _algorithm_parameters(
+    algorithm: str, params: AudioParametersBase
+) -> dict[str, float]:
     if algorithm == "linear":
         return {"offset": params["offset"]}
     elif algorithm == "inverse":
@@ -32,27 +38,27 @@ def _algorithm_parameters(algorithm, params):
     return {}
 
 
-def history():
+def history() -> tuple[dict[str, Any], int]:
     limit = request.args.get("limit", default=20, type=int)
     limit = max(1, min(limit, 100))
-    history_data = get_search_history(limit=limit)
+    history_data = get_search_history(limit=limit)  # pyright: ignore[reportUnknownVariableType]
     return {"history": history_data}, 200
 
 
-def popular():
+def popular() -> tuple[dict[str, Any], int]:
     limit = request.args.get("limit", default=20, type=int)
     limit = max(1, min(limit, 100))
-    popular_data = get_popular_compounds(limit=limit)
+    popular_data = get_popular_compounds(limit=limit)  # pyright: ignore[reportUnknownVariableType]
     return {"popular": popular_data}, 200
 
 
-def generate_audio_with_data(algorithm):
+def generate_audio_with_data(algorithm: str) -> tuple[dict[str, Any], int]:
     try:
         validate_algorithm(algorithm)
     except ValueError as e:
         return {"error": str(e)}, 400
 
-    data = request.get_json()
+    data: dict[str, Any] | None = request.get_json()
 
     try:
         params = validate_and_parse_parameters(data)
@@ -87,7 +93,7 @@ def generate_audio_with_data(algorithm):
             params["sample_rate"],
         )
 
-        response_data = {
+        response_data: dict[str, Any] = {
             "compound": compound_data["compound_name"],
             "accession": compound_data["accession"],
             "audio_base64": audio_base64,
@@ -111,13 +117,13 @@ def generate_audio_with_data(algorithm):
             return {"error": error_msg}, 400
 
 
-def generate_audio_with_custom_data(algorithm):
+def generate_audio_with_custom_data(algorithm: str) -> tuple[dict[str, Any], int]:
     try:
         validate_algorithm(algorithm)
     except ValueError as e:
         return {"error": str(e)}, 400
 
-    data = request.get_json()
+    data: dict[str, Any] | None = request.get_json()
 
     if not data or "spectrum_text" not in data:
         return {"error": "spectrum_text is required"}, 400
@@ -151,7 +157,7 @@ def generate_audio_with_custom_data(algorithm):
         )
         audio_base64 = base64.b64encode(wav_buffer.getvalue()).decode()
 
-        response_data = {
+        response_data: dict[str, Any] = {
             "compound": "Custom Compound",
             "accession": "CUSTOM-001",
             "audio_base64": audio_base64,
