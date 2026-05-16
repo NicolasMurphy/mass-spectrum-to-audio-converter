@@ -256,7 +256,7 @@ export default function MicrotonalPiano({
                   }
                 />
               </div>
-              <span className="w-16 text-right text-sm font-mono tabular-nums opacity-80">
+              <span className="w-16 text-center text-xs font-mono tabular-nums px-1.5 py-0.5 rounded border border-base-300 bg-base-100 text-base-content/70">
                 {centsLabel}
               </span>
             </div>
