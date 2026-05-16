@@ -218,26 +218,45 @@ export default function MicrotonalPiano({
             centsRounded === 0
               ? "0¢"
               : `${centsRounded > 0 ? "+" : ""}${centsRounded}¢`;
+          const percent = ((centsExact + 2400) / 4800) * 100;
+          const fillLeft = Math.min(50, percent);
+          const fillRight = Math.max(50, percent);
           return (
             <div key={index} className="flex items-center gap-3">
-              <span className="w-4 text-center text-sm font-mono opacity-60">
+              <span className="w-7 text-center text-xs font-mono px-1.5 py-0.5 rounded border border-base-300 bg-base-100 text-base-content/70">
                 {keyLabels[index]}
               </span>
-              <input
-                type="range"
-                min={-2400}
-                max={2400}
-                step={1}
-                value={centsExact}
-                onChange={(e) => {
-                  const newCents = parseFloat(e.target.value);
-                  const newRatios = [...pitchRatios];
-                  newRatios[index] = Math.pow(2, newCents / 1200);
-                  setPitchRatios(newRatios);
-                }}
-                className="range range-xs flex-1"
-              />
-              <span className="w-16 text-right text-sm font-mono tabular-nums opacity-80">
+              <div className="relative flex-1 flex items-center h-4">
+                <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 h-2 bg-base-content/10 rounded-full pointer-events-none" />
+                <div
+                  className="absolute top-1/2 -translate-y-1/2 h-2 bg-primary rounded-full pointer-events-none"
+                  style={{
+                    left: `${fillLeft}%`,
+                    right: `${100 - fillRight}%`,
+                  }}
+                />
+                <input
+                  type="range"
+                  min={-2400}
+                  max={2400}
+                  step={1}
+                  value={centsExact}
+                  onChange={(e) => {
+                    const newCents = parseFloat(e.target.value);
+                    const newRatios = [...pitchRatios];
+                    newRatios[index] = Math.pow(2, newCents / 1200);
+                    setPitchRatios(newRatios);
+                  }}
+                  className="range range-xs range-primary w-full relative"
+                  style={
+                    {
+                      "--range-fill": 0,
+                      "--range-bg": "transparent",
+                    } as React.CSSProperties
+                  }
+                />
+              </div>
+              <span className="w-16 text-center text-xs font-mono tabular-nums px-1.5 py-0.5 rounded border border-base-300 bg-base-100 text-base-content/70">
                 {centsLabel}
               </span>
             </div>
