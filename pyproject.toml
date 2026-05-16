@@ -10,6 +10,6 @@ extend-select = ["I", "B", "S"]
 
 [tool.pyright]
 pythonVersion = "3.13"
-include = ["api", "audio", "db", "services", "utils", "app.py", "gunicorn.conf.py"]
+include = ["api", "audio", "db", "utils", "app.py", "gunicorn.conf.py"]
 exclude = ["tests", "frontend", ".ruff_cache", "**/node_modules", "**/__pycache__"]
-strict = ["audio", "api/validation.py", "services"]
+strict = ["audio", "api/validation.py"]

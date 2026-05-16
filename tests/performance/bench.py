@@ -148,7 +148,7 @@ def main():
     print(f"Loading {len(SPECTRA)} spectra...")
     spectra_data = {}
     for name in SPECTRA:
-        peaks, _, _ = get_massbank_peaks(name)
+        peaks = get_massbank_peaks(name)["spectrum"]
         spectra_data[name] = peaks
         print(f"  {name:25s} {len(peaks):>5d} peaks")
 

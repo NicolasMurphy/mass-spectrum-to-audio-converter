@@ -1,4 +1,5 @@
 import os
+import threading
 
 import requests
 
@@ -24,3 +25,16 @@ def send_webhook_notification(
             print(f"Webhook failed with status {response.status_code}: {response.text}")
     except requests.exceptions.RequestException as e:
         print(f"Webhook request failed: {e}")
+
+
+def notify_audio_generated_async(
+    compound_name, accession, algorithm, duration, sample_rate
+):
+    """Fire send_webhook_notification on a daemon thread so the request returns immediately"""
+
+    def _send():
+        send_webhook_notification(
+            compound_name, accession, algorithm, duration, sample_rate
+        )
+
+    threading.Thread(target=_send, daemon=True).start()

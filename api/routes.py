@@ -1,8 +1,15 @@
+import base64
+
 from flask import request
 
-from audio import parse_spectrum_text
-from db import get_popular_compounds, get_search_history
-from services import AudioGenerationService, CompoundDataService, NotificationService
+from audio import generate_combined_wav_bytes_and_data, parse_spectrum_text
+from db import (
+    get_massbank_peaks,
+    get_popular_compounds,
+    get_search_history,
+    log_search,
+)
+from utils.webhook import notify_audio_generated_async
 
 from .validation import (
     validate_algorithm,
@@ -10,9 +17,19 @@ from .validation import (
     validate_spectrum_text_range,
 )
 
-audio_service = AudioGenerationService()
-compound_service = CompoundDataService()
-notification_service = NotificationService()
+
+def _algorithm_parameters(algorithm, params):
+    if algorithm == "linear":
+        return {"offset": params["offset"]}
+    elif algorithm == "inverse":
+        return {"scale": params["scale"], "shift": params["shift"]}
+    elif algorithm == "modulo":
+        return {
+            "factor": params["factor"],
+            "modulus": params["modulus"],
+            "base": params["base"],
+        }
+    return {}
 
 
 def history():
@@ -43,17 +60,26 @@ def generate_audio_with_data(algorithm):
         return {"error": str(e)}, 400
 
     try:
-        compound_data = compound_service.get_compound_spectrum(params["compound"])
+        compound_data = get_massbank_peaks(params["compound"])
 
-        audio_result = audio_service.generate_audio_from_spectrum(
-            compound_data["spectrum"], algorithm, params
+        wav_buffer, transformed_data = generate_combined_wav_bytes_and_data(
+            compound_data["spectrum"],
+            algorithm=algorithm,
+            offset=params["offset"],
+            scale=params["scale"],
+            shift=params["shift"],
+            factor=params["factor"],
+            modulus=params["modulus"],
+            base=params["base"],
+            duration=params["duration"],
+            sample_rate=params["sample_rate"],
+            hq=params["hq"],
         )
+        audio_base64 = base64.b64encode(wav_buffer.getvalue()).decode()
 
-        compound_service.log_compound_search(
-            compound_data["compound_name"], compound_data["accession"]
-        )
+        log_search(compound_data["compound_name"], compound_data["accession"])
 
-        notification_service.notify_audio_generated(
+        notify_audio_generated_async(
             compound_data["compound_name"],
             compound_data["accession"],
             algorithm,
@@ -64,10 +90,10 @@ def generate_audio_with_data(algorithm):
         response_data = {
             "compound": compound_data["compound_name"],
             "accession": compound_data["accession"],
-            "audio_base64": audio_result["audio_base64"],
-            "spectrum": audio_result["transformed_data"],
+            "audio_base64": audio_base64,
+            "spectrum": transformed_data,
             "algorithm": algorithm,
-            "parameters": audio_service.get_algorithm_parameters(algorithm, params),
+            "parameters": _algorithm_parameters(algorithm, params),
             "audio_settings": {
                 "duration": params["duration"],
                 "sample_rate": params["sample_rate"],
@@ -110,20 +136,28 @@ def generate_audio_with_custom_data(algorithm):
     try:
         spectrum = parse_spectrum_text(data["spectrum_text"])
 
-        audio_result = audio_service.generate_audio_from_spectrum(
-            spectrum, algorithm, params
+        wav_buffer, transformed_data = generate_combined_wav_bytes_and_data(
+            spectrum,
+            algorithm=algorithm,
+            offset=params["offset"],
+            scale=params["scale"],
+            shift=params["shift"],
+            factor=params["factor"],
+            modulus=params["modulus"],
+            base=params["base"],
+            duration=params["duration"],
+            sample_rate=params["sample_rate"],
+            hq=params["hq"],
         )
-
-        compound_name = "Custom Compound"
-        accession = "CUSTOM-001"
+        audio_base64 = base64.b64encode(wav_buffer.getvalue()).decode()
 
         response_data = {
-            "compound": compound_name,
-            "accession": accession,
-            "audio_base64": audio_result["audio_base64"],
-            "spectrum": audio_result["transformed_data"],
+            "compound": "Custom Compound",
+            "accession": "CUSTOM-001",
+            "audio_base64": audio_base64,
+            "spectrum": transformed_data,
             "algorithm": algorithm,
-            "parameters": audio_service.get_algorithm_parameters(algorithm, params),
+            "parameters": _algorithm_parameters(algorithm, params),
             "audio_settings": {
                 "duration": params["duration"],
                 "sample_rate": params["sample_rate"],

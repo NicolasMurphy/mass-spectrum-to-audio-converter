@@ -5,11 +5,11 @@ from db import get_massbank_peaks
 
 def test_get_massbank_peaks():
     """Test get_massbank_peaks with local database"""
-    spectrum, accession, compound_actual = get_massbank_peaks("caffeine")
+    result = get_massbank_peaks("caffeine")
 
-    assert len(spectrum) > 0
-    assert accession is not None
-    assert "caffeine" in compound_actual.lower()
+    assert len(result["spectrum"]) > 0
+    assert result["accession"] is not None
+    assert "caffeine" in result["compound_name"].lower()
 
 
 def test_get_massbank_peaks_not_found():
@@ -18,8 +18,8 @@ def test_get_massbank_peaks_not_found():
 
 
 def test_get_massbank_peaks_case_insensitive():
-    spectrum_lower = get_massbank_peaks("caffeine")[0]
-    spectrum_upper = get_massbank_peaks("CAFFEINE")[0]
+    spectrum_lower = get_massbank_peaks("caffeine")["spectrum"]
+    spectrum_upper = get_massbank_peaks("CAFFEINE")["spectrum"]
     assert spectrum_lower == spectrum_upper
 
 
