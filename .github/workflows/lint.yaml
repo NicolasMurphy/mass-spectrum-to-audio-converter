@@ -26,6 +26,9 @@ jobs:
       - name: Run Ruff
         run: ruff check . --output-format=github
 
+      - name: Run Ruff format check
+        run: ruff format --check .
+
   lint-frontend:
     runs-on: ubuntu-latest
     timeout-minutes: 5
