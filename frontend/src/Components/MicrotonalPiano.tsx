@@ -223,7 +223,7 @@ export default function MicrotonalPiano({
           const fillRight = Math.max(50, percent);
           return (
             <div key={index} className="flex items-center gap-3">
-              <span className="w-4 text-center text-sm font-mono opacity-60">
+              <span className="w-7 text-center text-xs font-mono px-1.5 py-0.5 rounded border border-base-300 bg-base-100 text-base-content/70">
                 {keyLabels[index]}
               </span>
               <div className="relative flex-1 flex items-center h-4">
