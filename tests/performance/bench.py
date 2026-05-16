@@ -6,6 +6,7 @@ Usage (inside app container):
     docker compose exec -T app python tests/performance/bench.py --baseline   # write baseline
     docker compose exec -T app python tests/performance/bench.py --json       # machine-readable
 """
+
 import argparse
 import gc
 import hashlib
@@ -139,7 +140,9 @@ def fmt_diff(current_ms, baseline_ms):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--baseline", action="store_true", help="Save current results as baseline.json")
+    parser.add_argument(
+        "--baseline", action="store_true", help="Save current results as baseline.json"
+    )
     parser.add_argument("--json", action="store_true", help="Emit JSON to stdout")
     args = parser.parse_args()
 
@@ -153,7 +156,9 @@ def main():
         print(f"  {name:25s} {len(peaks):>5d} peaks")
 
     cells = len(SPECTRA) * len(ALGORITHMS) * len(HQ_MODES)
-    print(f"\nRunning {WARMUP_RUNS} warmup + {TIMED_RUNS} timed per cell, {cells} cells\n")
+    print(
+        f"\nRunning {WARMUP_RUNS} warmup + {TIMED_RUNS} timed per cell, {cells} cells\n"
+    )
 
     results = {}
     for spectrum_name in SPECTRA:
