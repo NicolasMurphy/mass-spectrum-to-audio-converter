@@ -27,9 +27,13 @@ Key NumPy Functions:
 
 import io
 import re
+from typing import TypedDict
 
 import numpy as np
-from scipy.io.wavfile import write
+from numpy.typing import NDArray
+from scipy.io.wavfile import (  # pyright: ignore[reportMissingTypeStubs]
+    write,  # pyright: ignore[reportUnknownVariableType]
+)
 
 from .frequency_algorithms import (
     mz_to_frequency_inverse,
@@ -37,8 +41,23 @@ from .frequency_algorithms import (
     mz_to_frequency_modulo,
 )
 
+Spectrum = list[tuple[float, float]]
 
-def generate_sine_wave(freq, intensity, time_array, wave_buffer):
+
+class TransformedPeak(TypedDict):
+    mz: float
+    frequency: float
+    intensity: float
+    amplitude_linear: float
+    amplitude_db: float
+
+
+def generate_sine_wave(
+    freq: float,
+    intensity: float,
+    time_array: NDArray[np.floating],
+    wave_buffer: NDArray[np.floating],
+) -> NDArray[np.floating]:
     """Generate sine wave into provided buffer (reusable array)"""
     working_scale = np.iinfo(np.int16).max * intensity
     np.sin(2 * np.pi * freq * time_array, out=wave_buffer)
@@ -47,7 +66,7 @@ def generate_sine_wave(freq, intensity, time_array, wave_buffer):
 
 
 def generate_combined_wav_bytes_and_data(
-    spectrum_data,
+    spectrum_data: Spectrum,
     offset: float = 300,
     scale: float = 100000,
     shift: float = 1,
@@ -58,7 +77,7 @@ def generate_combined_wav_bytes_and_data(
     modulus: float = 500,
     base: float = 100,
     hq: bool = False,
-):
+) -> tuple[io.BytesIO, list[TransformedPeak]]:
     # hq=True: float64 math + float32 WAV output (DAW-friendly precision, ~3x slower).
     # hq=False: float32 math + int16 WAV output (default; fast iteration).
     math_dtype = np.float64 if hq else np.float32
@@ -72,10 +91,10 @@ def generate_combined_wav_bytes_and_data(
     # Reusable buffer that gets overwritten for each peak
     sine_wave_buffer = np.zeros_like(time_array)
 
-    transformed_data = []
+    transformed_data: list[TransformedPeak] = []
 
     # Pre-normalize intensities to prevent huge numbers
-    max_intensity = max(intensity for mz, intensity in spectrum_data)
+    max_intensity = max(intensity for _, intensity in spectrum_data)
 
     for mz, intensity in spectrum_data:
         if algorithm == "linear":
@@ -131,7 +150,7 @@ def generate_combined_wav_bytes_and_data(
     return wav_buffer, transformed_data
 
 
-def parse_spectrum_text(text_input):
+def parse_spectrum_text(text_input: str) -> Spectrum:
     try:
         values = re.split(r"\s+", text_input.strip())
         float_values = [float(x) for x in values if x]
@@ -141,7 +160,7 @@ def parse_spectrum_text(text_input):
                 "Spectrum data must have an even number of values (pairs of mz/intensity)"
             )
 
-        spectrum_data = []
+        spectrum_data: Spectrum = []
         for i in range(0, len(float_values), 2):
             mz = float_values[i]
             intensity = float_values[i + 1]

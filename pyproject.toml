@@ -7,3 +7,9 @@ extend-select = ["I", "B", "S"]
 
 [tool.ruff.lint.per-file-ignores]
 "tests/**" = ["S101"]
+
+[tool.pyright]
+pythonVersion = "3.13"
+include = ["api", "audio", "db", "services", "utils", "app.py", "gunicorn.conf.py"]
+exclude = ["tests", "frontend", ".ruff_cache", "**/node_modules", "**/__pycache__"]
+strict = ["audio"]

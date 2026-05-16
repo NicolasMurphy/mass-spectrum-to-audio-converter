@@ -5,6 +5,8 @@ Creates the audio file, and keeps track of data transformations.
 """
 
 from .audio_generation import (
+    Spectrum,
+    TransformedPeak,
     generate_combined_wav_bytes_and_data,
     generate_sine_wave,
     parse_spectrum_text,
@@ -16,6 +18,8 @@ from .frequency_algorithms import (
 )
 
 __all__ = [
+    "Spectrum",
+    "TransformedPeak",
     "generate_sine_wave",
     "generate_combined_wav_bytes_and_data",
     "parse_spectrum_text",
