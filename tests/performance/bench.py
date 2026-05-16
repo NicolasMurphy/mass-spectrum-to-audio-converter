@@ -103,7 +103,7 @@ def run_cell(spectrum, algorithm, hq):
     times = []
     for _ in range(TIMED_RUNS):
         gc.collect()
-        elapsed, h, td = time_one(spectrum, algorithm, hq)
+        elapsed, h, _td = time_one(spectrum, algorithm, hq)
         times.append(elapsed)
         if h != last_hash:
             return {"error": "non-deterministic WAV between runs (same input)"}

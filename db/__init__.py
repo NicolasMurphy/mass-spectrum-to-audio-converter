@@ -21,16 +21,16 @@ from .queries import (
 from .render_massbank_queries import CompoundData, get_massbank_peaks
 
 __all__ = [
-    "init_pool",
-    "get_connection",
-    "return_connection",
-    "get_db_cursor",
-    "close_all_connections",
-    "log_search",
-    "get_search_history",
-    "get_popular_compounds",
-    "get_massbank_peaks",
     "CompoundData",
-    "SearchHistoryEntry",
     "PopularCompound",
+    "SearchHistoryEntry",
+    "close_all_connections",
+    "get_connection",
+    "get_db_cursor",
+    "get_massbank_peaks",
+    "get_popular_compounds",
+    "get_search_history",
+    "init_pool",
+    "log_search",
+    "return_connection",
 ]

@@ -21,9 +21,9 @@ from .validation import (
 __all__ = [
     "AudioParameters",
     "AudioParametersBase",
-    "history",
-    "generate_audio_with_data",
     "generate_audio_with_custom_data",
+    "generate_audio_with_data",
+    "history",
     "popular",
     "validate_algorithm",
     "validate_and_parse_parameters",
