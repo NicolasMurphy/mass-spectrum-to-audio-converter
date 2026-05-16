@@ -40,7 +40,9 @@ wait_for_database()
 
 app = Flask(__name__, static_folder="static", static_url_path="")
 app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
-app.config["RATELIMIT_ENABLED"] = os.getenv("RATELIMIT_ENABLED", "true").lower() == "true"
+app.config["RATELIMIT_ENABLED"] = (
+    os.getenv("RATELIMIT_ENABLED", "true").lower() == "true"
+)
 app.config["MAX_CONTENT_LENGTH"] = 200_000
 
 if __name__ != "__main__":
@@ -89,8 +91,12 @@ def health() -> tuple[dict[str, str], int]:
 
 
 app.route("/history", methods=["GET"])(history_limit(history))
-app.route("/massbank/<algorithm>", methods=["POST"])(audio_limit(generate_audio_with_data))
-app.route("/custom/<algorithm>", methods=["POST"])(audio_limit(generate_audio_with_custom_data))
+app.route("/massbank/<algorithm>", methods=["POST"])(
+    audio_limit(generate_audio_with_data)
+)
+app.route("/custom/<algorithm>", methods=["POST"])(
+    audio_limit(generate_audio_with_custom_data)
+)
 app.route("/popular", methods=["GET"])(history_limit(popular))
 
 

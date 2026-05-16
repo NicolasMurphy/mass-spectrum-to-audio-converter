@@ -47,7 +47,11 @@ def get_search_history(limit: int) -> list[SearchHistoryEntry]:
             rows = cursor.fetchall()
 
             return [
-                {"accession": row[0], "compound": row[1], "created_at": row[2].isoformat()}
+                {
+                    "accession": row[0],
+                    "compound": row[1],
+                    "created_at": row[2].isoformat(),
+                }
                 for row in rows
             ]
     except Exception:
