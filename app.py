@@ -26,7 +26,7 @@ def wait_for_database() -> None:
         try:
             init_pool()
             return
-        except psycopg2.OperationalError:
+        except psycopg2.OperationalError:  # noqa: PERF203
             if attempt < max_attempts - 1:
                 print(
                     f"Database not ready, waiting 30s... (attempt {attempt + 1}/{max_attempts})"

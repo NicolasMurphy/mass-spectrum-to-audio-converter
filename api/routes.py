@@ -25,9 +25,9 @@ def _algorithm_parameters(
 ) -> dict[str, float]:
     if algorithm == "linear":
         return {"offset": params["offset"]}
-    elif algorithm == "inverse":
+    if algorithm == "inverse":
         return {"scale": params["scale"], "shift": params["shift"]}
-    elif algorithm == "modulo":
+    if algorithm == "modulo":
         return {
             "factor": params["factor"],
             "modulus": params["modulus"],
@@ -111,8 +111,7 @@ def generate_audio_with_data(algorithm: str) -> tuple[dict[str, Any], int]:
         error_msg = str(e)
         if "No records found" in error_msg:
             return {"error": error_msg}, 404
-        else:
-            return {"error": error_msg}, 400
+        return {"error": error_msg}, 400
 
 
 def generate_audio_with_custom_data(algorithm: str) -> tuple[dict[str, Any], int]:
