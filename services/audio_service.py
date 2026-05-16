@@ -1,12 +1,26 @@
 import base64
+import io
+from typing import TypedDict
 
-from audio import generate_combined_wav_bytes_and_data
+from api.validation import AudioParametersBase
+from audio import Spectrum, TransformedPeak, generate_combined_wav_bytes_and_data
+
+
+class AudioResult(TypedDict):
+    wav_buffer: io.BytesIO
+    transformed_data: list[TransformedPeak]
+    audio_base64: str
 
 
 class AudioGenerationService:
     """Handles the core business logic for audio generation from spectra"""
 
-    def generate_audio_from_spectrum(self, spectrum, algorithm, parameters):
+    def generate_audio_from_spectrum(
+        self,
+        spectrum: Spectrum,
+        algorithm: str,
+        parameters: AudioParametersBase,
+    ) -> AudioResult:
         """
         Generate audio from a compound's spectrum.
 
@@ -38,7 +52,9 @@ class AudioGenerationService:
             "audio_base64": base64.b64encode(wav_buffer.getvalue()).decode(),
         }
 
-    def get_algorithm_parameters(self, algorithm, params):
+    def get_algorithm_parameters(
+        self, algorithm: str, params: AudioParametersBase
+    ) -> dict[str, float]:
         """Extract only the relevant parameters for the specified algorithm"""
         if algorithm == "linear":
             return {"offset": params["offset"]}
