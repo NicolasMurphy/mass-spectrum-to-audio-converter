@@ -1,5 +1,8 @@
 import os
 
+from gunicorn.arbiter import Arbiter
+from gunicorn.workers.base import Worker
+
 bind = "0.0.0.0:5000"
 workers = int(os.environ.get("GUNICORN_WORKERS", 1))
 worker_class = "sync"
@@ -7,7 +10,7 @@ preload_app = True
 accesslog = "-"
 
 
-def post_fork(server, worker):
+def post_fork(server: Arbiter, worker: Worker) -> None:
     """
     Re-initialize the DB connection pool in each worker after forking.
 

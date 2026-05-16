@@ -10,9 +10,7 @@ from db import (
     get_search_history,
     log_search,
 )
-from utils.webhook import (
-    notify_audio_generated_async,  # pyright: ignore[reportUnknownVariableType]
-)
+from utils import notify_audio_generated_async
 
 from .validation import (
     AudioParametersBase,

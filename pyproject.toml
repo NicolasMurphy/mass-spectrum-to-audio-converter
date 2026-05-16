@@ -12,4 +12,4 @@ extend-select = ["I", "B", "S"]
 pythonVersion = "3.13"
 include = ["api", "audio", "db", "utils", "app.py", "gunicorn.conf.py"]
 exclude = ["tests", "frontend", ".ruff_cache", "**/node_modules", "**/__pycache__"]
-strict = ["audio", "api", "db"]
+typeCheckingMode = "strict"
