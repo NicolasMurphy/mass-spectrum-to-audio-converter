@@ -9,7 +9,6 @@ services:
       - ./api:/app/api
       - ./audio:/app/audio
       - ./db:/app/db
-      - ./services:/app/services
       - ./utils:/app/utils
       - ./app.py:/app/app.py
       - ./.env:/app/.env

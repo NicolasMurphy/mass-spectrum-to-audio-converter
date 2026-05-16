@@ -21,7 +21,6 @@ RUN if [ "$INSTALL_DEV" = "true" ] ; then pip install --no-cache-dir -r requirem
 COPY api/ ./api/
 COPY audio/ ./audio/
 COPY db/ ./db/
-COPY services/ ./services/
 COPY utils/ ./utils/
 COPY app.py ./
 COPY gunicorn.conf.py ./
