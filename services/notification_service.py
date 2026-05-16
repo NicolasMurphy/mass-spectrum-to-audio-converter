@@ -1,6 +1,8 @@
 import threading
 
-from utils.webhook import send_webhook_notification
+from utils.webhook import (
+    send_webhook_notification,  # pyright: ignore[reportUnknownVariableType]
+)
 
 
 class NotificationService:

@@ -1,7 +1,10 @@
 from typing import TypedDict, cast
 
 from audio import Spectrum
-from db import get_massbank_peaks, log_search
+from db import (
+    get_massbank_peaks,  # pyright: ignore[reportUnknownVariableType]
+    log_search,  # pyright: ignore[reportUnknownVariableType]
+)
 
 
 class CompoundData(TypedDict):
