@@ -128,13 +128,29 @@ paths:
                 summary: Basic request (linear)
                 value:
                   spectrum_text: "73.04018778 16.07433749\n75.05583784 2.042927662"
-              withParams:
+              linearCustom:
                 summary: Linear with custom parameters
                 value:
                   spectrum_text: "73.04018778 16.07433749\n75.05583784 2.042927662\n84.08132432 1.258207367"
                   offset: 250
                   duration: 10
                   sample_rate: 48000
+              inverseCustom:
+                summary: Inverse with custom parameters
+                value:
+                  spectrum_text: "73.04018778 16.07433749\n75.05583784 2.042927662\n84.08132432 1.258207367"
+                  scale: 50000
+                  shift: 2
+                  duration: 3
+              moduloCustom:
+                summary: Modulo with custom parameters
+                value:
+                  spectrum_text: "73.04018778 16.07433749\n75.05583784 2.042927662\n84.08132432 1.258207367"
+                  factor: 15
+                  modulus: 600
+                  base: 150
+                  duration: 7
+                  sample_rate: 44100
       responses:
         "200":
           description: Audio generated successfully
