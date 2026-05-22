@@ -75,4 +75,4 @@ This project uses migrated data from MassBank hosted on Render, uses spectrometr
 ## Additional Resources
 
 - **API Documentation**: [mass-spectrum-to-audio-converter.onrender.com/docs.html](https://mass-spectrum-to-audio-converter.onrender.com/docs.html)
-- **Blog Post**: [Learn more about the motivation and creative inspiration](https://www.nicolasmurphy.com/blog/mass-spectrometry-music)
+- **Blog Post**: [Mass Spectrometry Music](https://nicolasmurphy.com/posts/mass-spectrometry-music/)
