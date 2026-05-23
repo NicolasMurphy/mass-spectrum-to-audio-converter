@@ -10,7 +10,7 @@ from db import (
     get_search_history,
     log_search,
 )
-from utils import notify_audio_generated_async
+from utils import notify_audio_generated_async, notify_station_async
 
 from .validation import (
     AudioParametersBase,
@@ -89,6 +89,14 @@ def generate_audio_with_data(algorithm: str) -> tuple[dict[str, Any], int]:
             algorithm,
             params["duration"],
             params["sample_rate"],
+        )
+
+        notify_station_async(
+            compound_data["compound_name"],
+            compound_data["accession"],
+            algorithm,
+            _algorithm_parameters(algorithm, params),
+            transformed_data,
         )
 
         response_data: dict[str, Any] = {
