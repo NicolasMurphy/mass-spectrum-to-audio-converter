@@ -499,6 +499,12 @@ components:
             spectrumTextFormat:
               value:
                 error: "Invalid spectrum data format: Spectrum data must have an even number of values (pairs of mz/intensity)"
+            spectrumNoPeaks:
+              value:
+                error: Spectrum data contains no peaks
+            spectrumNonPositiveIntensity:
+              value:
+                error: "Peak intensities must be greater than 0 (got -5.0 at m/z 50.0)"
             invalidType:
               value:
                 error: Invalid offset. Must be a float.

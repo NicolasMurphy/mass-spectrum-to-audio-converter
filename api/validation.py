@@ -143,3 +143,13 @@ def validate_and_parse_parameters(
 def validate_spectrum_text_range(text: str) -> None:
     if not (3 <= len(text) <= 100000):
         raise ValueError("Spectrum data must be between 3 and 100,000 characters.")
+
+
+def validate_spectrum_peaks(spectrum: list[tuple[float, float]]) -> None:
+    if not spectrum:
+        raise ValueError("Spectrum data contains no peaks")
+    for mz, intensity in spectrum:
+        if intensity <= 0:
+            raise ValueError(
+                f"Peak intensities must be greater than 0 (got {intensity} at m/z {mz})"
+            )
