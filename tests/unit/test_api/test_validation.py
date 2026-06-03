@@ -1,6 +1,7 @@
 from api.validation import (
     validate_algorithm,
     validate_and_parse_parameters,
+    validate_spectrum_peaks,
     validate_spectrum_text_range,
 )
 
@@ -411,3 +412,24 @@ def test_validate_spectrum_text_range_too_long():
         raise AssertionError("Expected ValueError to be raised")
     except ValueError as e:
         assert "Spectrum data must be between 3 and 100,000 characters." == str(e)
+
+
+# Validate spectrum peaks tests
+
+
+def test_validate_spectrum_peaks_empty():
+    try:
+        validate_spectrum_peaks([])
+        raise AssertionError("Expected ValueError to be raised")
+    except ValueError as e:
+        assert "Spectrum data contains no peaks" == str(e)
+
+
+def test_validate_spectrum_peaks_reports_first_offender():
+    try:
+        validate_spectrum_peaks([(50.0, 100.0), (80.0, 0.0), (90.0, -9.0)])
+        raise AssertionError("Expected ValueError to be raised")
+    except ValueError as e:
+        assert "Peak intensities must be greater than 0" in str(e)
+        assert "80" in str(e)
+        assert "90" not in str(e)

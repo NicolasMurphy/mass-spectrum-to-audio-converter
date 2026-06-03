@@ -246,3 +246,39 @@ def test_custom_endpoint_body_exceeds_max_content_length(client):
     assert response.status_code == 413
     data = response.get_json()
     assert data["error"] == "Request body too large"
+
+
+def test_custom_endpoint_non_positive_intensity(client):
+    response = client.post(
+        "/custom/linear",
+        json={"spectrum_text": "50 0\n80 100"},
+        content_type="application/json",
+    )
+
+    assert response.status_code == 400
+    data = response.get_json()
+    assert "Peak intensities must be greater than 0" in data["error"]
+
+
+def test_custom_endpoint_all_zero_intensity(client):
+    response = client.post(
+        "/custom/linear",
+        json={"spectrum_text": "50 0\n80 0"},
+        content_type="application/json",
+    )
+
+    assert response.status_code == 400
+    data = response.get_json()
+    assert "Peak intensities must be greater than 0" in data["error"]
+
+
+def test_custom_endpoint_whitespace_only_spectrum(client):
+    response = client.post(
+        "/custom/linear",
+        json={"spectrum_text": "   "},
+        content_type="application/json",
+    )
+
+    assert response.status_code == 400
+    data = response.get_json()
+    assert data["error"] == "Spectrum data contains no peaks"

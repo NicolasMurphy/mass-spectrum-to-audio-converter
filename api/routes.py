@@ -16,6 +16,7 @@ from .validation import (
     AudioParametersBase,
     validate_algorithm,
     validate_and_parse_parameters,
+    validate_spectrum_peaks,
     validate_spectrum_text_range,
 )
 
@@ -146,6 +147,7 @@ def generate_audio_with_custom_data(algorithm: str) -> tuple[dict[str, Any], int
 
     try:
         spectrum = parse_spectrum_text(data["spectrum_text"])
+        validate_spectrum_peaks(spectrum)
 
         wav_buffer, transformed_data = generate_combined_wav_bytes_and_data(
             spectrum,
