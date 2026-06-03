@@ -1,4 +1,4 @@
-.PHONY: all lint format test playwright
+.PHONY: all lint format test playwright lint-api
 
 all: lint test playwright
 
@@ -16,3 +16,6 @@ test:
 
 playwright:
 	cd tests/playwright && npm run test
+
+lint-api:
+	npx --yes @stoplight/spectral-cli@6 lint frontend/public/openapi.yaml --ruleset .spectral.yaml
