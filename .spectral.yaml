@@ -1,0 +1,7 @@
+extends: [[spectral:oas, off]]
+rules:
+  oas3-schema: error
+  # promote warn -> error as the spec is cleaned up
+  operation-operationId: warn
+  operation-description: warn
+  operation-tag-defined: warn
