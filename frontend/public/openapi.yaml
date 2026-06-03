@@ -24,6 +24,7 @@ tags:
 paths:
   /massbank/{algorithm}:
     post:
+      operationId: generateFromCompound
       tags: [Audio Generation]
       summary: Generate audio from a stored compound
       description: |
@@ -109,6 +110,7 @@ paths:
 
   /custom/{algorithm}:
     post:
+      operationId: generateFromCustomSpectrum
       tags: [Audio Generation]
       summary: Generate audio from custom spectrum data
       description: |
@@ -186,6 +188,7 @@ paths:
 
   /history:
     get:
+      operationId: listRecentGenerations
       tags: [Stats]
       summary: Recently generated compounds
       description: Retrieves recently generated compounds, newest first.
@@ -226,6 +229,7 @@ paths:
 
   /popular:
     get:
+      operationId: listPopularCompounds
       tags: [Stats]
       summary: Most generated compounds
       description: Retrieves the most frequently generated compounds based on recent generations.
