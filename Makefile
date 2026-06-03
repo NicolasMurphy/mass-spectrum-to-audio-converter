@@ -2,7 +2,7 @@
 
 all: lint test playwright
 
-lint:
+lint: lint-api
 	ruff check .
 	ruff format --check .
 	cd frontend && npm run lint
