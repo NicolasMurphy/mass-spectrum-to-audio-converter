@@ -12,14 +12,16 @@ This tool converts mass spectrometry data into audio by mapping spectral peaks t
 
 ## About the Project
 
-This project uses migrated data from MassBank hosted on Render, uses spectrometry data (m/z (mass-to-charge) values and intensities), and converts them into sine waves. The project supports three frequency mapping algorithms: linear, inverse, and modulo - with adjustable parameters. Features include a piano keyboard playback interface, displays recently generated as well as most generated compounds from all users, and provides detailed transformation tables showing mass spectrum data and audio transformation data to visualize exactly how the data is being transformed.
+This project uses spectrometry data derived from [MassBank Release 2025.05.1](https://github.com/MassBank/MassBank-data/releases/tag/2025.05.1) (m/z (mass-to-charge) values and intensities), and converts them into sine waves. The project supports three frequency mapping algorithms: linear, inverse, and modulo - with adjustable parameters. Features include a piano keyboard playback interface, displays recently generated as well as most generated compounds from all users, and provides detailed transformation tables showing mass spectrum data and audio transformation data to visualize exactly how the data is being transformed.
 
 **Tech Stack:**
 
 - **Backend**: Python, Flask
 - **Frontend**: React, TypeScript, Tailwind CSS (via DaisyUI)
-- **Database**: PostgreSQL (using MassBank data from [Release 2025.05.1](https://github.com/MassBank/MassBank-data/releases/tag/2025.05.1))
+- **Database**: PostgreSQL (spectrum data derived from [MassBank Release 2025.05.1](https://github.com/MassBank/MassBank-data/releases/tag/2025.05.1))
 - **Deployment**: Docker, hosted on Render
+
+> **Data attribution:** Spectral data from MassBank, © the MassBank consortium, licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). This project uses a subset of [Release 2025.05.1](https://github.com/MassBank/MassBank-data/releases/tag/2025.05.1), ported from MariaDB to PostgreSQL.
 
 ---
 

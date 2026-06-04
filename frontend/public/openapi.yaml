@@ -3,9 +3,9 @@ info:
   title: Mass Spectrum to Audio Converter API
   version: "1.0.0"
   description: |
-    Converts mass spectrometry data into audio files using configurable algorithms and parameters.
-    The API retrieves compound spectra from the `mass_spectrum_db` database (migrated from
-    [MassBank Release 2025.05.1](https://github.com/MassBank/MassBank-data/releases/tag/2025.05.1))
+    Converts mass spectrometry data into audio data using configurable algorithms and parameters.
+    The API retrieves compound spectra derived from
+    [MassBank Release 2025.05.1](https://github.com/MassBank/MassBank-data/releases/tag/2025.05.1),
     or accepts custom spectrum data, and returns audio data along with detailed spectrum
     transformation information.
 
