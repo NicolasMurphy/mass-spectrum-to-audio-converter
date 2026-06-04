@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>mass-spec ⇄ generative-station · architecture</title>
+<style>
+  :root {
+    --ink: #0f172a; --muted: #64748b; --faint: #94a3b8;
+    --line: #e2e8f0; --bg: #eef2f6; --card: #ffffff;
+    --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    --sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--sans); line-height: 1.55; -webkit-font-smoothing: antialiased; }
+
+  /* layout: sticky sidebar + content */
+  .shell { display: grid; grid-template-columns: 248px minmax(0, 1fr); gap: 0; max-width: 1280px; margin: 0 auto; }
+  nav.toc { position: sticky; top: 0; align-self: start; height: 100vh; overflow-y: auto; padding: 26px 18px 40px; border-right: 1px solid var(--line); background: #fbfdff; }
+  nav.toc .brand { font-weight: 700; font-size: 14px; letter-spacing: -0.01em; margin-bottom: 2px; }
+  nav.toc .brand .ar { color: var(--faint); font-weight: 400; }
+  nav.toc .sub { color: var(--muted); font-size: 12px; margin-bottom: 18px; }
+  nav.toc .grp { text-transform: uppercase; font-size: 11px; letter-spacing: .08em; color: var(--faint); margin: 16px 0 6px; font-weight: 700; }
+  nav.toc a { display: block; color: #334155; text-decoration: none; font-size: 13px; padding: 4px 8px; border-radius: 7px; }
+  nav.toc a:hover { background: #f1f5f9; color: var(--ink); }
+  nav.toc a .n { color: var(--faint); font-variant-numeric: tabular-nums; margin-right: 7px; }
+
+  main { padding: 0 30px 80px; min-width: 0; }
+  header.hero { padding: 40px 0 22px; margin-bottom: 8px; }
+  header.hero h1 { margin: 0 0 8px; font-size: 25px; letter-spacing: -0.015em; }
+  header.hero h1 .ar { color: var(--faint); font-weight: 400; }
+  header.hero p { margin: 0; color: #475569; font-size: 15px; max-width: 80ch; }
+  header.hero b { color: var(--ink); }
+
+  /* diagram cards */
+  section.dia { padding-top: 30px; margin-top: 10px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 20px 22px 14px; box-shadow: 0 1px 2px rgba(15,23,42,.04); }
+  .card .head { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; margin-bottom: 2px; }
+  .card h3 { margin: 0; font-size: 18px; letter-spacing: -0.01em; }
+  .card .num { color: var(--faint); font-variant-numeric: tabular-nums; font-weight: 700; font-size: 15px; }
+  .badges { display: flex; gap: 6px; margin-left: auto; }
+  .badge { font-size: 10.5px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; background: #eef2f6; color: #475569; }
+  .card .cap { color: #475569; font-size: 13.5px; margin: 6px 0 4px; max-width: 86ch; }
+  .card .cap b { color: var(--ink); }
+  .dwrap { display: grid; place-items: center; overflow-x: auto; padding: 14px 4px 4px; }
+  .dwrap svg { max-width: 100%; height: auto; }
+  .dwrap svg foreignObject { overflow: visible; }
+  .cap code { font-family: var(--mono); font-size: 0.92em; background: #f1f5f9; padding: 1px 4px; border-radius: 4px; }
+  .err { color: #dc2626; white-space: pre-wrap; font-family: var(--mono); font-size: 12px; }
+
+  @media (max-width: 900px) {
+    .shell { grid-template-columns: 1fr; }
+    nav.toc { position: static; height: auto; border-right: none; border-bottom: 1px solid var(--line); }
+    main { padding: 0 18px 60px; }
+  }
+</style>
+</head>
+<body>
+<div class="shell">
+  <nav class="toc">
+    <div class="brand">mass-spec <span class="ar">⇄</span> generative-station</div>
+    <div id="tocList"></div>
+  </nav>
+
+  <main>
+    <header class="hero">
+      <h1>mass-spec <span class="ar">⇄</span> generative-station</h1>
+    </header>
+
+    <div id="sections"></div>
+  </main>
+</div>
+
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+
+  const diagrams = [
+    {
+      id: 'ms-concept', group: 'mass-spec', num: '①',
+      title: 'mass-spec — conceptual', badges: ['Conceptual'],
+      cap: "Each peak's m/z becomes a frequency and its intensity a loudness; the sine waves are summed into one audio clip.",
+      code: `flowchart TB
+        u(["User"])
+        pick["pick a compound"]
+        lookup[("MassBank<br/>spectral database")]
+        transform["for each peak<br/>m/z → frequency · intensity → amplitude"]
+        synth["sum sine waves<br/>normalize → audio"]
+        out(["audio + spectrum data"])
+        evt>"compound event"]
+        u --> pick --> lookup --> transform --> synth --> out
+        synth -. side-effect .-> evt`
+    },
+    {
+      id: 'ms-arch', group: 'mass-spec', num: '②',
+      title: 'mass-spec — architecture (prod)', badges: ['Monolith','Prod'],
+      cap: "Production on Render: one web service — a monolith serving the SPA, the JSON API, and audio from one process; managed Postgres behind it.",
+      code: `flowchart TB
+        browser(["Browser<br/>React 19 · Vite · Tone.js"])
+        subgraph render["Render · web service (Docker)"]
+          direction TB
+          gun["gunicorn · Flask (sync, 1 worker)<br/>ProxyFix · flask-limiter · CORS"]
+          api["routes<br/>POST /massbank/{algo} · /custom/{algo}<br/>GET /history · /popular · static SPA"]
+          eng["audio engine<br/>m/z → Hz · sum sines → WAV (numpy/scipy)"]
+          pool["psycopg2 pool"]
+          gun --> api --> eng
+          gun --> pool
+        end
+        pg[("Render Postgres<br/>MassBank database · millions of rows")]
+        disc>"Discord webhook"]
+        stn>"station webhook"]
+        browser <-->|HTTPS| gun
+        pool -->|SQL| pg
+        eng -. daemon thread .-> disc
+        eng -. daemon thread .-> stn
+        style render fill:#f4f8ff,stroke:#cbd5e1,color:#475569`
+    },
+    {
+      id: 'ms-dev', group: 'mass-spec', num: '③',
+      title: 'mass-spec — architecture (dev)', badges: ['Monolith','Dev'],
+      cap: "Local dev splits into two servers — Vite (:5173, HMR) and Flask (:5001) — versus one service in prod; Postgres is a seeded container.",
+      code: `flowchart TB
+        browser(["Browser"])
+        subgraph dev["local · docker compose + override"]
+          direction TB
+          vite["Vite dev server :5173<br/>React · HMR"]
+          flask["Flask :5001<br/>rate-limit off · mounted source"]
+          pg[("Postgres :5432<br/>seeded MassBank container")]
+          flask -->|SQL| pg
+        end
+        browser -->|"app · HMR"| vite
+        browser -->|"API · VITE_API_URL"| flask
+        style dev fill:#f4f8ff,stroke:#cbd5e1,color:#475569`
+    },
+    {
+      id: 'gs-concept', group: 'generative-station', num: '④',
+      title: 'generative-station — conceptual', badges: ['Conceptual'],
+      cap: "A piece that plays continuously; an incoming compound's spectrum becomes the pitches the voices use. No compound yet → random pitches.",
+      code: `flowchart TB
+        evt>"compound event<br/>(from mass-spec)<br/>frequencies + amplitudes"]
+        cond{"a compound loaded?"}
+        seed["pitch set = the spectrum"]
+        rand["pitch set = random ranges"]
+        voices["voices play on<br/>swells · plucks · clicks · sweeps · bass · kick"]
+        stream(["continuous live stream"])
+        listener(["Listener + visualizer"])
+        evt --> cond
+        cond -->|yes| seed
+        cond -->|"no / not yet"| rand
+        seed --> voices
+        rand --> voices
+        voices --> stream --> listener`
+    },
+    {
+      id: 'gs-arch', group: 'generative-station', num: '⑤',
+      title: 'generative-station — architecture (prod & dev)', badges: ['Multi-container','Prod & dev'],
+      cap: "Four containers on a Hetzner VPS via docker compose. Dev runs the same compose locally (Caddy/TLS only matters in prod).",
+      code: `flowchart TB
+        browser(["Browser<br/>&lt;audio&gt; + Three.js"])
+        subgraph vps["Hetzner VPS · docker compose"]
+          direction TB
+          caddy["caddy · TLS reverse proxy<br/>:80 · :443 · :443/udp"]
+          picker["picker · Flask sidecar :9000<br/>Bearer auth · validate · debounce 30s"]
+          subgraph station["station container"]
+            direction TB
+            sclang["sclang · piece.scd<br/>OSC in :57120"]
+            scsynth["scsynth · SuperCollider server<br/>the 6 voices (booted in-process)"]
+            jackd["jackd · dummy backend, 48 kHz<br/>the JACK bus"]
+            ffmpeg["ffmpeg · SC-Encoder client<br/>AAC 128k → adts"]
+            sclang -->|"boots + drives"| scsynth
+            scsynth -->|"SuperCollider:out"| jackd
+            jackd -->|"to SC-Encoder:in"| ffmpeg
+          end
+          icecast["icecast :8000<br/>mount /stream (AAC) · serves web player"]
+          caddy -->|"/webhook · /current"| picker
+          caddy -->|"everything else"| icecast
+          picker -->|"OSC /compound"| sclang
+          ffmpeg -->|"source → /stream"| icecast
+        end
+        browser <-->|HTTPS| caddy
+        style vps fill:#f3fbf6,stroke:#cbd5e1,color:#475569
+        style station fill:#ebf7f0,stroke:#cbd5e1,color:#475569`
+    },
+    {
+      id: 'int-concept', group: 'Integration', num: '⑥',
+      title: 'integration — conceptual', badges: ['Integration','Conceptual'],
+      cap: "Audio generated for a compound on mass-spec seeds generative-station's live pitches; one compound event crosses, nothing else.",
+      code: `flowchart LR
+        user(["User · generates"])
+        subgraph A["mass-spec"]
+          a1["turns a spectrum<br/>into sound"]
+        end
+        subgraph B["generative-station"]
+          b1["lets that spectrum<br/>seed the live pitches"]
+        end
+        listener(["Listeners"])
+        user --> a1
+        a1 ==>|"compound event"| b1
+        b1 ==>|"live stream"| listener
+        style A fill:#f4f8ff,stroke:#cbd5e1,color:#475569
+        style B fill:#f3fbf6,stroke:#cbd5e1,color:#475569`
+    },
+    {
+      id: 'int-arch', group: 'Integration', num: '⑦',
+      title: 'integration — architecture', badges: ['Integration','Architecture'],
+      cap: "Across two hosts: a background thread POSTs the webhook from Render to the VPS, which re-encodes it to OSC for SuperCollider.",
+      code: `flowchart TB
+        gen(["User · generates"])
+        aud(["Listeners"])
+        subgraph render["Render"]
+          ms["mass-spec · Flask<br/>builds audio + spectrum"]
+          bp["webhook sender<br/>(daemon thread)"]
+          ms -. async .-> bp
+        end
+        subgraph vps["Hetzner VPS · docker compose"]
+          caddy["caddy · TLS"]
+          picker["picker :9000<br/>auth · debounce 30s"]
+          sc["station · SuperCollider → ffmpeg AAC"]
+          icecast["icecast :8000"]
+          caddy --> picker
+          picker -->|"OSC /compound :57120"| sc
+          sc --> icecast
+        end
+        gen ==>|"POST /massbank/{algo}"| ms
+        ms ==>|"audio"| gen
+        bp ==>|"POST /webhook (Bearer)"| caddy
+        icecast ==>|"AAC /stream"| aud
+        aud -. "polls /current (now playing)" .-> caddy
+        style render fill:#f4f8ff,stroke:#cbd5e1,color:#475569
+        style vps fill:#f3fbf6,stroke:#cbd5e1,color:#475569`
+    },
+    {
+      id: 'seq', group: 'Integration', num: '⑧',
+      title: 'integration — request lifecycle', badges: ['Integration','Sequence'],
+      cap: "The audio response returns immediately; the webhook fires on a background thread (best-effort: 5s timeout, no retry) and may be debounced.",
+      code: `sequenceDiagram
+        autonumber
+        actor U as User
+        participant M as mass-spec (Flask)
+        participant T as daemon thread
+        participant P as picker
+        participant S as SuperCollider
+        U->>M: POST /massbank/linear
+        M->>M: MassBank lookup · synth WAV
+        M-->>U: 200 · audio + spectrum
+        M->>T: spawn (fire-and-forget)
+        T->>P: POST /webhook (Bearer)
+        Note over T,P: 5s timeout · no retry
+        P->>P: auth · validate · debounce 30s
+        alt within 30s of last accepted event
+          P-->>T: 200 · debounced
+        else accepted
+          P->>S: OSC /compound [name, accession, algo, n, freq…, amp…]
+          P-->>T: 200 · ok
+        end`
+    },
+    {
+      id: 'data', group: 'Integration', num: '⑨',
+      title: "integration — data flow", badges: ['Integration','Data flow'],
+      cap: "The per-peak data splits two ways: a base64 WAV to the listener, and raw frequencies + amplitudes (top 100 peaks, 20 Hz–20 kHz, out-of-range dropped) over the webhook for the station to re-synthesize.",
+      code: `flowchart TB
+        d0["(m/z, intensity)<br/><i>MassBank peaks</i>"]
+        d1["(frequency Hz, amplitude 0–1)<br/><i>per-peak audio</i>"]
+        d0 -->|"m/z → Hz algorithm"| d1
+        subgraph L["to the listener"]
+          direction TB
+          wav["summed WAV bytes"]
+          b64["base64 string<br/>JSON { audio_base64 }"]
+          play["browser decodes<br/>Tone.js plays"]
+          wav -->|"base64-encode"| b64
+          b64 -->|"HTTP response"| play
+        end
+        subgraph R["to the station"]
+          direction TB
+          d2["JSON payload<br/>{ frequencies[], amplitudes[] }"]
+          d3["OSC message<br/>[name, accession, algo, n, freq…, amp…]"]
+          d4["synth params<br/><i>pitch = freq · level = amp</i>"]
+          d2 -->|"HTTP → OSC re-encode"| d3
+          d3 -->|"OSCdef in piece.scd"| d4
+        end
+        d1 -->|"sum sine waves"| wav
+        d1 -->|"_build_payload"| d2
+        style L fill:#f4f8ff,stroke:#cbd5e1,color:#475569
+        style R fill:#f3fbf6,stroke:#cbd5e1,color:#475569`
+    },
+  ];
+
+  // ---- build TOC + sections from the data ----
+  const groups = [];
+  for (const d of diagrams) {
+    let g = groups.find(x => x.name === d.group);
+    if (!g) { g = { name: d.group, items: [] }; groups.push(g); }
+    g.items.push(d);
+  }
+
+  const toc = document.getElementById('tocList');
+  toc.innerHTML = groups.map(g =>
+    `<div class="grp">${g.name}</div>` +
+    g.items.map(d => `<a href="#d-${d.id}"><span class="n">${d.num}</span>${d.title.replace(/^.*— /, '')}</a>`).join('')
+  ).join('');
+
+  const sections = document.getElementById('sections');
+  sections.innerHTML = diagrams.map(d => `
+    <section class="dia" id="d-${d.id}">
+      <div class="card">
+        <div class="head">
+          <span class="num">${d.num}</span>
+          <h3>${d.title}</h3>
+          <span class="badges">${d.badges.map(b => `<span class="badge">${b}</span>`).join('')}</span>
+        </div>
+        <p class="cap">${d.cap}</p>
+        <div class="dwrap" id="dia-${d.id}"><span style="color:#94a3b8">rendering…</span></div>
+      </div>
+    </section>`).join('');
+
+  // ---- render mermaid ----
+  mermaid.initialize({
+    startOnLoad: false,
+    securityLevel: 'loose',
+    theme: 'base',
+    themeVariables: {
+      fontFamily: 'ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif',
+      fontSize: '14px', lineColor: '#94a3b8',
+      primaryColor: '#f8fafc', primaryBorderColor: '#64748b', primaryTextColor: '#0f172a',
+      edgeLabelBackground: '#ffffff', clusterBorder: '#cbd5e1',
+      actorBkg: '#f8fafc', actorBorder: '#64748b', noteBkgColor: '#f1f5f9', noteBorderColor: '#94a3b8',
+    },
+    flowchart: { htmlLabels: true, curve: 'basis', padding: 14, nodeSpacing: 48, rankSpacing: 56, subGraphTitleMargin: { top: 6, bottom: 10 } },
+    sequence: { mirrorActors: false, actorMargin: 60, boxMargin: 8 },
+  });
+
+  for (const d of diagrams) {
+    const host = document.getElementById('dia-' + d.id);
+    try {
+      const { svg } = await mermaid.render('mm-' + d.id, d.code);
+      host.innerHTML = svg;
+    } catch (e) {
+      host.innerHTML = '<div class="err">' + d.id + ': ' + (e && e.message ? e.message : e) + '</div>';
+      console.error('mermaid render failed for', d.id, e);
+    }
+  }
+</script>
+</body>
+</html>
