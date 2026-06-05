@@ -77,4 +77,5 @@ This project uses spectrometry data derived from [MassBank Release 2025.05.1](ht
 ## Additional Resources
 
 - **API Documentation**: [mass-spectrum-to-audio-converter.onrender.com/docs.html](https://mass-spectrum-to-audio-converter.onrender.com/docs.html)
+- **Architecture Diagrams**: [mass-spectrum-to-audio-converter.onrender.com/architecture.html](https://mass-spectrum-to-audio-converter.onrender.com/architecture.html)
 - **Blog Post**: [Mass Spectrometry Music](https://nicolasmurphy.com/posts/mass-spectrometry-music/)
