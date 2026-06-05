@@ -78,7 +78,7 @@
   const diagrams = [
     {
       id: 'ms-concept', group: 'mass-spec', num: '①',
-      title: 'mass-spec — conceptual', badges: ['Conceptual'],
+      title: 'mass-spec — conceptual', badges: [],
       cap: "Each peak's m/z becomes a frequency and its intensity a loudness; the sine waves are summed into one audio clip.",
       code: `flowchart TB
         u(["User"])
@@ -93,8 +93,8 @@
     },
     {
       id: 'ms-arch', group: 'mass-spec', num: '②',
-      title: 'mass-spec — architecture (prod)', badges: ['Monolith','Prod'],
-      cap: "Production on Render: one web service — a monolith serving the SPA, the JSON API, and audio from one process; managed Postgres behind it.",
+      title: 'mass-spec — architecture (prod)', badges: ['Monolith','Render'],
+      cap: "Production on Render: one web service — a monolith serving the SPA, the JSON API, and audio from one process; managed Postgres behind it. Webhooks fire only on the MassBank path — <code>/custom</code> returns audio, no event.",
       code: `flowchart TB
         browser(["Browser<br/>React 19 · Vite · Tone.js"])
         subgraph render["Render · web service (Docker)"]
@@ -117,7 +117,7 @@
     },
     {
       id: 'ms-dev', group: 'mass-spec', num: '③',
-      title: 'mass-spec — architecture (dev)', badges: ['Monolith','Dev'],
+      title: 'mass-spec — architecture (dev)', badges: ['Monolith','Local'],
       cap: "Local dev splits into two servers — Vite (:5173, HMR) and Flask (:5001) — versus one service in prod; Postgres is a seeded container.",
       code: `flowchart TB
         browser(["Browser"])
@@ -134,7 +134,7 @@
     },
     {
       id: 'gs-concept', group: 'generative-station', num: '④',
-      title: 'generative-station — conceptual', badges: ['Conceptual'],
+      title: 'generative-station — conceptual', badges: [],
       cap: "A piece that plays continuously; an incoming compound's spectrum becomes the pitches the voices use. No compound yet → random pitches.",
       code: `flowchart TB
         evt>"compound event<br/>(from mass-spec)<br/>frequencies + amplitudes"]
@@ -153,7 +153,7 @@
     },
     {
       id: 'gs-arch', group: 'generative-station', num: '⑤',
-      title: 'generative-station — architecture (prod & dev)', badges: ['Multi-container','Prod & dev'],
+      title: 'generative-station — architecture (prod & dev)', badges: ['Multi-service','Hetzner'],
       cap: "Four containers on a Hetzner VPS via docker compose. Dev runs the same compose locally (Caddy/TLS only matters in prod).",
       code: `flowchart TB
         browser(["Browser<br/>&lt;audio&gt; + Three.js"])
@@ -183,7 +183,7 @@
     },
     {
       id: 'int-concept', group: 'Integration', num: '⑥',
-      title: 'integration — conceptual', badges: ['Integration','Conceptual'],
+      title: 'integration — conceptual', badges: [],
       cap: "Audio generated for a compound on mass-spec seeds generative-station's live pitches; one compound event crosses, nothing else.",
       code: `flowchart LR
         user(["User · generates"])
@@ -202,7 +202,7 @@
     },
     {
       id: 'int-arch', group: 'Integration', num: '⑦',
-      title: 'integration — architecture', badges: ['Integration','Architecture'],
+      title: 'integration — architecture', badges: ['Cross-host','Render → Hetzner'],
       cap: "Across two hosts: a background thread POSTs the webhook from Render to the VPS, which re-encodes it to OSC for SuperCollider.",
       code: `flowchart TB
         gen(["User · generates"])
@@ -231,7 +231,7 @@
     },
     {
       id: 'seq', group: 'Integration', num: '⑧',
-      title: 'integration — request lifecycle', badges: ['Integration','Sequence'],
+      title: 'integration — request lifecycle', badges: [],
       cap: "The audio response returns immediately; the webhook fires on a background thread (best-effort: 5s timeout, no retry) and may be debounced.",
       code: `sequenceDiagram
         autonumber
@@ -256,7 +256,7 @@
     },
     {
       id: 'data', group: 'Integration', num: '⑨',
-      title: "integration — data flow", badges: ['Integration','Data flow'],
+      title: "integration — data flow", badges: [],
       cap: "The per-peak data splits two ways: a base64 WAV to the listener, and raw frequencies + amplitudes (top 100 peaks, 20 Hz–20 kHz, out-of-range dropped) over the webhook for the station to re-synthesize.",
       code: `flowchart TB
         d0["(m/z, intensity)<br/><i>MassBank peaks</i>"]
@@ -272,7 +272,7 @@
         end
         subgraph R["to the station"]
           direction TB
-          d2["JSON payload<br/>{ frequencies[], amplitudes[] }"]
+          d2["JSON payload<br/>{ …, frequencies[], amplitudes[] }"]
           d3["OSC message<br/>[name, accession, algo, n, freq…, amp…]"]
           d4["synth params<br/><i>pitch = freq · level = amp</i>"]
           d2 -->|"HTTP → OSC re-encode"| d3
