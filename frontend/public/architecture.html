@@ -96,23 +96,25 @@
       title: 'mass-spec — architecture (prod)', badges: ['Monolith','Render'],
       cap: "Production on Render: one web service — a monolith serving the SPA, the JSON API, and audio from one process; managed Postgres behind it. Webhooks fire only on the MassBank path — <code>/custom</code> returns audio, no event.",
       code: `flowchart TB
-        browser(["Browser<br/>React 19 · Vite · Tone.js"])
+        browser(["Browser<br/>React 19 · Tone.js"])
         subgraph render["Render · web service (Docker)"]
           direction TB
           gun["gunicorn · Flask (sync, 1 worker)<br/>ProxyFix · flask-limiter · CORS"]
-          api["routes<br/>POST /massbank/{algo} · /custom/{algo}<br/>GET /history · /popular · static SPA"]
+          api["routes<br/>POST /massbank/{algo} · /custom/{algo}<br/>GET /history · /popular · static SPA (Vite build)"]
           eng["audio engine<br/>m/z → Hz · sum sines → WAV (numpy/scipy)"]
           pool["psycopg2 pool"]
-          gun --> api --> eng
-          gun --> pool
+          snd["webhook senders<br/>(daemon threads)"]
+          gun <--> api <--> eng
+          gun <--> pool
+          api -. async .-> snd
         end
         pg[("Render Postgres<br/>MassBank database · millions of rows")]
         disc>"Discord webhook"]
         stn>"station webhook"]
-        browser <-->|HTTPS| gun
-        pool -->|SQL| pg
-        eng -. daemon thread .-> disc
-        eng -. daemon thread .-> stn
+        browser <-->|"API request / response"| gun
+        pool <-->|SQL| pg
+        snd -. POST .-> disc
+        snd -. POST .-> stn
         style render fill:#f4f8ff,stroke:#cbd5e1,color:#475569`
     },
     {
