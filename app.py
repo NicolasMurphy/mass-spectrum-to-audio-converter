@@ -52,8 +52,15 @@ if __name__ != "__main__":
 
 CORS(app, resources={r"^/(massbank|custom|history|popular)(/.*)?$": {"origins": "*"}})
 
+
+def client_ip_key() -> str:
+    # Render fronts *.onrender.com with Cloudflare; remote_addr resolves to the
+    # rotating edge IP, so key on the real client IP Cloudflare sets at its edge.
+    return request.headers.get("CF-Connecting-IP") or get_remote_address()
+
+
 limiter = Limiter(
-    get_remote_address,
+    client_ip_key,
     app=app,
     storage_uri="memory://",
 )
@@ -88,19 +95,6 @@ def serve_index() -> Response:
 @app.route("/health")
 def health() -> tuple[dict[str, str], int]:
     return {"status": "ok"}, 200
-
-
-# Temporary: confirms CF-Connecting-IP carries the real client IP while
-# remote_addr resolves to the rotating Cloudflare edge IP. Remove after verifying.
-@app.route("/whoami")
-def whoami() -> Response:
-    return jsonify(
-        {
-            "cf_connecting_ip": request.headers.get("CF-Connecting-IP"),
-            "x_forwarded_for": request.headers.get("X-Forwarded-For"),
-            "remote_addr": request.remote_addr,
-        }
-    )
 
 
 app.route("/history", methods=["GET"])(history_limit(history))
