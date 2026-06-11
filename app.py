@@ -108,11 +108,8 @@ app.route("/popular", methods=["GET"])(history_limit(popular))
 
 
 @app.route("/<path:path>")
-def serve_static_or_spa(path: str) -> Response:
-    try:
-        return send_from_directory("static", path)
-    except FileNotFoundError:
-        return send_from_directory("static", "index.html")
+def serve_static(path: str) -> Response:
+    return send_from_directory("static", path)
 
 
 if __name__ == "__main__":
