@@ -108,7 +108,7 @@
           gun <--> pool
           api -. async .-> snd
         end
-        pg[("Render Postgres<br/>MassBank database · millions of rows")]
+        pg[("Render Postgres<br/>MassBank database · 6.3M peak rows")]
         disc>"Discord webhook"]
         stn>"station webhook"]
         browser <-->|"API request / response"| gun
@@ -137,12 +137,12 @@
     {
       id: 'gs-concept', group: 'generative-station', num: '④',
       title: 'generative-station — conceptual', badges: [],
-      cap: "A piece that plays continuously; an incoming compound's spectrum becomes the pitches the voices use. No compound yet → random pitches.",
+      cap: "A piece that plays continuously; a loaded compound becomes a chord, otherwise the voices play random notes.",
       code: `flowchart TB
         evt>"compound event<br/>(from mass-spec)<br/>frequencies + amplitudes"]
         cond{"a compound loaded?"}
-        seed["pitch set = the spectrum"]
-        rand["pitch set = random ranges"]
+        seed["compound as a chord,<br/>base pitch is random"]
+        rand["single notes at<br/>random frequencies"]
         voices["voices play on<br/>swells · plucks · clicks · sweeps · bass · kick"]
         stream(["continuous live stream"])
         listener(["Listener + visualizer"])
@@ -175,7 +175,7 @@
           end
           icecast["icecast :8000<br/>mount /stream (AAC) · serves web player"]
           caddy -->|"/webhook · /current"| picker
-          caddy -->|"everything else"| icecast
+          caddy -->|"stream + web player"| icecast
           picker -->|"OSC /compound"| sclang
           ffmpeg -->|"source → /stream"| icecast
         end
