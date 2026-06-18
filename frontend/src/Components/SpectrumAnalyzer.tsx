@@ -42,7 +42,6 @@ export default function SpectrumAnalyzer({
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    // Get frequency data
     if (
       !dataArrayRef.current ||
       dataArrayRef.current.length !== analyser.frequencyBinCount
@@ -63,7 +62,6 @@ export default function SpectrumAnalyzer({
       ctx.scale(dpr, dpr);
     }
 
-    // Clear
     ctx.clearRect(0, 0, cssWidth, cssHeight);
 
     const sampleRate = analyser.context.sampleRate;
@@ -165,14 +163,12 @@ export default function SpectrumAnalyzer({
       fillPath.lineTo(firstX, cssHeight);
       fillPath.closePath();
 
-      // Gradient fill
       const gradient = ctx.createLinearGradient(0, 0, 0, cssHeight);
       gradient.addColorStop(0, "rgba(59, 130, 246, 0.2)");
       gradient.addColorStop(1, "rgba(59, 130, 246, 0.02)");
       ctx.fillStyle = gradient;
       ctx.fill(fillPath);
 
-      // Stroke the curve
       ctx.strokeStyle = "rgba(59, 130, 246, 0.8)";
       ctx.lineWidth = 1.5;
       ctx.stroke();

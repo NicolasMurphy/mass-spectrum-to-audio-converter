@@ -26,7 +26,6 @@ test.describe("History and Popular Compounds", () => {
     await waitForGenerate(page, () => generateButton.click());
     await expect(page.getByText("Success!")).toBeVisible();
 
-    // use the existing data-testid on the recently-generated list
     const recentlyGeneratedList = page.getByTestId("recently-generated-list");
     await expect(recentlyGeneratedList.getByText(/caffeine/i)).toBeVisible();
   });
@@ -47,7 +46,6 @@ test.describe("History and Popular Compounds", () => {
     const spectrumTextarea = page.locator("textarea");
     await expect(spectrumTextarea).toBeVisible();
 
-    // click caffeine in Recently Generated
     const recentlyGeneratedList = page.getByTestId("recently-generated-list");
     await recentlyGeneratedList
       .locator("div")

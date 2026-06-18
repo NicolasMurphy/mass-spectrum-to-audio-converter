@@ -33,7 +33,6 @@ test.describe("Audio Settings Validation", () => {
     await expect(durationInput).toHaveValue("0.005");
     await generateButton.click();
 
-    // error message should be visible
     await expect(
       page.getByText("Duration must be between 0.01 and 30.")
     ).toBeVisible();
@@ -45,11 +44,9 @@ test.describe("Audio Settings Validation", () => {
   }) => {
     const durationInput = page.getByRole("spinbutton", { name: "Duration" });
 
-    // set duration above 30
     await durationInput.fill("31");
     await generateButton.click();
 
-    // error message should be visible
     await expect(
       page.getByText("Duration must be between 0.01 and 30.")
     ).toBeVisible();
@@ -127,16 +124,13 @@ test.describe("Audio Settings Validation", () => {
       name: "Sample Rate (Hz)",
     });
 
-    // set valid non-default values
     await durationInput.fill("2");
     await sampleRateInput.fill("22050");
     await waitForGenerate(page, () => generateButton.click());
 
-    // success and audio player should be visible
     await expect(page.getByText("Success!")).toBeVisible();
     await expect(page.locator("audio")).toBeVisible();
 
-    // verify the settings were applied (table should show data)
     await expect(
       page.getByRole("heading", { name: /Mass Spectrum Data/ })
     ).toBeVisible();
@@ -161,7 +155,6 @@ test.describe("Audio Settings Validation", () => {
     await expect(durationInput).toHaveValue("0.01");
     await waitForGenerate(page, () => generateButton.click());
 
-    // should succeed
     await expect(page.getByText("Success!")).toBeVisible();
   });
 
@@ -171,11 +164,9 @@ test.describe("Audio Settings Validation", () => {
   }) => {
     const durationInput = page.getByRole("spinbutton", { name: "Duration" });
 
-    // set duration to exactly 30 — waitForGenerate handles the network wait
     await durationInput.fill("30");
     await waitForGenerate(page, () => generateButton.click());
 
-    // should succeed
     await expect(page.getByText("Success!")).toBeVisible();
   });
 
@@ -187,11 +178,9 @@ test.describe("Audio Settings Validation", () => {
       name: "Sample Rate (Hz)",
     });
 
-    // set sample rate to exactly 3500
     await sampleRateInput.fill("3500");
     await waitForGenerate(page, () => generateButton.click());
 
-    // should succeed
     await expect(page.getByText("Success!")).toBeVisible();
   });
 
@@ -203,11 +192,9 @@ test.describe("Audio Settings Validation", () => {
       name: "Sample Rate (Hz)",
     });
 
-    // set sample rate to exactly 192000
     await sampleRateInput.fill("192000");
     await waitForGenerate(page, () => generateButton.click());
 
-    // should succeed
     await expect(page.getByText("Success!")).toBeVisible();
   });
 

@@ -31,7 +31,6 @@ def get_massbank_peaks(compound_name: str) -> CompoundData:
         if not result:
             raise ValueError("No records found")
 
-        # Use the first result
         accession, compound_actual = result
 
         # Step 2: Get all peaks for this specific accession (with DISTINCT to handle any duplicates)
@@ -46,7 +45,7 @@ def get_massbank_peaks(compound_name: str) -> CompoundData:
         cursor.execute(peaks_query, (accession,))
         peak_data = cursor.fetchall()
 
-        # Convert to the format expected by converter.py
+        # Convert to the Spectrum format: list of (mz, intensity) tuples
         spectrum = [(float(mz), float(intensity)) for mz, intensity in peak_data]
 
         return {

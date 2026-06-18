@@ -15,7 +15,6 @@ export function useWebAudio(audioUrl: string) {
 
       const rawCtx = Tone.getContext().rawContext as AudioContext;
 
-      // Create analyser if we haven't yet
       if (!analyserNode) {
         const analyser = rawCtx.createAnalyser();
         analyser.fftSize = 4096;
