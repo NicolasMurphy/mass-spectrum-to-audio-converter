@@ -16,12 +16,13 @@ def get_massbank_peaks(compound_name: str) -> CompoundData:
     Two-step search like MassBank API: find compounds first, then get peaks
     """
     with get_db_cursor() as cursor:
-        # Step 1: Search the fast compound_accessions table (case-insensitive)
+        # Step 1: Resolve the name to its highest-peak accession
         search_query = """
-        SELECT accession, compound_name
-        FROM compound_accessions
-        WHERE LOWER(compound_name) = LOWER(%s)
-        ORDER BY accession
+        SELECT ca.accession, ca.compound_name
+        FROM compound_accessions ca
+        JOIN accession_peak_counts apc ON apc.accession = ca.accession
+        WHERE LOWER(ca.compound_name) = LOWER(%s)
+        ORDER BY apc.peaks DESC, ca.accession
         LIMIT 1
         """
 
