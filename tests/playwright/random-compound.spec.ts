@@ -8,11 +8,9 @@ test.describe("Random Compound", () => {
   }) => {
     const randomButton = page.getByRole("button", { name: "🎲" });
 
-    // click random and generate
     await randomButton.click();
     await waitForGenerate(page, () => generateButton.click());
 
-    // table titles are visible
     await expect(
       page.getByRole("heading", { name: "Mass Spectrum Data" })
     ).toBeVisible();
@@ -20,7 +18,6 @@ test.describe("Random Compound", () => {
       page.getByRole("heading", { name: "Audio Transformation Data" })
     ).toBeVisible();
 
-    // success message, compound, accession, download button, audio player are visible
     await expect(page.getByText("Success!")).toBeVisible();
     await expect(page.getByText("Compound: ")).toBeVisible();
     await expect(page.getByText("Accession: ")).toBeVisible();
@@ -29,7 +26,6 @@ test.describe("Random Compound", () => {
     ).toBeVisible();
     await expect(page.locator("audio")).toBeVisible();
 
-    // compound name is visible in recently generated
     const compoundName: string = await page
       .getByRole("textbox", { name: "Compound Name" })
       .inputValue();

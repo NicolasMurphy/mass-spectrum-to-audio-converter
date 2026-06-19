@@ -17,12 +17,10 @@ test.describe("Algorithm Switching", () => {
     await waitForGenerate(page, () => page.locator("body").press("Enter"));
     await expect(page.getByRole("cell", { name: "355.0534" })).toBeVisible();
 
-    // switch to inverse, verify first hz value
     await inverseRadio.check();
     await waitForGenerate(page, () => inverseRadio.press("Enter"));
     await expect(page.getByRole("cell", { name: "406.3458" })).toBeVisible();
 
-    // switch to modulo, verify first hz value
     await moduloRadio.check();
     await waitForGenerate(page, () => moduloRadio.press("Enter"));
     await expect(page.getByRole("cell", { name: "100.1820" })).toBeVisible();

@@ -10,7 +10,6 @@ test.describe("Compound Search Errors", () => {
     await generateButton.click();
     await expect(page.getByText("No spectrum data yet")).toBeVisible();
 
-    // empty space search displays expected error message
     await compoundInput.click();
     await compoundInput.fill(" ");
     await expect(compoundInput).toHaveValue(" ");
@@ -19,7 +18,6 @@ test.describe("Compound Search Errors", () => {
       page.getByText("Please enter a compound name.")
     ).toBeVisible();
 
-    // invalid search displays expected error message
     await compoundInput.click();
     await compoundInput.fill("invalid");
     await expect(compoundInput).toHaveValue("invalid");

@@ -8,16 +8,12 @@ test.describe("Custom Spectrum Mode", () => {
   }) => {
     const customTab = page.getByRole("button", { name: "Custom" });
 
-    // verify compound search is visible by default
     await expect(compoundInput).toBeVisible();
 
-    // switch to custom mode
     await customTab.click();
 
-    // compound search should be hidden
     await expect(compoundInput).not.toBeVisible();
 
-    // spectrum data textarea should be visible
     const spectrumTextarea = page.locator("textarea");
     await expect(spectrumTextarea).toBeVisible();
     await expect(spectrumTextarea).toHaveAttribute(
@@ -34,10 +30,8 @@ test.describe("Custom Spectrum Mode", () => {
 
     await customTab.click();
 
-    // leave textarea empty and submit
     await generateButton.click();
 
-    // error message should be visible
     await expect(page.getByText("Please enter spectrum data.")).toBeVisible();
   });
 
@@ -50,12 +44,10 @@ test.describe("Custom Spectrum Mode", () => {
 
     await customTab.click();
 
-    // enter valid spectrum data
     const validData = "73.04 100\n150.05 50\n200.1 75";
     await spectrumTextarea.fill(validData);
     await waitForGenerate(page, () => generateButton.click());
 
-    // success message and tables should be visible
     await expect(page.getByText("Success!")).toBeVisible();
     await expect(
       page.getByRole("heading", { name: /Mass Spectrum Data/ })
@@ -64,7 +56,6 @@ test.describe("Custom Spectrum Mode", () => {
       page.getByRole("heading", { name: "Audio Transformation Data" })
     ).toBeVisible();
 
-    // audio player should be visible
     await expect(page.locator("audio")).toBeVisible();
   });
 
@@ -77,12 +68,10 @@ test.describe("Custom Spectrum Mode", () => {
 
     await customTab.click();
 
-    // enter malformed data (odd number of values)
     const malformedData = "100\n200\n300";
     await spectrumTextarea.fill(malformedData);
     await generateButton.click();
 
-    // error message should be visible
     await expect(page.getByText(/Error:/)).toBeVisible();
   });
 
@@ -94,14 +83,11 @@ test.describe("Custom Spectrum Mode", () => {
     const massbankTab = page.getByRole("button", { name: "MassBank" });
     const spectrumTextarea = page.locator("textarea");
 
-    // switch to custom
     await customTab.click();
     await expect(spectrumTextarea).toBeVisible();
 
-    // switch back to massbank
     await massbankTab.click();
 
-    // compound search should be visible again
     await expect(compoundInput).toBeVisible();
     await expect(spectrumTextarea).not.toBeVisible();
   });
