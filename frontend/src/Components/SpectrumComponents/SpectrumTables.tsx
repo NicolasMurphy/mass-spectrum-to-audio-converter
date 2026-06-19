@@ -9,6 +9,13 @@ import "../../App.css";
 const SCROLL_THRESHOLD = 9;
 const TABLE_MAX_HEIGHT = "max-h-62.5";
 
+const NATURAL_DIRECTION: Record<SortField, SortDirection> = {
+  mz: "asc",
+  frequency: "asc",
+  intensity: "desc",
+  amplitude_db: "desc",
+};
+
 export default function SpectrumTables({ spectrumData }: SpectrumTablesProps) {
   const [sortField, setSortField] = useState<SortField>("mz");
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
@@ -22,7 +29,7 @@ export default function SpectrumTables({ spectrumData }: SpectrumTablesProps) {
       setSortDirection(sortDirection === "asc" ? "desc" : "asc");
     } else {
       setSortField(field);
-      setSortDirection("asc");
+      setSortDirection(NATURAL_DIRECTION[field]);
     }
   };
 
@@ -31,7 +38,7 @@ export default function SpectrumTables({ spectrumData }: SpectrumTablesProps) {
       setAudioSortDirection(audioSortDirection === "asc" ? "desc" : "asc");
     } else {
       setAudioSortField(field);
-      setAudioSortDirection("asc");
+      setAudioSortDirection(NATURAL_DIRECTION[field]);
     }
   };
 
