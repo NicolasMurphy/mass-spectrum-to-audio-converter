@@ -20,9 +20,10 @@ export default function SpectrumTables({ spectrumData }: SpectrumTablesProps) {
   const [sortField, setSortField] = useState<SortField>("mz");
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
 
-  const [audioSortField, setAudioSortField] = useState<SortField>("frequency");
+  const [audioSortField, setAudioSortField] =
+    useState<SortField>("amplitude_db");
   const [audioSortDirection, setAudioSortDirection] =
-    useState<SortDirection>("asc");
+    useState<SortDirection>("desc");
 
   const handleSort = (field: SortField) => {
     if (sortField === field) {
