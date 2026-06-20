@@ -29,5 +29,8 @@ psql -v ON_ERROR_STOP=0 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" < /d
 # Kill the progress messages
 kill $PROGRESS_PID 2>/dev/null || true
 
+echo "Building derived tables..."
+psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" -f /migrations/001_accession_peak_counts.sql
+
 echo "🎉 Database initialization complete!"
 echo "Note: Some permission errors at the end are normal and can be ignored"
