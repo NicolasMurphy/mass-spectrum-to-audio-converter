@@ -12,17 +12,16 @@ test.describe("Algorithm Switching", () => {
       name: "Modulo: ((mz * factor) % modulus) + base",
     });
 
-    // search for biotin (default linear) (clicking on most generated tag), search with enter key, verify first hz value
-    await page.getByText("BIOTIN").first().click();
+    await page.getByText("Choline").first().click();
     await waitForGenerate(page, () => page.locator("body").press("Enter"));
-    await expect(page.getByRole("cell", { name: "355.0534" })).toBeVisible();
+    await expect(page.getByRole("cell", { name: "404.1000" })).toBeVisible();
 
     await inverseRadio.check();
     await waitForGenerate(page, () => inverseRadio.press("Enter"));
-    await expect(page.getByRole("cell", { name: "406.3458" })).toBeVisible();
+    await expect(page.getByRole("cell", { name: "951.4748" })).toBeVisible();
 
     await moduloRadio.check();
     await waitForGenerate(page, () => moduloRadio.press("Enter"));
-    await expect(page.getByRole("cell", { name: "100.1820" })).toBeVisible();
+    await expect(page.getByRole("cell", { name: "141.0000" })).toBeVisible();
   });
 });
