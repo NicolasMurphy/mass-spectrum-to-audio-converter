@@ -4,7 +4,39 @@ from audio import generate_combined_wav_bytes_and_data
 from db import get_massbank_peaks
 
 
-# audio generation 9 peaks
+# 8 peaks
+def test_benzoate_performance():
+    spectrum = get_massbank_peaks("benzoate")["spectrum"]
+
+    start_time = time.perf_counter()
+    _, transformation_data = generate_combined_wav_bytes_and_data(
+        spectrum, algorithm="linear"
+    )
+    end_time = time.perf_counter()
+    execution_time = end_time - start_time
+    print("benzoate: ", execution_time)
+
+    assert execution_time < 0.1
+    assert len(transformation_data) == len(spectrum)
+
+
+# 28 peaks
+def test_arginine_performance():
+    spectrum = get_massbank_peaks("arginine")["spectrum"]
+
+    start_time = time.perf_counter()
+    _, transformation_data = generate_combined_wav_bytes_and_data(
+        spectrum, algorithm="linear"
+    )
+    end_time = time.perf_counter()
+    execution_time = end_time - start_time
+    print("arginine: ", execution_time)
+
+    assert execution_time < 0.15
+    assert len(transformation_data) == len(spectrum)
+
+
+# 107 peaks
 def test_caffeine_performance():
     spectrum = get_massbank_peaks("caffeine")["spectrum"]
 
@@ -16,23 +48,7 @@ def test_caffeine_performance():
     execution_time = end_time - start_time
     print("caffeine: ", execution_time)
 
-    assert execution_time < 0.2
-    assert len(transformation_data) == len(spectrum)
-
-
-# 88 peaks
-def test_ajmalin_performance():
-    spectrum = get_massbank_peaks("Ajmalin")["spectrum"]
-
-    start_time = time.perf_counter()
-    _, transformation_data = generate_combined_wav_bytes_and_data(
-        spectrum, algorithm="linear"
-    )
-    end_time = time.perf_counter()
-    execution_time = end_time - start_time
-    print("Ajmalin: ", execution_time)
-
-    assert execution_time < 0.5
+    assert execution_time < 0.3
     assert len(transformation_data) == len(spectrum)
 
 
@@ -48,14 +64,29 @@ def test_cyclopyrroxanthin_performance():
     execution_time = end_time - start_time
     print("Cyclopyrroxanthin: ", execution_time)
 
-    assert execution_time < 9
+    assert execution_time < 4.5
     assert len(transformation_data) == len(spectrum)
 
 
-# HQ-mode (float64 math + float32 WAV) — bench medians: caffeine ~27ms,
-# Ajmalin ~220ms, Cyclopyrroxanthin ~4700ms. Thresholds set well above.
-def test_caffeine_hq_performance():
-    spectrum = get_massbank_peaks("caffeine")["spectrum"]
+# 10279 peaks
+def test_foetoside_c_performance():
+    spectrum = get_massbank_peaks("Foetoside C")["spectrum"]
+
+    start_time = time.perf_counter()
+    _, transformation_data = generate_combined_wav_bytes_and_data(
+        spectrum, algorithm="linear"
+    )
+    end_time = time.perf_counter()
+    execution_time = end_time - start_time
+    print("Foetoside C: ", execution_time)
+
+    assert execution_time < 25
+    assert len(transformation_data) == len(spectrum)
+
+
+# 28 peaks
+def test_arginine_hq_performance():
+    spectrum = get_massbank_peaks("arginine")["spectrum"]
 
     start_time = time.perf_counter()
     _, transformation_data = generate_combined_wav_bytes_and_data(
@@ -63,27 +94,13 @@ def test_caffeine_hq_performance():
     )
     end_time = time.perf_counter()
     execution_time = end_time - start_time
-    print("caffeine hq: ", execution_time)
+    print("arginine hq: ", execution_time)
 
-    assert execution_time < 0.5
+    assert execution_time < 0.3
     assert len(transformation_data) == len(spectrum)
 
 
-def test_ajmalin_hq_performance():
-    spectrum = get_massbank_peaks("Ajmalin")["spectrum"]
-
-    start_time = time.perf_counter()
-    _, transformation_data = generate_combined_wav_bytes_and_data(
-        spectrum, algorithm="linear", hq=True
-    )
-    end_time = time.perf_counter()
-    execution_time = end_time - start_time
-    print("Ajmalin hq: ", execution_time)
-
-    assert execution_time < 1.5
-    assert len(transformation_data) == len(spectrum)
-
-
+# 1933 peaks
 def test_cyclopyrroxanthin_hq_performance():
     spectrum = get_massbank_peaks("Cyclopyrroxanthin")["spectrum"]
 
@@ -95,5 +112,5 @@ def test_cyclopyrroxanthin_hq_performance():
     execution_time = end_time - start_time
     print("Cyclopyrroxanthin hq: ", execution_time)
 
-    assert execution_time < 18
+    assert execution_time < 14
     assert len(transformation_data) == len(spectrum)

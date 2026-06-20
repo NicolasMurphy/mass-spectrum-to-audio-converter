@@ -20,13 +20,12 @@ export function useSearchHistory(limit: number = 100): UseSearchHistoryReturn {
 
       const data = await res.json();
 
-      // Deduplicate using accession as the unique identifier
       const seen = new Set<string>();
       const uniqueHistory = [];
 
       for (const entry of data.history) {
-        if (!seen.has(entry.accession)) {
-          seen.add(entry.accession);
+        if (!seen.has(entry.compound)) {
+          seen.add(entry.compound);
           uniqueHistory.push(entry);
         }
         if (uniqueHistory.length >= 20) break;
