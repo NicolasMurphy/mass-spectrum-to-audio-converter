@@ -153,3 +153,26 @@ def validate_spectrum_peaks(spectrum: list[tuple[float, float]]) -> None:
             raise ValueError(
                 f"Peak intensities must be greater than 0 (got {intensity} at m/z {mz})"
             )
+
+
+RENDER_COST_BUDGET = 2_500_000_000
+HQ_COST_FACTOR = 5
+
+
+class RenderCostExceeded(ValueError):
+    pass
+
+
+def validate_render_cost(
+    spectrum: list[tuple[float, float]],
+    duration: float,
+    sample_rate: int,
+    hq: bool,
+) -> None:
+    samples = int(sample_rate * duration)
+    cost = len(spectrum) * samples * (HQ_COST_FACTOR if hq else 1)
+    if cost > RENDER_COST_BUDGET:
+        raise RenderCostExceeded(
+            "Audio is too large to generate at these settings. "
+            "Lower the duration or sample rate and try again."
+        )

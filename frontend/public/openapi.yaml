@@ -103,6 +103,8 @@ paths:
                 error: No records found
         "413":
           $ref: "#/components/responses/RequestTooLarge"
+        "422":
+          $ref: "#/components/responses/RenderTooExpensive"
         "429":
           $ref: "#/components/responses/RateLimit"
         "500":
@@ -181,6 +183,8 @@ paths:
           $ref: "#/components/responses/BadRequest"
         "413":
           $ref: "#/components/responses/RequestTooLarge"
+        "422":
+          $ref: "#/components/responses/RenderTooExpensive"
         "429":
           $ref: "#/components/responses/RateLimit"
         "500":
@@ -554,3 +558,14 @@ components:
             $ref: "#/components/schemas/Error"
           example:
             error: Request body too large
+    RenderTooExpensive:
+      description: |
+        Audio too large to render at the requested settings (peak count, duration,
+        and sample rate together exceed the compute budget). Lower the duration or
+        sample rate.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+          example:
+            error: Audio is too large to generate at these settings. Lower the duration or sample rate and try again.

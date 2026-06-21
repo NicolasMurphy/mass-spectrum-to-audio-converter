@@ -1,6 +1,8 @@
 from api.validation import (
+    RenderCostExceeded,
     validate_algorithm,
     validate_and_parse_parameters,
+    validate_render_cost,
     validate_spectrum_peaks,
     validate_spectrum_text_range,
 )
@@ -433,3 +435,49 @@ def test_validate_spectrum_peaks_reports_first_offender():
         assert "Peak intensities must be greater than 0" in str(e)
         assert "80" in str(e)
         assert "90" not in str(e)
+
+
+# Validate render cost tests
+
+
+def _cost_spectrum(n: int) -> list[tuple[float, float]]:
+    return [(100.0, 1.0)] * n
+
+
+def test_validate_render_cost_under_budget_passes():
+    validate_render_cost(_cost_spectrum(100), duration=5, sample_rate=44100, hq=False)
+
+
+def test_validate_render_cost_at_budget_passes():
+    validate_render_cost(
+        _cost_spectrum(5000), duration=5.0, sample_rate=100000, hq=False
+    )
+
+
+def test_validate_render_cost_over_budget_raises():
+    try:
+        validate_render_cost(
+            _cost_spectrum(5001), duration=5.0, sample_rate=100000, hq=False
+        )
+        raise AssertionError("Expected RenderCostExceeded to be raised")
+    except RenderCostExceeded as e:
+        assert "too large" in str(e)
+        assert "duration or sample rate" in str(e)
+
+
+def test_validate_render_cost_hq_factor_tips_over_budget():
+    validate_render_cost(_cost_spectrum(900), duration=5.0, sample_rate=100000, hq=True)
+    validate_render_cost(
+        _cost_spectrum(1200), duration=5.0, sample_rate=100000, hq=False
+    )
+    try:
+        validate_render_cost(
+            _cost_spectrum(1200), duration=5.0, sample_rate=100000, hq=True
+        )
+        raise AssertionError("Expected RenderCostExceeded to be raised")
+    except RenderCostExceeded:
+        pass
+
+
+def test_render_cost_exceeded_is_value_error():
+    assert issubclass(RenderCostExceeded, ValueError)
