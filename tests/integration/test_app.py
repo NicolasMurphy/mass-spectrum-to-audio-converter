@@ -282,3 +282,36 @@ def test_custom_endpoint_whitespace_only_spectrum(client):
     assert response.status_code == 400
     data = response.get_json()
     assert data["error"] == "Spectrum data contains no peaks"
+
+
+# Render cost guard tests
+
+
+def test_massbank_rejects_oversized_render(client):
+    response = client.post(
+        "/massbank/linear",
+        json={"compound": "Cyclopyrroxanthin", "duration": 30, "sample_rate": 192000},
+        content_type="application/json",
+    )
+
+    assert response.status_code == 422
+    data = response.get_json()
+    assert "too large" in data["error"]
+
+
+def test_custom_rejects_oversized_render(client):
+    spectrum_text = "\n".join("100.0 1.0" for _ in range(300))
+    response = client.post(
+        "/custom/linear",
+        json={
+            "spectrum_text": spectrum_text,
+            "duration": 30,
+            "sample_rate": 192000,
+            "hq": True,
+        },
+        content_type="application/json",
+    )
+
+    assert response.status_code == 422
+    data = response.get_json()
+    assert "too large" in data["error"]

@@ -14,8 +14,10 @@ from utils import notify_audio_generated_async, notify_station_async
 
 from .validation import (
     AudioParametersBase,
+    RenderCostExceeded,
     validate_algorithm,
     validate_and_parse_parameters,
+    validate_render_cost,
     validate_spectrum_peaks,
     validate_spectrum_text_range,
 )
@@ -67,6 +69,13 @@ def generate_audio_with_data(algorithm: str) -> tuple[dict[str, Any], int]:
     try:
         compound_data = get_massbank_peaks(params["compound"])
 
+        validate_render_cost(
+            compound_data["spectrum"],
+            duration=params["duration"],
+            sample_rate=params["sample_rate"],
+            hq=params["hq"],
+        )
+
         wav_buffer, transformed_data = generate_combined_wav_bytes_and_data(
             compound_data["spectrum"],
             algorithm=algorithm,
@@ -116,6 +125,8 @@ def generate_audio_with_data(algorithm: str) -> tuple[dict[str, Any], int]:
 
         return response_data, 200
 
+    except RenderCostExceeded as e:
+        return {"error": str(e)}, 422
     except ValueError as e:
         error_msg = str(e)
         if "No records found" in error_msg:
@@ -149,6 +160,13 @@ def generate_audio_with_custom_data(algorithm: str) -> tuple[dict[str, Any], int
         spectrum = parse_spectrum_text(data["spectrum_text"])
         validate_spectrum_peaks(spectrum)
 
+        validate_render_cost(
+            spectrum,
+            duration=params["duration"],
+            sample_rate=params["sample_rate"],
+            hq=params["hq"],
+        )
+
         wav_buffer, transformed_data = generate_combined_wav_bytes_and_data(
             spectrum,
             algorithm=algorithm,
@@ -180,5 +198,7 @@ def generate_audio_with_custom_data(algorithm: str) -> tuple[dict[str, Any], int
 
         return response_data, 200
 
+    except RenderCostExceeded as e:
+        return {"error": str(e)}, 422
     except ValueError as e:
         return {"error": str(e)}, 400
