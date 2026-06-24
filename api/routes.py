@@ -182,9 +182,20 @@ def generate_audio_with_custom_data(algorithm: str) -> tuple[dict[str, Any], int
         )
         audio_base64 = base64.b64encode(wav_buffer.getvalue()).decode()
 
+        compound_name = "Custom Compound"
+        accession = "CUSTOM-001"
+
+        notify_station_async(
+            compound_name,
+            accession,
+            algorithm,
+            _algorithm_parameters(algorithm, params),
+            transformed_data,
+        )
+
         response_data: dict[str, Any] = {
-            "compound": "Custom Compound",
-            "accession": "CUSTOM-001",
+            "compound": compound_name,
+            "accession": accession,
             "audio_base64": audio_base64,
             "spectrum": transformed_data,
             "algorithm": algorithm,
