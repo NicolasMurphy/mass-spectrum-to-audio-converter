@@ -561,8 +561,8 @@ components:
     RenderTooExpensive:
       description: |
         Audio too large to render at the requested settings (peak count, duration,
-        and sample rate together exceed the compute budget). Lower the duration or
-        sample rate.
+        sample rate, and HQ mode together exceed the compute budget). Lower the
+        duration or sample rate, or disable HQ.
       content:
         application/json:
           schema:
