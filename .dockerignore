@@ -6,3 +6,5 @@ __pycache__
 *.md
 .coverage
 frontend/node_modules
+frontend/dist
+tests
