@@ -33,8 +33,7 @@ export type FormAction =
   | { type: "SET_FIELD"; field: StringField; value: string }
   | { type: "SET_ALGORITHM"; value: Algorithm }
   | { type: "SET_INPUT_MODE"; value: InputMode }
-  | { type: "SET_HQ"; value: boolean }
-  | { type: "RESET" };
+  | { type: "SET_HQ"; value: boolean };
 
 export const INITIAL_FORM_STATE: FormState = {
   algorithm: "linear",
@@ -62,8 +61,6 @@ export function formReducer(state: FormState, action: FormAction): FormState {
       return { ...state, inputMode: action.value };
     case "SET_HQ":
       return { ...state, hq: action.value };
-    case "RESET":
-      return INITIAL_FORM_STATE;
     default:
       return state;
   }
