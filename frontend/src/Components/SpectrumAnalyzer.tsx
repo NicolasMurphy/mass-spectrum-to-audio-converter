@@ -30,7 +30,6 @@ export default function SpectrumAnalyzer({
   analyserNode,
 }: SpectrumAnalyzerProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
   const animFrameRef = useRef<number>(0);
   const dataArrayRef = useRef<Uint8Array | null>(null);
 
@@ -190,7 +189,7 @@ export default function SpectrumAnalyzer({
   }, [analyserNode, draw]);
 
   return (
-    <div ref={containerRef} className="w-full h-20 lg:h-36 mt-4">
+    <div className="w-full h-20 lg:h-36 mt-4">
       <canvas
         ref={canvasRef}
         className="w-full h-full rounded"
