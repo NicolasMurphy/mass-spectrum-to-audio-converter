@@ -146,6 +146,33 @@ def test_validate_and_parse_parameters_no_compound():
         assert "No compound provided" == str(e)
 
 
+def test_validate_and_parse_parameters_int_compound():
+    data = {"compound": 123}
+    try:
+        validate_and_parse_parameters(data)
+        raise AssertionError("Expected ValueError to be raised")
+    except ValueError as e:
+        assert "compound must be a string" == str(e)
+
+
+def test_validate_and_parse_parameters_list_compound():
+    data = {"compound": ["caffeine"]}
+    try:
+        validate_and_parse_parameters(data)
+        raise AssertionError("Expected ValueError to be raised")
+    except ValueError as e:
+        assert "compound must be a string" == str(e)
+
+
+def test_validate_and_parse_parameters_missing_compound_key():
+    data = {"duration": 5}
+    try:
+        validate_and_parse_parameters(data)
+        raise AssertionError("Expected ValueError to be raised")
+    except ValueError as e:
+        assert "No compound provided" == str(e)
+
+
 def test_validate_and_parse_parameters_compound_too_long():
     data = {
         "compound": "2-[(4R,5S,6S,7R,9R,11E,13E,15R,16R)-15-[[(2R,3R,4R,5R,6R)-3,4-dimethoxy-6-methyl-5-oxidanyl-oxan-2-yl]oxymethyl]-6-[(2R,3R,4R,5S,6R)-4-(dimethylamino)-5-[(2S,4R,5S,6S)-4,6-dimethyl-4,5-bis(oxidanyl)oxan-2-yl]oxy-6-methyl-3-oxidanyl-oxan-2-yl]oxy-16-ethyl-5,9,13-trimethyl-4-oxidanyl-2,10-bis(oxidanylidene)-1-oxacyclohexadeca-11,13-dien-7-yl]ethanall"

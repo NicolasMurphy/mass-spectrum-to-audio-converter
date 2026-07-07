@@ -342,3 +342,15 @@ def test_custom_rejects_non_object_body(client):
     assert response.status_code == 400
     data = response.get_json()
     assert data["error"] == "spectrum_text is required"
+
+
+def test_massbank_rejects_non_string_compound(client):
+    response = client.post(
+        "/massbank/linear",
+        json={"compound": 123},
+        content_type="application/json",
+    )
+
+    assert response.status_code == 400
+    data = response.get_json()
+    assert data["error"] == "compound must be a string"

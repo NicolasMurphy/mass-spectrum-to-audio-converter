@@ -58,6 +58,10 @@ def validate_and_parse_parameters(
     compound = None
     if require_compound:
         compound = data.get("compound")
+
+        if compound is not None and not isinstance(compound, str):
+            raise ValueError("compound must be a string")
+
         if not compound or not compound.strip():
             raise ValueError("No compound provided")
 
