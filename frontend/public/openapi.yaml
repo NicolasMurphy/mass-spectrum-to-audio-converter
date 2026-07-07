@@ -498,9 +498,15 @@ components:
             compoundTooLong:
               value:
                 error: "Compound name is too long. Maximum length is 349 characters."
+            nonStringCompound:
+              value:
+                error: compound must be a string
             missingSpectrumText:
               value:
                 error: spectrum_text is required
+            nonStringSpectrumText:
+              value:
+                error: spectrum_text must be a string
             spectrumTextLength:
               value:
                 error: "Spectrum data must be between 3 and 100,000 characters."

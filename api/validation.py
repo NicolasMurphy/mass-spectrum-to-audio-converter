@@ -47,7 +47,7 @@ def validate_and_parse_parameters(
     data: dict[str, Any] | None,
     require_compound: bool = True,
 ) -> AudioParameters | AudioParametersBase:
-    if not data:
+    if not isinstance(data, dict) or not data:
         raise ValueError("No JSON data provided")
 
     raw_sr = data.get("sample_rate")
@@ -58,6 +58,10 @@ def validate_and_parse_parameters(
     compound = None
     if require_compound:
         compound = data.get("compound")
+
+        if compound is not None and not isinstance(compound, str):
+            raise ValueError("compound must be a string")
+
         if not compound or not compound.strip():
             raise ValueError("No compound provided")
 
