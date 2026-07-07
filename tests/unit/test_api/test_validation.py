@@ -101,6 +101,33 @@ def test_validate_and_parse_parameters_none_data():
         assert "No JSON data provided" == str(e)
 
 
+def test_validate_and_parse_parameters_list_data():
+    data = [1, 2, 3]
+    try:
+        validate_and_parse_parameters(data)
+        raise AssertionError("Expected ValueError to be raised")
+    except ValueError as e:
+        assert "No JSON data provided" == str(e)
+
+
+def test_validate_and_parse_parameters_int_data():
+    data = 123
+    try:
+        validate_and_parse_parameters(data)
+        raise AssertionError("Expected ValueError to be raised")
+    except ValueError as e:
+        assert "No JSON data provided" == str(e)
+
+
+def test_validate_and_parse_parameters_string_data():
+    data = "caffeine"
+    try:
+        validate_and_parse_parameters(data)
+        raise AssertionError("Expected ValueError to be raised")
+    except ValueError as e:
+        assert "No JSON data provided" == str(e)
+
+
 def test_validate_and_parse_parameters_compound_whitespace():
     data = {"compound": "   "}
     try:

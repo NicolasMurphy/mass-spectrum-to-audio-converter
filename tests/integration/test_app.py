@@ -315,3 +315,30 @@ def test_custom_rejects_oversized_render(client):
     assert response.status_code == 422
     data = response.get_json()
     assert "too large" in data["error"]
+
+
+# Malformed body tests
+
+
+def test_massbank_rejects_non_object_body(client):
+    response = client.post(
+        "/massbank/linear",
+        json=[1, 2, 3],
+        content_type="application/json",
+    )
+
+    assert response.status_code == 400
+    data = response.get_json()
+    assert data["error"] == "No JSON data provided"
+
+
+def test_custom_rejects_non_object_body(client):
+    response = client.post(
+        "/custom/linear",
+        json=123,
+        content_type="application/json",
+    )
+
+    assert response.status_code == 400
+    data = response.get_json()
+    assert data["error"] == "spectrum_text is required"
