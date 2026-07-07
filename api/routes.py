@@ -146,6 +146,9 @@ def generate_audio_with_custom_data(algorithm: str) -> tuple[dict[str, Any], int
         return {"error": "spectrum_text is required"}, 400
 
     spectrum_text = data["spectrum_text"]
+    if not isinstance(spectrum_text, str):
+        return {"error": "spectrum_text must be a string"}, 400
+
     try:
         validate_spectrum_text_range(spectrum_text)
     except ValueError as e:

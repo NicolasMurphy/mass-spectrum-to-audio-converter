@@ -354,3 +354,15 @@ def test_massbank_rejects_non_string_compound(client):
     assert response.status_code == 400
     data = response.get_json()
     assert data["error"] == "compound must be a string"
+
+
+def test_custom_rejects_non_string_spectrum_text(client):
+    response = client.post(
+        "/custom/linear",
+        json={"spectrum_text": 123},
+        content_type="application/json",
+    )
+
+    assert response.status_code == 400
+    data = response.get_json()
+    assert data["error"] == "spectrum_text must be a string"
