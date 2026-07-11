@@ -1,3 +1,5 @@
+import pytest
+
 from api.validation import (
     RenderCostExceeded,
     validate_algorithm,
@@ -487,14 +489,22 @@ def test_validate_spectrum_peaks_empty():
         assert "Spectrum data contains no peaks" == str(e)
 
 
-def test_validate_spectrum_peaks_rejects_non_finite_values():
-    for value in (float("nan"), float("inf"), float("-inf")):
-        for spectrum in ([(value, 100.0)], [(50.0, value)]):
-            try:
-                validate_spectrum_peaks(spectrum)
-                raise AssertionError(f"Expected ValueError for {spectrum!r}")
-            except ValueError as e:
-                assert "must be finite" in str(e)
+@pytest.mark.parametrize(
+    "peak",
+    [
+        pytest.param((float("nan"), 100.0), id="nan-mz"),
+        pytest.param((float("inf"), 100.0), id="positive-infinite-mz"),
+        pytest.param((float("-inf"), 100.0), id="negative-infinite-mz"),
+        pytest.param((50.0, float("nan")), id="nan-intensity"),
+        pytest.param((50.0, float("inf")), id="positive-infinite-intensity"),
+        pytest.param((50.0, float("-inf")), id="negative-infinite-intensity"),
+    ],
+)
+def test_validate_spectrum_peaks_rejects_non_finite_values(
+    peak: tuple[float, float],
+):
+    with pytest.raises(ValueError, match="must be finite"):
+        validate_spectrum_peaks([peak])
 
 
 def test_validate_spectrum_peaks_reports_first_offender():
