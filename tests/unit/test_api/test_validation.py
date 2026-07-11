@@ -137,6 +137,12 @@ def test_validate_and_parse_parameters_compound_whitespace():
         assert "No compound provided" == str(e)
 
 
+def test_validate_and_parse_parameters_trims_compound():
+    result = validate_and_parse_parameters({"compound": " \t citric acid \n "})
+
+    assert result["compound"] == "citric acid"
+
+
 def test_validate_and_parse_parameters_no_compound():
     data = {"compound": ""}
     try:
@@ -479,6 +485,16 @@ def test_validate_spectrum_peaks_empty():
         raise AssertionError("Expected ValueError to be raised")
     except ValueError as e:
         assert "Spectrum data contains no peaks" == str(e)
+
+
+def test_validate_spectrum_peaks_rejects_non_finite_values():
+    for value in (float("nan"), float("inf"), float("-inf")):
+        for spectrum in ([(value, 100.0)], [(50.0, value)]):
+            try:
+                validate_spectrum_peaks(spectrum)
+                raise AssertionError(f"Expected ValueError for {spectrum!r}")
+            except ValueError as e:
+                assert "must be finite" in str(e)
 
 
 def test_validate_spectrum_peaks_reports_first_offender():

@@ -1,3 +1,4 @@
+import math
 from typing import Any, Literal, TypedDict, cast, overload
 
 
@@ -69,6 +70,8 @@ def validate_and_parse_parameters(
             raise ValueError(
                 "Compound name is too long. Maximum length is 349 characters."
             )
+
+        compound = compound.strip()
 
     try:
         offset = float(data.get("offset", 300))
@@ -153,6 +156,11 @@ def validate_spectrum_peaks(spectrum: list[tuple[float, float]]) -> None:
     if not spectrum:
         raise ValueError("Spectrum data contains no peaks")
     for mz, intensity in spectrum:
+        if not math.isfinite(mz) or not math.isfinite(intensity):
+            raise ValueError(
+                "Peak m/z and intensity values must be finite "
+                f"(got intensity {intensity} at m/z {mz})"
+            )
         if intensity <= 0:
             raise ValueError(
                 f"Peak intensities must be greater than 0 (got {intensity} at m/z {mz})"
