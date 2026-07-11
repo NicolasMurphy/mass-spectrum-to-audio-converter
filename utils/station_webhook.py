@@ -33,8 +33,7 @@ def _build_payload(
         return None
 
     # If the spectrum has more peaks than the picker accepts, keep the most
-    # prominent by normalized amplitude. Mass spectra usually have <30 peaks
-    # so this rarely triggers.
+    # prominent by normalized amplitude.
     if len(valid_peaks) > MAX_PEAKS:
         valid_peaks = sorted(
             valid_peaks, key=lambda p: p["amplitude_linear"], reverse=True
