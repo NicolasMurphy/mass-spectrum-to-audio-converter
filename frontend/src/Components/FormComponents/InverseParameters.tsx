@@ -18,6 +18,7 @@ export default function InverseParameters({
           max="1000000"
           id="scaleInput"
           type="number"
+          step="any"
           placeholder="e.g. 100000"
           className="input input-bordered w-full"
           value={scale}
@@ -35,6 +36,7 @@ export default function InverseParameters({
           max="1000000"
           id="shiftInput"
           type="number"
+          step="any"
           placeholder="e.g. 1"
           className="input input-bordered w-full"
           value={shift}

@@ -18,6 +18,7 @@ export default function AudioSettings({
           required
           id="durationInput"
           type="number"
+          step="any"
           placeholder="e.g. 5"
           className="input input-bordered w-full"
           value={duration}
