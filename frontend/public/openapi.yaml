@@ -357,7 +357,7 @@ components:
               type: string
               minLength: 1
               maxLength: 349
-              description: Name of the compound to search for. Leading and trailing whitespace is ignored.
+              description: Name of the compound to search for. Surrounding whitespace is ignored during lookup but counts toward the 349-character input limit.
               example: caffeine
         - $ref: "#/components/schemas/AudioParams"
 

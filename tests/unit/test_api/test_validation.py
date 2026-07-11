@@ -192,6 +192,15 @@ def test_validate_and_parse_parameters_compound_too_long():
         assert "Compound name is too long. Maximum length is 349 characters." == str(e)
 
 
+def test_validate_and_parse_parameters_counts_whitespace_in_compound_limit():
+    data = {"compound": f" {'a' * 348} "}
+    try:
+        validate_and_parse_parameters(data)
+        raise AssertionError("Expected ValueError to be raised")
+    except ValueError as e:
+        assert "Compound name is too long. Maximum length is 349 characters." == str(e)
+
+
 # Invalid types
 
 
