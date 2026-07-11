@@ -18,6 +18,7 @@ export default function ModuloParameters({
           required
           id="factorInput"
           type="number"
+          step="any"
           min="-1000000"
           max="1000000"
           placeholder="e.g. 10"
@@ -37,6 +38,7 @@ export default function ModuloParameters({
           required
           id="modulusInput"
           type="number"
+          step="any"
           min="-1000000"
           max="1000000"
           placeholder="e.g. 500"
@@ -53,6 +55,7 @@ export default function ModuloParameters({
           required
           id="baseInput"
           type="number"
+          step="any"
           min="-1000000"
           max="1000000"
           placeholder="e.g. 100"

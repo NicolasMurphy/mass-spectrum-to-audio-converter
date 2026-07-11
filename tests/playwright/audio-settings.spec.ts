@@ -16,20 +16,7 @@ test.describe("Audio Settings Validation", () => {
   }) => {
     const durationInput = page.getByRole("spinbutton", { name: "Duration" });
 
-    // Webkit (and tablet/iPad) reject sub-step decimal values via .fill() on
-    // type="number" inputs with default step=1, so the React onChange never
-    // fires and the value stays at the default. Use the native setter instead.
-    await durationInput.evaluate((el: HTMLInputElement) => {
-      const nativeSetter = Object.getOwnPropertyDescriptor(
-        window.HTMLInputElement.prototype,
-        "value"
-      )?.set;
-      nativeSetter?.call(el, "0.005");
-      el.dispatchEvent(new Event("input", { bubbles: true }));
-    });
-    // React 18 batches state updates asynchronously. Wait for the controlled
-    // input to stabilise at the new value before submitting — otherwise the
-    // click can race ahead while React still holds the old duration state.
+    await durationInput.fill("0.005");
     await expect(durationInput).toHaveValue("0.005");
     await generateButton.click();
 
@@ -142,16 +129,7 @@ test.describe("Audio Settings Validation", () => {
   }) => {
     const durationInput = page.getByRole("spinbutton", { name: "Duration" });
 
-    // Use native setter — webkit/tablet treat 0.01 as an invalid step value
-    // for type="number" with default step=1, causing .fill() to be silently ignored.
-    await durationInput.evaluate((el: HTMLInputElement) => {
-      const nativeSetter = Object.getOwnPropertyDescriptor(
-        window.HTMLInputElement.prototype,
-        "value"
-      )?.set;
-      nativeSetter?.call(el, "0.01");
-      el.dispatchEvent(new Event("input", { bubbles: true }));
-    });
+    await durationInput.fill("0.01");
     await expect(durationInput).toHaveValue("0.01");
     await waitForGenerate(page, () => generateButton.click());
 

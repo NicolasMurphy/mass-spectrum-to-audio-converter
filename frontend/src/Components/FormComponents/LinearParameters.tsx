@@ -15,6 +15,7 @@ export default function LinearParameters({
         required
         id="offsetInput"
         type="number"
+        step="any"
         min="-1000000"
         max="1000000"
         placeholder="e.g. 300"
