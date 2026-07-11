@@ -94,7 +94,7 @@
     {
       id: 'ms-arch', group: 'mass-spec', num: '②',
       title: 'mass-spec — architecture (prod)', badges: ['Monolith','Render'],
-      cap: "Production on Render: one web service — a monolith serving the SPA, the JSON API, and audio from one process; managed Postgres behind it. Webhooks fire only on the MassBank path — <code>/custom</code> returns audio, no event.",
+      cap: "Production on Render: one web service — a monolith serving the SPA, the JSON API, and audio from one process; managed Postgres behind it. Station webhooks fire for both <code>/massbank</code> and <code>/custom</code>; Discord notifications and search logging remain MassBank-only.",
       code: `flowchart TB
         browser(["Browser<br/>React 19 · Tone.js"])
         subgraph render["Render · web service (Docker)"]
