@@ -66,6 +66,7 @@ export function useAudioGeneration({
     setAudioUrl("");
     setCompoundName("");
     setAccession("");
+    setSpectrumData(null);
 
     // Revoke previous object URL to prevent memory leaks
     if (previousUrlRef.current) {
