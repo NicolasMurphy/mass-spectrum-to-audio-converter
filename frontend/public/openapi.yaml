@@ -357,7 +357,7 @@ components:
               type: string
               minLength: 1
               maxLength: 349
-              description: Name of the compound to search for.
+              description: Name of the compound to search for. Surrounding whitespace is ignored during lookup but counts toward the 349-character input limit.
               example: caffeine
         - $ref: "#/components/schemas/AudioParams"
 
@@ -370,7 +370,7 @@ components:
               type: string
               minLength: 3
               maxLength: 100000
-              description: Mass spectrum data as whitespace-separated m/z intensity pairs.
+              description: Mass spectrum data as whitespace-separated finite m/z intensity pairs; intensities must be greater than zero.
               example: "73.04018778 16.07433749\n75.05583784 2.042927662"
         - $ref: "#/components/schemas/AudioParams"
 
@@ -519,6 +519,9 @@ components:
             spectrumNonPositiveIntensity:
               value:
                 error: "Peak intensities must be greater than 0 (got -5.0 at m/z 50.0)"
+            spectrumNonFinite:
+              value:
+                error: "Peak m/z and intensity values must be finite (got intensity inf at m/z 50.0)"
             invalidType:
               value:
                 error: Invalid offset. Must be a float.
