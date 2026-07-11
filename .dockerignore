@@ -1,10 +1,13 @@
 .git
 .github
+.env
+.ruff_cache
 node_modules
-__pycache__
-*.pyc
+**/__pycache__
+**/*.pyc
 *.md
 .coverage
+db/mass_spectrum_db.sql
 frontend/node_modules
 frontend/dist
 tests
