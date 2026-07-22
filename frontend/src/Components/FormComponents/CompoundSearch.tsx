@@ -73,10 +73,6 @@ export default function CompoundSearch({
       case "Enter":
         e.preventDefault();
         if (selectedIndex >= 0) {
-          // Stop the event from reaching useGlobalEnterSubmit's document
-          // listener. Otherwise selecting a suggestion ALSO submits the form
-          // (with stale formState, since the dispatch hasn't applied yet),
-          // firing a redundant /massbank request.
           e.stopPropagation();
           handleSuggestionClick(suggestions[selectedIndex]);
         }
@@ -120,7 +116,7 @@ export default function CompoundSearch({
           onClick={handleRandomCompound}
           disabled={compounds.length === 0}
           className="btn btn-ghost btn-square text-xl"
-          title="Random compound"
+          title="Random compound (r)"
           data-random-button="true"
         >
           🎲

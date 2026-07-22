@@ -55,6 +55,23 @@ test.describe("Keyboard Navigation", () => {
     await expect(page.getByText(/Accession:/)).toBeVisible();
   });
 
+  test("pressing r with body focus fills a random compound", async ({
+    page,
+    compoundInput,
+  }) => {
+    await page.keyboard.press("r");
+
+    await expect(compoundInput).not.toHaveValue("");
+  });
+
+  test("typing r in the compound input does NOT trigger a random compound", async ({
+    compoundInput,
+  }) => {
+    await compoundInput.press("r");
+
+    await expect(compoundInput).toHaveValue("r");
+  });
+
   test("pressing ArrowDown then Enter selects a suggestion and submits", async ({
     page,
     compoundInput,
