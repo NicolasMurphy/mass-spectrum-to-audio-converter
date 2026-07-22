@@ -4,7 +4,7 @@ import { usePopularCompounds } from "./hooks/usePopularCompounds";
 import { useFormParams } from "./hooks/useFormParams";
 import { useAudioGeneration } from "./hooks/useAudioGeneration";
 import { useWebAudio } from "./hooks/useWebAudio";
-import { useGlobalEnterSubmit } from "./hooks/useGlobalEnterSubmit";
+import { useGlobalHotkeys } from "./hooks/useGlobalHotkeys";
 import { isCustomCompound } from "./constants";
 import GeneratorForm from "./Components/GeneratorForm";
 import AudioResultsPanel from "./Components/AudioResultsPanel";
@@ -34,7 +34,7 @@ function App() {
   const audio = useAudioGeneration({ onSuccess: refetchHistory });
   const { analyserNode, audioElRef } = useWebAudio(audio.audioUrl);
 
-  useGlobalEnterSubmit();
+  useGlobalHotkeys();
 
   const handleSubmit = () => {
     audio.generate(formState);
