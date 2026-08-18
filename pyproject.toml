@@ -2,6 +2,9 @@
 paths_to_mutate = ["api/validation.py", "audio/"]
 pytest_add_cli_args_test_selection = ["tests/unit"]
 
+[tool.ruff]
+target-version = "py313"
+
 [tool.ruff.lint]
 extend-select = ["B", "C4", "I", "PERF", "PIE", "PTH", "RET", "RUF", "S", "UP"]
 
